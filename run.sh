@@ -176,23 +176,10 @@ mrconvert mask.mif -stride 1,2,3,4 ./mask/mask.nii.gz -force -nthreads $NCORE
 #-output ${LOUT}
 
 # convert output vtk to tck
-tckconvert ${OUT}.vtk ${OUT}.tck -force -nthreads $NCORE
+tckconvert ${OUT}.vtk track/track.tck -force -nthreads $NCORE
 
+# use output.json as product.Json
+echo "{\"track\": $(cat output.json)}" > product.json
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+# clean up
+rm -rf *.mif *.b ./tmp
