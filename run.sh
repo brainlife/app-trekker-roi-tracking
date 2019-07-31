@@ -23,7 +23,7 @@ roi1=`jq -r '.roi1' config.json`
 roi2=`jq -r '.roi2' config.json`
 MINFODAMP=$(jq -r .minfodamp config.json)
 minradiusofcurvature=$(jq -r .minradiusofcurvature config.json)
-OUT=LOP
+OUT=`jq -r '.outname' config.json`
 
 # roi files
 ROI1=$rois/ROI${roi1}.nii.gz
