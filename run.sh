@@ -19,8 +19,8 @@ LMAX=`jq -r '.lmax' config.json`
 rois=`jq -r '.rois' config.json`
 count=`jq -r '.count' config.json`
 rois=`jq -r '.rois' config.json`
-roi1=`jq -r '.roi1' config.json`
-roi2=`jq -r '.roi2' config.json`
+roi1=`jq -r '.seed_roi' config.json`
+roi2=`jq -r '.term_roi' config.json`
 MINFODAMP=$(jq -r .minfodamp config.json)
 minradiusofcurvature=$(jq -r .minradiusofcurvature config.json)
 
