@@ -143,6 +143,17 @@ mrconvert cs.mif -stride 1,2,3,4 ./tensor/cs.nii.gz -force -nthreads $NCORE
 ## tensor itself
 mrconvert dt.mif -stride 1,2,3,4 ./tensor/tensor.nii.gz -force -nthreads $NCORE
 
+## 5 tissue type visualization
+mrconvert 5ttvis.mif -stride 1,2,3,4 ./mask/5ttvis.nii.gz -force -nthreads $NCORE
+mrconvert 5tt.mif -stride 1,2,3,4 ./mask/5tt.nii.gz -force -nthreads $NCORE
+mrconvert gmwmi_seed.mif -stride 1,2,3,4 ./mask/gmwmi_seed.nii.gz -force -nthreads $NCORE
+
+# masks
+mrconvert gm.mif -stride 1,2,3,4 ./mask/gm.nii.gz -force -nthreads $NCORE
+mrconvert csf.mif -stride 1,2,3,4 ./mask/csf.nii.gz -force -nthreads $NCORE
+mrconvert wm.mif -stride 1,2,3,4 ./mask/wm.nii.gz -force -nthreads $NCORE
+mrconvert mask.mif -stride 1,2,3,4 ./mask/mask.nii.gz -force -nthreads $NCORE
+
 # Run trekker
 /trekker/build/bin/trekker \
 -enableOutputOverwrite \
