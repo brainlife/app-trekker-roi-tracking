@@ -23,7 +23,6 @@ roi1=`jq -r '.roi1' config.json`
 roi2=`jq -r '.roi2' config.json`
 MINFODAMP=$(jq -r .minfodamp config.json)
 minradiusofcurvature=$(jq -r .minradiusofcurvature config.json)
-OUT=`jq -r '.outname' config.json`
 
 # roi files
 ROI1=$rois/ROI${roi1}.nii.gz
@@ -171,12 +170,12 @@ mrconvert mask.mif -stride 1,2,3,4 ./mask/mask.nii.gz -force -nthreads $NCORE
 	-seed_count ${count} \
 	-minFODamp $(jq -r .minfodamp config.json) \
 	-writeColors \
-	-output ${OUT}.vtk
+	-output track.vtk
 	#-verboseLevel 0 \
 	#-output ${LOUT}
 
 # convert output vtk to tck
-tckconvert ${OUT}.vtk track/track.tck -force -nthreads $NCORE
+tckconvert track.vtk track/track.tck -force -nthreads $NCORE
 
 # use output.json as product.Json
 echo "{\"track\": $(cat output.json)}" > product.json
