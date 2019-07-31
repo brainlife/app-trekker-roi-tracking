@@ -156,24 +156,24 @@ mrconvert mask.mif -stride 1,2,3,4 ./mask/mask.nii.gz -force -nthreads $NCORE
 
 # Run trekker
 /trekker/build/bin/trekker \
--enableOutputOverwrite \
--fod ./csd/lmax${LMAX}.nii.gz \
--seed_image ${ROI1} \
--pathway_A=stop_at_exit ${ROI1} \
--pathway_B=require_entry ${ROI2} \
--pathway_B=stop_at_exit ${ROI2} \
--stepSize $(jq -r .stepsize config.json) \
--minRadiusOfCurvature $(jq -r .minradius config.json) \
--probeRadius 0 \
--probeLength $(jq -r .probelength config.json) \
--minLength $(jq -r .min_length config.json) \
--maxLength $(jq -r .max_length config.json) \
--seed_count ${count} \
--minFODamp $(jq -r .minfodamp config.json) \
--writeColors \
--output ${OUT}.vtk
-#-verboseLevel 0 \
-#-output ${LOUT}
+	-enableOutputOverwrite \
+	-fod ./csd/lmax${LMAX}.nii.gz \
+	-seed_image ${ROI1} \
+	-pathway_A=stop_at_exit ${ROI1} \
+	-pathway_B=require_entry ${ROI2} \
+	-pathway_B=stop_at_exit ${ROI2} \
+	-stepSize $(jq -r .stepsize config.json) \
+	-minRadiusOfCurvature $(jq -r .minradius config.json) \
+	-probeRadius 0 \
+	-probeLength $(jq -r .probelength config.json) \
+	-minLength $(jq -r .min_length config.json) \
+	-maxLength $(jq -r .max_length config.json) \
+	-seed_count ${count} \
+	-minFODamp $(jq -r .minfodamp config.json) \
+	-writeColors \
+	-output ${OUT}.vtk
+	#-verboseLevel 0 \
+	#-output ${LOUT}
 
 # convert output vtk to tck
 tckconvert ${OUT}.vtk track/track.tck -force -nthreads $NCORE
