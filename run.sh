@@ -194,7 +194,7 @@ mrconvert mask.mif -stride 1,2,3,4 ./mask/mask.nii.gz -force -nthreads $NCORE
 tckconvert track.vtk track/track.tck -force -nthreads $NCORE
 
 # use output.json as product.Json
-echo "{\"track\": $(cat output.json)}" > product.json
+echo "{\"track\": $(cat track.json)}" > product.json
 
 # clean up
 if [ -f ./track/track.tck ]; then
