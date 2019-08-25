@@ -3,6 +3,7 @@
 	"bvals":	"/tesdata/dwi/dwi.bvals",
 	"bvecs":	"/tesdata/dwi/dwi.bvecs",
 	"t1":	"/tesdata/anat/t1.nii.gz",
+	"rois":	"/testdata/rois/rois/",
 	"lmax2":	"/tesdata/input_csd/lmax2.nii.gz",
 	"lmax4":	"/tesdata/input_csd/lmax4.nii.gz",
 	"lmax6":	"/tesdata/input_csd/lmax6.nii.gz",
