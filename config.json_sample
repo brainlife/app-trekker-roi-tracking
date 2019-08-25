@@ -1,0 +1,23 @@
+{
+	"dwi":	"/tesdata/dwi/dwi.nii.gz",
+	"bvals":	"/tesdata/dwi/dwi.bvals",
+	"bvecs":	"/tesdata/dwi/dwi.bvecs",
+	"t1":	"/tesdata/anat/t1.nii.gz",
+	"lmax2":	"/tesdata/input_csd/lmax2.nii.gz",
+	"lmax4":	"/tesdata/input_csd/lmax4.nii.gz",
+	"lmax6":	"/tesdata/input_csd/lmax6.nii.gz",
+	"lmax8":	"/tesdata/input_csd/lmax8.nii.gz",
+	"lmax10":	"/tesdata/input_csd/lmax10.nii.gz",
+	"lmax12":	"/tesdata/input_csd/lmax12.nii.gz",
+	"lmax14":	'/testdata/input_csd/lmax14.nii.gz",
+	"min_length":	10,
+	"max_length":	200,
+	"lmax":	8,
+	"minfodamp":	0.01,
+	"minradius":	0.25,
+	"probelength":	0.25,
+	"stepsize":	0.25,
+	"count":	500,
+	"seed_roi":	"8109",
+	"term_roi":	"2"
+}
