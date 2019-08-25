@@ -8,17 +8,21 @@ NCORE=8
 mkdir -p track
 mkdir -p csd
 mkdir -p mask
-mkdir -p tensor
+#mkdir -p tensor
 
 # set variables
 dwi=$(jq -r .dwi config.json)
 bvecs=`jq -r '.bvecs' config.json`
 bvals=`jq -r '.bvals' config.json`
 anat=`jq -r '.t1' config.json`
+#fa=`jq -r '.fa' config.json`
+#md=`jq -r '.md' config.json`
+#ad=`jq -r '.ad' config.json`
+#rd=`jq -r '.rd' config.json`
 LMAX=`jq -r '.lmax' config.json`
+input_csd=`jq -r "$(eval echo '.lmax$LMAX')" config.json`
 rois=`jq -r '.rois' config.json`
 count=`jq -r '.count' config.json`
-rois=`jq -r '.rois' config.json`
 roi1=`jq -r '.seed_roi' config.json`
 roi2=`jq -r '.term_roi' config.json`
 MINFODAMP=$(jq -r .minfodamp config.json)
@@ -87,8 +91,16 @@ done
 # extract mask
 [ ! -f dt.mif ] && dwi2tensor -mask mask.mif dwi.mif dt.mif -bvalue_scaling false -force -nthreads $NCORE
 
-# creating tensor metrics
-[ ! -f fa.mif ] && tensor2metric -mask mask.mif -adc md.mif -fa fa.mif -ad ad.mif -rd rd.mif -cl cl.mif -cp cp.mif -cs cs.mif dt.mif -force -nthreads $NCORE
+## creating tensor metrics
+#if [[ ${fa} == 'null' ]]; then
+#	[ ! -f fa.mif ] && tensor2metric -mask mask.mif -adc md.mif -fa fa.mif -ad ad.mif -rd rd.mif -cl cl.mif -cp cp.mif -cs cs.mif dt.mif -force -nthreads $NCORE
+#else
+#	echo "input fa exists. converting input to mrtrix format"
+#	mrconvert ${fa} --stride 1,2,3,4 fa.mif -force -nthreads $NCORE
+#	mrconvert ${md} --stride 1,2,3,4 md.mif -force -nthreads $NCORE
+#	mrconvert ${ad} --stride 1,2,3,4 ad.mif -force -nthreads $NCORE
+#	mrconvert ${rd} --stride 1,2,3,4 rd.mif -force -nthreads $NCORE
+#fi
 
 # generate 5-tissue-type (5TT) tracking mask
 [ ! -f 5tt.mif ] && 5ttgen fsl anat.mif 5tt.mif -nocrop -sgm_amyg_hipp -tempdir ./tmp -force -nthreads $NCORE
@@ -105,44 +117,48 @@ done
 [ ! -f 5ttvis.mif ] && 5tt2vis 5tt.mif 5ttvis.mif -force -nthreads $NCORE
 
 #creating response (should take about 15min)
-if [ $MS -eq 0 ]; then
-	echo "Estimating CSD response function"
-	time dwi2response tournier dwi.mif wmt.txt -lmax ${LMAX} -force -nthreads $NCORE -tempdir ./tmp
+if [[ ${input_csd} == 'null' ]]; then
+	if [ $MS -eq 0 ]; then
+		echo "Estimating CSD response function"
+		time dwi2response tournier dwi.mif wmt.txt -lmax ${LMAX} -force -nthreads $NCORE -tempdir ./tmp
+	else
+		echo "Estimating MSMT CSD response function"
+		time dwi2response msmt_5tt dwi.mif 5tt.mif wmt.txt gmt.txt csf.txt -mask mask.mif -lmax ${RMAX} -tempdir ./tmp -force -nthreads $NCORE
+	fi
+
+	# fitting CSD FOD of lmax
+	if [ $MS -eq 0 ]; then
+		echo "Fitting CSD FOD of Lmax ${LMAX}..."
+		time dwi2fod -mask mask.mif csd dwi.mif wmt.txt wmt_lmax${LMAX}_fod.mif -lmax ${LMAX} -force -nthreads $NCORE
+	else
+		echo "Estimating MSMT CSD FOD of Lmax ${LMAX}"
+		time dwi2fod msmt_csd dwi.mif wmt.txt wmt_lmax${LMAX}_fod.mif  gmt.txt gmt_lmax${LMAX}_fod.mif csf.txt csf_lmax${LMAX}_fod.mif -force -nthreads $NCORE
+	fi
+	# convert to niftis
+	mrconvert wmt_lmax${LMAX}_fod.mif -stride 1,2,3,4 ./csd/lmax${LMAX}.nii.gz -force -nthreads $NCORE
+
+	# copy response file
+	cp wmt.txt response.txt
 else
-	echo "Estimating MSMT CSD response function"
-	time dwi2response msmt_5tt dwi.mif 5tt.mif wmt.txt gmt.txt csf.txt -mask mask.mif -lmax ${RMAX} -tempdir ./tmp -force -nthreads $NCORE
+	echo "csd already inputted. skipping csd generation"
+	cp -v ${input_csd} ./csd/lmax${LMAX}.nii.gz
 fi
-
-# fitting CSD FOD of lmax
-if [ $MS -eq 0 ]; then
-	echo "Fitting CSD FOD of Lmax ${LMAX}..."
-	time dwi2fod -mask mask.mif csd dwi.mif wmt.txt wmt_lmax${LMAX}_fod.mif -lmax ${LMAX} -force -nthreads $NCORE
-else
-	echo "Estimating MSMT CSD FOD of Lmax ${LMAX}"
-	time dwi2fod msmt_csd dwi.mif wmt.txt wmt_lmax${LMAX}_fod.mif  gmt.txt gmt_lmax${LMAX}_fod.mif csf.txt csf_lmax${LMAX}_fod.mif -force -nthreads $NCORE
-fi
-
-# convert to niftis
-mrconvert wmt_lmax${LMAX}_fod.mif -stride 1,2,3,4 ./csd/lmax${LMAX}.nii.gz -force -nthreads $NCORE
-
-# copy response file
-cp wmt.txt response.txt
 
 ## tensor outputs
-mrconvert fa.mif -stride 1,2,3,4 ./tensor/fa.nii.gz -force -nthreads $NCORE
-mrconvert md.mif -stride 1,2,3,4 ./tensor/md.nii.gz -force -nthreads $NCORE
-mrconvert ad.mif -stride 1,2,3,4 ./tensor/ad.nii.gz -force -nthreads $NCORE
-mrconvert rd.mif -stride 1,2,3,4 ./tensor/rd.nii.gz -force -nthreads $NCORE
+#mrconvert fa.mif -stride 1,2,3,4 ./tensor/fa.nii.gz -force -nthreads $NCORE
+#mrconvert md.mif -stride 1,2,3,4 ./tensor/md.nii.gz -force -nthreads $NCORE
+#mrconvert ad.mif -stride 1,2,3,4 ./tensor/ad.nii.gz -force -nthreads $NCORE
+#mrconvert rd.mif -stride 1,2,3,4 ./tensor/rd.nii.gz -force -nthreads $NCORE
 
 ## westin shapes (also tensor)
-mrconvert cl.mif -stride 1,2,3,4 ./tensor/cl.nii.gz -force -nthreads $NCORE
-mrconvert cp.mif -stride 1,2,3,4 ./tensor/cp.nii.gz -force -nthreads $NCORE
-mrconvert cs.mif -stride 1,2,3,4 ./tensor/cs.nii.gz -force -nthreads $NCORE
+#if [[ ${fa} == 'null' ]]; then
+#	mrconvert cl.mif -stride 1,2,3,4 ./tensor/cl.nii.gz -force -nthreads $NCORE
+#	mrconvert cp.mif -stride 1,2,3,4 ./tensor/cp.nii.gz -force -nthreads $NCORE
+#	mrconvert cs.mif -stride 1,2,3,4 ./tensor/cs.nii.gz -force -nthreads $NCORE
+#	mrconvert dt.mif -stride 1,2,3,4 ./tensor/tensor.nii.gz -force -nthreads $NCORE
+#fi
 
-## tensor itself
-mrconvert dt.mif -stride 1,2,3,4 ./tensor/tensor.nii.gz -force -nthreads $NCORE
-
-## 5 tissue type visualization
+# 5 tissue type visualization
 mrconvert 5ttvis.mif -stride 1,2,3,4 ./mask/5ttvis.nii.gz -force -nthreads $NCORE
 mrconvert 5tt.mif -stride 1,2,3,4 ./mask/5tt.nii.gz -force -nthreads $NCORE
 mrconvert gmwmi_seed.mif -stride 1,2,3,4 ./mask/gmwmi_seed.nii.gz -force -nthreads $NCORE
@@ -181,4 +197,9 @@ tckconvert track.vtk track/track.tck -force -nthreads $NCORE
 echo "{\"track\": $(cat output.json)}" > product.json
 
 # clean up
-rm -rf *.mif *.b ./tmp
+if [ -f ./track/track.tck ]; then
+	rm -rf *.mif *.b* ./tmp
+else
+	echo "tracking failed"
+	exit 1;
+fi
