@@ -120,13 +120,13 @@ if [[ ${mask} == 'null' ]]; then
 	[ ! -f 5ttvis.mif ] && 5tt2vis 5tt.mif 5ttvis.mif -force -nthreads $NCORE
 else
 	echo "5tt masks inputted. converting to mrtrix format"
-	mrconvert ${mask}/5tt.nii.gz -stride 1,2,3,4 5tt.mif -force -nthreads $NCORE
-	mrconvert ${mask}/gmwmi_seed.nii.gz -stride 1,2,3,4 gmwmi_seed.mif -force -nthreads $NCORE
-	mrconvert ${mask}/gm.nii.gz -stride 1,2,3,4 gm.mif -force -nthreads $NCORE
-	mrconvert ${mask}/wm.nii.gz -stride 1,2,3,4 wm.mif -force -nthreads $NCORE
-	mrconvert ${mask}/csf.nii.gz -stride 1,2,3,4 csf.mif -force -nthreads $NCORE
-	mrconvert ${mask}/mask.nii.gz -stride 1,2,3,4 mask.mif -force -nthreads $NCORE
-	mrconvert ${mask}/5ttvis.nii.gz -stride 1,2,3,4 5ttvis.mif -force -nthreads $NCORE
+	mrconvert ${mask}/output/5tt.nii.gz -stride 1,2,3,4 5tt.mif -force -nthreads $NCORE
+	mrconvert ${mask}/output/gmwmi_seed.nii.gz -stride 1,2,3,4 gmwmi_seed.mif -force -nthreads $NCORE
+	mrconvert ${mask}/output/gm.nii.gz -stride 1,2,3,4 gm.mif -force -nthreads $NCORE
+	mrconvert ${mask}/output/wm.nii.gz -stride 1,2,3,4 wm.mif -force -nthreads $NCORE
+	mrconvert ${mask}/output/csf.nii.gz -stride 1,2,3,4 csf.mif -force -nthreads $NCORE
+	mrconvert ${mask}/output/mask.nii.gz -stride 1,2,3,4 mask.mif -force -nthreads $NCORE
+	mrconvert ${mask}/output/5ttvis.nii.gz -stride 1,2,3,4 5ttvis.mif -force -nthreads $NCORE
 fi
 
 #creating response (should take about 15min)
