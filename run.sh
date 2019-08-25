@@ -186,9 +186,9 @@ mrconvert mask.mif -stride 1,2,3,4 ./mask/mask.nii.gz -force -nthreads $NCORE
 	-seed_count ${count} \
 	-minFODamp $(jq -r .minfodamp config.json) \
 	-writeColors \
+	-verboseLevel 0 \
+	-enableOutputOverwrite \
 	-output track.vtk
-	#-verboseLevel 0 \
-	#-output ${LOUT}
 
 # convert output vtk to tck
 tckconvert track.vtk track/track.tck -force -nthreads $NCORE
