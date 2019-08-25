@@ -200,7 +200,6 @@ mrconvert mask.mif -stride 1,2,3,4 ./mask/output/mask.nii.gz -force -nthreads $N
 	-minFODamp $(jq -r .minfodamp config.json) \
 	-writeColors \
 	-verboseLevel 0 \
-	-enableOutputOverwrite \
 	-output track.vtk
 
 # convert output vtk to tck
