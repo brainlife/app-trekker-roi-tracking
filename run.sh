@@ -205,18 +205,13 @@ echo "running tracking with Trekker"
 # convert output vtk to tck
 tckconvert track.vtk track/track.tck -force -nthreads $NCORE
 
-# make classification structure
-./compiled/classificationGenerator
-mv output.mat ./wmc/classification.mat
-mv tracts ./wmc/
-mv output_fibercounts.txt ./wmc/
 
 # use output.json as product.Json
 echo "{\"track\": $(cat track.json)}" > product.json
 
 # clean up
 if [ -f ./track/track.tck ]; then
-	rm -rf *.mif *.b* ./tmp
+	rm -rf *.mif *.b* ./tmp *.nii.gz
 else
 	echo "tracking failed"
 	exit 1;
