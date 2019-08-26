@@ -8,7 +8,7 @@ NCORE=8
 mkdir -p track
 mkdir -p csd
 mkdir -p mask
-mkdir -p mask/output
+mkdir -p brainmask
 #mkdir -p tensor
 
 # set variables
@@ -21,6 +21,7 @@ anat=`jq -r '.t1' config.json`
 #ad=`jq -r '.ad' config.json`
 #rd=`jq -r '.rd' config.json`
 mask=`jq -r '.mask' config.json`
+brainmask=`jq -r '.brainmask' config.json`
 LMAX=`jq -r '.lmax' config.json`
 input_csd=`jq -r "$(eval echo '.lmax$LMAX')" config.json`
 rois=`jq -r '.rois' config.json`
@@ -38,7 +39,12 @@ ROI2=$rois/ROI${roi2}.nii.gz
 [ ! -f dwi.b ] && mrconvert -fslgrad $bvecs $bvals $dwi dwi.mif --export_grad_mrtrix dwi.b -nthreads $NCORE
 
 # create mask of dwi
-[ ! -f mask.mif ] && dwi2mask dwi.mif mask.mif -nthreads $NCORE
+if [[ ${brainmask} == 'null' ]]; then
+	[ ! -f mask.mif ] && dwi2mask dwi.mif mask.mif -nthreads $NCORE
+else
+	echo "brainmask input exists. converting to mrtrix format"
+	mrconvert ${brainmask} -stride 1,2,3,4 mask.mif -nthreads $NCORE
+fi
 
 # convert anatomical t1 to mrtrix format
 [ ! -f anat.mif ] && mrconvert ${anat} anat.mif -nthreads $NCORE
@@ -107,27 +113,21 @@ done
 # generate 5-tissue-type (5TT) tracking mask
 if [[ ${mask} == 'null' ]]; then
 	[ ! -f 5tt.mif ] && 5ttgen fsl anat.mif 5tt.mif -nocrop -sgm_amyg_hipp -tempdir ./tmp -force -nthreads $NCORE
-
-	# generate gm-wm interface seed mask
-	[ ! -f gmwmi_seed.mif ] && 5tt2gmwmi 5tt.mif gmwmi_seed.mif -force -nthreads $NCORE
-
-	# generate csf,gm,wm masks
-	[ ! -f wm.mif ] && mrconvert -coord 3 2 5tt.mif wm.mif -force -nthreads $NCORE
-	[ ! -f gm.mif ] && mrconvert -coord 3 0 5tt.mif gm.mif -force -nthreads $NCORE
-	[ ! -f csf.mif ] && mrconvert -coord 3 3 5tt.mif csf.mif -force -nthreads $NCORE
-
-	# create visualization output
-	[ ! -f 5ttvis.mif ] && 5tt2vis 5tt.mif 5ttvis.mif -force -nthreads $NCORE
 else
-	echo "5tt masks inputted. converting to mrtrix format"
-	mrconvert ${mask}/output/5tt.nii.gz -stride 1,2,3,4 5tt.mif -force -nthreads $NCORE
-	mrconvert ${mask}/output/gmwmi_seed.nii.gz -stride 1,2,3,4 gmwmi_seed.mif -force -nthreads $NCORE
-	mrconvert ${mask}/output/gm.nii.gz -stride 1,2,3,4 gm.mif -force -nthreads $NCORE
-	mrconvert ${mask}/output/wm.nii.gz -stride 1,2,3,4 wm.mif -force -nthreads $NCORE
-	mrconvert ${mask}/output/csf.nii.gz -stride 1,2,3,4 csf.mif -force -nthreads $NCORE
-	mrconvert ${mask}/output/mask.nii.gz -stride 1,2,3,4 mask.mif -force -nthreads $NCORE
-	mrconvert ${mask}/output/5ttvis.nii.gz -stride 1,2,3,4 5ttvis.mif -force -nthreads $NCORE
+	echo "input 5tt mask exists. converting to mrtrix format"
+	mrconvert ${mask} -stride 1,2,3,4 5tt.mif -force -nthreads $NCORE
 fi
+
+# generate gm-wm interface seed mask
+#[ ! -f gmwmi_seed.mif ] && 5tt2gmwmi 5tt.mif gmwmi_seed.mif -force -nthreads $NCORE
+#
+## generate csf,gm,wm masks
+#[ ! -f wm.mif ] && mrconvert -coord 3 2 5tt.mif wm.mif -force -nthreads $NCORE
+#[ ! -f gm.mif ] && mrconvert -coord 3 0 5tt.mif gm.mif -force -nthreads $NCORE
+#[ ! -f csf.mif ] && mrconvert -coord 3 3 5tt.mif csf.mif -force -nthreads $NCORE
+#
+## create visualization output
+#[ ! -f 5ttvis.mif ] && 5tt2vis 5tt.mif 5ttvis.mif -force -nthreads $NCORE
 
 #creating response (should take about 15min)
 if [[ ${input_csd} == 'null' ]]; then
@@ -172,17 +172,13 @@ fi
 #fi
 
 # 5 tissue type visualization
-mrconvert 5ttvis.mif -stride 1,2,3,4 ./mask/output/5ttvis.nii.gz -force -nthreads $NCORE
-mrconvert 5tt.mif -stride 1,2,3,4 ./mask/output/5tt.nii.gz -force -nthreads $NCORE
-mrconvert gmwmi_seed.mif -stride 1,2,3,4 ./mask/output/gmwmi_seed.nii.gz -force -nthreads $NCORE
+mrconvert 5tt.mif -stride 1,2,3,4 ./mask/mask.nii.gz -force -nthreads $NCORE
 
-# masks
-mrconvert gm.mif -stride 1,2,3,4 ./mask/output/gm.nii.gz -force -nthreads $NCORE
-mrconvert csf.mif -stride 1,2,3,4 ./mask/output/csf.nii.gz -force -nthreads $NCORE
-mrconvert wm.mif -stride 1,2,3,4 ./mask/output/wm.nii.gz -force -nthreads $NCORE
-mrconvert mask.mif -stride 1,2,3,4 ./mask/output/mask.nii.gz -force -nthreads $NCORE
+# brainmask
+mrconvert mask.mif -stride 1,2,3,4 ./brainmask/mask.nii.gz -force -nthreads $NCORE
 
 # Run trekker
+echo "running tracking with Trekker"
 /trekker/build/bin/trekker \
 	-enableOutputOverwrite \
 	-fod ./csd/lmax${LMAX}.nii.gz \
