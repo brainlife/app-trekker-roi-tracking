@@ -43,7 +43,7 @@ if [[ ${brainmask} == 'null' ]]; then
 	[ ! -f mask.mif ] && dwi2mask dwi.mif mask.mif -nthreads $NCORE
 else
 	echo "brainmask input exists. converting to mrtrix format"
-	mrconvert ${brainmask} -stride 1,2,3,4 mask.mif -nthreads $NCORE
+	mrconvert ${brainmask} -stride 1,2,3,4 mask.mif -force -nthreads $NCORE
 fi
 
 # convert anatomical t1 to mrtrix format
