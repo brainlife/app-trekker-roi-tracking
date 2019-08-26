@@ -9,6 +9,7 @@ mkdir -p track
 mkdir -p csd
 mkdir -p mask
 mkdir -p brainmask
+mkdir -p wmc
 #mkdir -p tensor
 
 # set variables
@@ -211,6 +212,9 @@ tckconvert track.vtk track/track.tck -force -nthreads $NCORE
 
 # make classification structure
 ./compiled/classificationGenerator
+mv output.mat ./wmc/classification.mat
+mv tracts ./wmc/
+mv output_fibercounts.txt ./wmc/
 
 # use output.json as product.Json
 echo "{\"track\": $(cat track.json)}" > product.json
