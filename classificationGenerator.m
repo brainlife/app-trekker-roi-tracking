@@ -64,14 +64,14 @@ mkdir('tracts');
 %cm = parula(length(tracts));
 cm = distinguishable_colors(length(tracts));
 for it = 1:length(tracts)
-   tract.name   = strrep(tracts(it).name, '_', ' ');
-   all_tracts(it).name = strrep(tracts(it).name, '_', ' ');
+   tract.name   = strrep(tracts{it}.name, '_', ' ');
+   all_tracts(it).name = strrep(tracts{it}.name, '_', ' ');
    all_tracts(it).color = cm(it,:);
    tract.color  = cm(it,:);
 
    %tract.coords = tracts(it).fibers;
    %pick randomly up to 1000 fibers (pick all if there are less than 1000)
-   fiber_count = min(1000, numel(tracts(it).fibers));
+   fiber_count = min(1000, numel(tracts{it}.fibers));
    tract.coords = tracts{it}.fibers(randperm(fiber_count)); 
    
    savejson('', tract, fullfile('tracts',sprintf('%i.json',it)));
