@@ -176,13 +176,8 @@ fi
 [ ! -f ./mask/mask.nii.gz ] && mrconvert 5tt.mif -stride 1,2,3,4 ./mask/mask.nii.gz -force -nthreads $NCORE
 
 # brainmask
-<<<<<<< HEAD
-mrconvert csf.mif -stride 1,2,3,4 csf.nii.gz -force -nthreads $NCORE
-mrconvert mask.mif -stride 1,2,3,4 ./brainmask/mask.nii.gz -force -nthreads $NCORE
-=======
 [ ! -f csf.nii.gz ] && mrconvert csf.mif -stride 1,2,3,4 csf.nii.gz -force -nthreads $NCORE
 [ ! -f ./brainmask/mask.nii.gz ] && mrconvert mask.mif -stride 1,2,3,4 ./brainmask/mask.nii.gz -force -nthreads $NCORE
->>>>>>> a0a43c86feabdb30d3d023ce20d0f0f15b677d99
 
 # Run trekker
 echo "running tracking with Trekker"
