@@ -203,29 +203,22 @@ echo "running tracking with Trekker"
 	-seed_count ${count} \
 	-minFODamp $(jq -r .minfodamp config.json) \
 	-writeColors \
+	-verboseLevel 0 \
 	-output track.vtk
-	#-verboseLevel 0 \
-	#-output track.vtk
 
 # convert output vtk to tck
 tckconvert track.vtk track/track.tck -force -nthreads $NCORE
+
+# make classification structure
+./compiled/classificationGenerator
 
 # use output.json as product.Json
 echo "{\"track\": $(cat track.json)}" > product.json
 
 # clean up
-<<<<<<< HEAD
-#if [ -f ./track/track.tck ]; then
-#	rm -rf *.mif *.b* ./tmp
-#else
-#	echo "tracking failed"
-#	exit 1;
-#fi
-=======
 if [ -f ./track/track.tck ]; then
-	rm -rf *.mif *.b* ./tmp *.nii.gz
+	rm -rf *.mif *.b* ./tmp
 else
 	echo "tracking failed"
 	exit 1;
 fi
->>>>>>> a0a43c86feabdb30d3d023ce20d0f0f15b677d99
