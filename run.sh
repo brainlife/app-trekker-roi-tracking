@@ -124,7 +124,7 @@ fi
 ## generate csf,gm,wm masks
 #[ ! -f wm.mif ] && mrconvert -coord 3 2 5tt.mif wm.mif -force -nthreads $NCORE
 #[ ! -f gm.mif ] && mrconvert -coord 3 0 5tt.mif gm.mif -force -nthreads $NCORE
-#[ ! -f csf.mif ] && mrconvert -coord 3 3 5tt.mif csf.mif -force -nthreads $NCORE
+[ ! -f csf.mif ] && mrconvert -coord 3 3 5tt.mif csf.mif -force -nthreads $NCORE
 #
 ## create visualization output
 #[ ! -f 5ttvis.mif ] && 5tt2vis 5tt.mif 5ttvis.mif -force -nthreads $NCORE
@@ -175,6 +175,7 @@ fi
 [ ! -f ./mask/mask.nii.gz ] && mrconvert 5tt.mif -stride 1,2,3,4 ./mask/mask.nii.gz -force -nthreads $NCORE
 
 # brainmask
+[ ! -f csf.nii.gz ] && mrconvert csf.mif -stride 1,2,3,4 csf.nii.gz -force -nthreads $NCORE
 [ ! -f ./brainmask/mask.nii.gz ] && mrconvert mask.mif -stride 1,2,3,4 ./brainmask/mask.nii.gz -force -nthreads $NCORE
 
 # Run trekker
@@ -184,8 +185,10 @@ echo "running tracking with Trekker"
 	-fod ./csd/lmax${LMAX}.nii.gz \
 	-seed_image ${ROI1} \
 	-pathway_A=stop_at_exit ${ROI1} \
+	-pathway_A=discard_if_enters csf.nii.gz \
 	-pathway_B=require_entry ${ROI2} \
 	-pathway_B=stop_at_exit ${ROI2} \
+	-pathway_B=discard_if_enters csf.nii.gz \
 	-stepSize $(jq -r .stepsize config.json) \
 	-minRadiusOfCurvature $(jq -r .minradius config.json) \
 	-probeRadius 0 \
@@ -206,7 +209,7 @@ echo "{\"track\": $(cat track.json)}" > product.json
 
 # clean up
 if [ -f ./track/track.tck ]; then
-	rm -rf *.mif *.b* ./tmp
+	rm -rf *.mif *.b* ./tmp *.nii.gz
 else
 	echo "tracking failed"
 	exit 1;
