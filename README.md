@@ -3,7 +3,12 @@
 
 # Track the Human Optic RAdiation (THORA).
 
-Trekker implements a state-of-the-art tractography algorithm, parallel transport tractography (PTT). This stand-alone app will generate the human optic radiation. This repo wraps Baran Ayodogan's Trekker github repo so that it can be executed on brainlife.io. All credits for this App belongs to Baran Ayodogan <baran.aydogan@aalto.fi>
+Trekker implements a state-of-the-art tractography algorithm, parallel transport tractography (PTT). This stand-alone app will generate the human optic radiation. This repo wraps Baran Ayodogan's Trekker github repo so that it can be executed on brainlife.io. 
+
+### Authors
+- [Baran Ayodogan](baran.aydogan@aalto.fi)
+- [Bradley Caron](bacaron@iu.edu)
+- [Soichi Hayashi](hayashis@iu.edu)
 
 # How does it work?
 
