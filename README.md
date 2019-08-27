@@ -1,4 +1,4 @@
-# app-trekker-roi-tracking
+# Human Optic Radiation
 
 Trekker implements a state-of-the-art tractography algorithm, parallel transport tractography (PTT). This repo wraps Baran Ayodogan's Trekker github repo so that it can be executed on brainlife.io. All credits for this App belongs to Baran Ayodogan <baran.aydogan@aalto.fi>
 
