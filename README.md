@@ -1,10 +1,19 @@
-# Human Optic Radiation
+# Track the Human Optic RAdiation (THORA).
 
 Trekker implements a state-of-the-art tractography algorithm, parallel transport tractography (PTT). This stand-alone app will generate the human optic radiation. This repo wraps Baran Ayodogan's Trekker github repo so that it can be executed on brainlife.io. All credits for this App belongs to Baran Ayodogan <baran.aydogan@aalto.fi>
 
 # How does it work?
 
-TODO - explain how this App works and how it's different from other tractograph algorithm. 
+This [brainlife.io](brainlife.io/apps) App Tracks the Human Optic RAdiation (THORA) using [Trekker](https://dmritrekker.github.io). 
+
+To run THORA you need to first run the following Apps: 
+  (1) [FreeSurfer](https://doi.org/10.25663/bl.app.49) or [FreeSurfer](https://doi.org/10.25663/bl.app.0) 
+  (2) [Segment thalamic nuclei](https://doi.org/10.25663/brainlife.app.222) 
+  (3) [MaTT](https://doi.org/10.25663/bl.app.23) Select the hcp-mmp-b Atlas 
+  (4) [Diffusion-MRI preprocessing](https://doi.org/10.25663/bl.app.68) 
+  (5) [Extract the nuclei of the Thalamus](https://doi.org/10.25663/brainlife.app.223) 
+  
+The following Regions of Interest (ROIs) are needed and obtained from the hcp-mmp-b atlas (step 3 above) and the thalamic nuclei segmentation (step 5 above): - For Left OR: ROI 8109 (thalamic) and ROI 2 (hcp-mmp-b). - For Right OR: ROI 8209 (thalamic) and ROI 183 (hcp-mmp-b).
 
 # Run this App
 
