@@ -16,7 +16,7 @@ This [brainlife.io](brainlife.io/apps) App Tracks the Human Optic RAdiation (THO
 
 To run THORA you need to first run the following Apps: 
 
-  (1) [FreeSurfer](https://doi.org/10.25663/bl.app.49) or [FreeSurfer](https://doi.org/10.25663/bl.app.0) 
+  (1) [FreeSurfer OSG](https://doi.org/10.25663/bl.app.49) alternatively [FreeSurfer](https://doi.org/10.25663/bl.app.0) 
 
   (2) [Segment thalamic nuclei](https://doi.org/10.25663/brainlife.app.222) 
   
