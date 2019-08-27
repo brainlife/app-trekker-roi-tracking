@@ -56,6 +56,9 @@ bl dataset download <dataset id for any neuro/dwi data and neuro/anat/t1w and ne
 
 # Citation
 
-[Aydogan2019a]	Aydogan DB, Shi Y., “Parallel transport tractography”, in preparation
-[Aydogan2019b]	Aydogan DB, Shi Y., “A novel fiber tracking algorithm using parallel transport frames”, ISMRM 2019, Montreal
+[Aydogan2019a]	Aydogan DB, Shi Y., “Parallel transport tractography”, In preparation.
+
+[Aydogan2019b]	Aydogan DB, Shi Y., “A novel fiber tracking algorithm using parallel transport frames”, ISMRM 2019, Montreal.
+
+[Avesani et al. Scientific Data 2019](https://doi.org/10.1038/s41597-019-0073-y)
 
