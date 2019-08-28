@@ -1,5 +1,5 @@
 #!/bin/bash
-#PBS -l nodes=1:ppn=8,vmem=8gb,walltime=3:00:00
+#PBS -l nodes=1:ppn=8,vmem=14gb,walltime=3:00:00
 #PBS -N app-trekker-roi-tracking
 
 time singularity exec -e docker://brainlife/trekker:0.4 ./run.sh
