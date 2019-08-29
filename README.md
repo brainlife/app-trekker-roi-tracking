@@ -35,8 +35,12 @@ bl dataset download <dataset id for any neuro/dwi data and neuro/anat/t1w and ne
 	"lmax12":	"/tesdata/input_csd/lmax12.nii.gz",
 	"lmax14":	'/testdata/input_csd/lmax14.nii.gz",
 	"min_length":	10,
-	"max_length":	120,
+	"max_length":	200,
 	"lmax":	8,
+	"minfodamp":	0.01,
+	"minradius":	0.25,
+	"probelength":	0.25,
+	"stepsize":	0.25,
 	"count":	500,
 	"seed_roi":	"8109",
 	"term_roi":	"2"
