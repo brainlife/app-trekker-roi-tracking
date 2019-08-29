@@ -2,6 +2,8 @@
 
 Trekker implements a state-of-the-art tractography algorithm, parallel transport tractography (PTT). This repo wraps Baran Ayodogan's Trekker github repo so that it can be executed on brainlife.io. All credits for this App belongs to Baran Ayodogan <baran.aydogan@aalto.fi>
 
+![left_or](https://github.com/brainlife/app-trekker-roi-tracking/blob/optic_radiation/left_or.jpg)
+
 # How does it work?
 
 TODO - explain how this App works and how it's different from other tractograph algorithm. 
