@@ -5,12 +5,20 @@
 
 Trekker implements a state-of-the-art tractography algorithm, parallel transport tractography (PTT). This stand-alone app will generate the human optic radiation. This repo wraps Baran Ayodogan's Trekker github repo so that it can be executed on brainlife.io. 
 
-### Authors
+![ot_or](https://github.com/brainlife/app-trekker-roi-tracking/blob/optic_radiation/opticPathway.jpg)
+
+## Authors
 - [Baran Ayodogan](baran.aydogan@aalto.fi)
 - [Bradley Caron](bacaron@iu.edu)
 - [Soichi Hayashi](hayashis@iu.edu)
 
-![ot_or](https://github.com/brainlife/app-trekker-roi-tracking/blob/optic_radiation/opticPathway.jpg)
+# Please cite the following work.
+
+[Aydogan2019a]	Aydogan DB, Shi Y., “Parallel transport tractography”, In preparation.
+
+[Aydogan2019b]	Aydogan DB, Shi Y., “A novel fiber tracking algorithm using parallel transport frames”, ISMRM 2019, Montreal.
+
+[Avesani et al. (2019) The open diffusion data derivatives, brain data upcycling via integrated publishing of derivatives and reproducible open cloud services. Scientific Data](https://doi.org/10.1038/s41597-019-0073-y)
 
 # How does it work?
 
@@ -29,14 +37,6 @@ To run THORA you need to first run the following Apps:
   (5) [Extract the nuclei of the Thalamus](https://doi.org/10.25663/brainlife.app.223) 
   
 The following Regions of Interest (ROIs) are needed and obtained from the hcp-mmp-b atlas (step 3 above) and the thalamic nuclei segmentation (step 5 above): - For Left OR: ROI 8109 (thalamic) and ROI 2 (hcp-mmp-b). - For Right OR: ROI 8209 (thalamic) and ROI 183 (hcp-mmp-b).
-
-# Please cite the following work.
-
-[Aydogan2019a]	Aydogan DB, Shi Y., “Parallel transport tractography”, In preparation.
-
-[Aydogan2019b]	Aydogan DB, Shi Y., “A novel fiber tracking algorithm using parallel transport frames”, ISMRM 2019, Montreal.
-
-[Avesani et al. (2019) The open diffusion data derivatives, brain data upcycling via integrated publishing of derivatives and reproducible open cloud services. Scientific Data](https://doi.org/10.1038/s41597-019-0073-y)
 
 ### Funding 
 [![NSF-BCS-1734853](https://img.shields.io/badge/NSF_BCS-1734853-blue.svg)](https://nsf.gov/awardsearch/showAward?AWD_ID=1734853)
