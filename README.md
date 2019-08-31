@@ -7,7 +7,7 @@ Trekker implements a state-of-the-art tractography algorithm, parallel transport
 
 ![ot_or](https://github.com/brainlife/app-trekker-roi-tracking/blob/optic_radiation/opticPathway.jpg)
 
-## Authors
+# Authors
 - [Baran Ayodogan](baran.aydogan@aalto.fi)
 - [Bradley Caron](bacaron@iu.edu)
 - [Soichi Hayashi](hayashis@iu.edu)
