@@ -29,12 +29,21 @@ rois=`jq -r '.rois' config.json`
 count=`jq -r '.count' config.json`
 roi1=`jq -r '.seed_roi' config.json`
 roi2=`jq -r '.term_roi' config.json`
+prf=`jq -r '.prf' config.json`
+prfROI=`jq -r '.prfROI' config.json`
 #MINFODAMP=$(jq -r .minfodamp config.json)
 #minradiusofcurvature=$(jq -r .minradiusofcurvature config.json)
 
 # roi files
+if [[ ${prfROI} == 'false' ]];
+then
+	ROI2=$rois/ROI${roi2}.nii.gz
+else
+	fslmaths $prf/eccentricity.nii.gz -thr 1 -bin eccentricity_bin.nii.gz
+	ROI2=eccentricity_bin.nii.gz
+fi	
+
 ROI1=$rois/ROI${roi1}.nii.gz
-ROI2=$rois/ROI${roi2}.nii.gz
 
 # convert dwi to mrtrix format
 [ ! -f dwi.b ] && mrconvert -fslgrad $bvecs $bvals $dwi dwi.mif --export_grad_mrtrix dwi.b -nthreads $NCORE
@@ -190,14 +199,14 @@ echo "running tracking with Trekker"
 	-pathway_B=require_entry ${ROI2} \
 	-pathway_B=stop_at_exit ${ROI2} \
 	-pathway_B=discard_if_enters csf.nii.gz \
-	-stepSize 0.05 \
+	-stepSize 0.025 \
 	-minRadiusOfCurvature 0.25 \
 	-probeRadius 0 \
 	-probeLength 0.25 \
 	-minLength $(jq -r .min_length config.json) \
 	-maxLength $(jq -r .max_length config.json) \
 	-seed_count ${count} \
-	-minFODamp 0.025 \
+	-minFODamp 0.001 \
 	-writeColors \
 	-verboseLevel 0 \
 	-output track.vtk
