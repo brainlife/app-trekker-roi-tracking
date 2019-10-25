@@ -56,7 +56,7 @@ mrconvert ${mask} -stride 1,2,3,4 5tt.mif -force -nthreads $NCORE
 echo "running tracking with Trekker"
 /trekker/build/bin/trekker \
 	-enableOutputOverwrite \
-	-fod ./csd/lmax${LMAX}.nii.gz \
+	-fod ${input_csd} \
 	-seed_image ${ROI1} \
 	-pathway_A=stop_at_exit ${ROI1} \
 	-pathway_A=require_entry wm.nii.gz \
