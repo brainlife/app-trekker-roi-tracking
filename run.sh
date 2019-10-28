@@ -23,6 +23,7 @@ roi1=`jq -r '.seed_roi' config.json`
 roi2=`jq -r '.term_roi' config.json`
 MINFODAMP=$(jq -r .minfodamp config.json)
 minradiusofcurvature=$(jq -r .minradiusofcurvature config.json)
+seedspervoxel=$(jq -r .seedspervoxel config.json)
 
 # roi files
 ROI1=$rois/ROI${roi1}.nii.gz
@@ -74,6 +75,7 @@ echo "running tracking with Trekker"
 	-minLength $(jq -r .min_length config.json) \
 	-maxLength $(jq -r .max_length config.json) \
 	-seed_count ${count} \
+	-seed_countPerVoxel ${seedspervoxel} \
 	-minFODamp $(jq -r .minfodamp config.json) \
 	-writeColors \
 	-verboseLevel 0 \
