@@ -23,8 +23,8 @@ roi1=`jq -r '.seed_roi' config.json`
 roi2=`jq -r '.term_roi' config.json`
 MINFODAMP=$(jq -r .minfodamp config.json)
 minradiusofcurvature=$(jq -r .minradiusofcurvature config.json)
-seedspervoxel=$(jq -r .seedspervoxel config.json)
 seedmaxtrials=$(jq -r .maxtrials config.json)
+
 
 # roi files
 ROI1=$rois/ROI${roi1}.nii.gz
