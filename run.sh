@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#set -e
+set -e
 
 NCORE=8
 
@@ -88,7 +88,7 @@ tckconvert track.vtk track/track.tck -force -nthreads $NCORE
 # use output.json as product.Json
 echo "{\"track\": $(cat track.json)}" > product.json
 
- clean up
+# clean up
 if [ -f ./track/track.tck ]; then
 	rm -rf *.mif *.b* ./tmp *.nii.gz
 else
