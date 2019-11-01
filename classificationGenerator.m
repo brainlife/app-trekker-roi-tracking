@@ -27,7 +27,9 @@ config = loadjson('config.json');
 % Set tck file path/s
 rois=dir(fullfile('track','*.tck*'));
 
-%roiPair = [str2num(config.seed_roi) str2num(config.term_roi)];
+if ~strcmp(extractBefore(config.term_roi,'_'),'parietal')
+	roiPair = [str2num(config.seed_roi) str2num(config.term_roi)];
+end
     
 for ii = 1:length(rois) 
     fgPath{ii} = fullfile(topdir,'track',rois(ii).name);
@@ -37,8 +39,8 @@ end
 [mergedFG, classification]=bsc_mergeFGandClass(fgPath);
 
 % Amend name of tract in classification structure
-if strcmp(extractBetween(config.term_roi,'ROI','_'),'parietal')
-	classification.names{ii} = strcat('ROI_',config.seed_roi,'_ROI_',extractBetween(config.term_roi,'ROI','_'));
+if strcmp(extractBefore(config.term_roi,'_'),'parietal')
+	classification.names{ii} = strcat('ROI_',config.seed_roi,'_ROI_',config.term_roi);
 else
 	if isnumeric(roiPair(1))
 	    for ii = round((1:length(roiPair))/2)
