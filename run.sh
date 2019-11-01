@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -e
+#set -e
 
 NCORE=8
 
@@ -24,7 +24,7 @@ roi2=`jq -r '.term_roi' config.json`
 MINFODAMP=$(jq -r .minfodamp config.json)
 minradiusofcurvature=$(jq -r .minradiusofcurvature config.json)
 seedmaxtrials=$(jq -r .maxtrials config.json)
-
+maxsampling=$(jq -r .maxsampling config.json)
 
 # roi files
 ROI1=$rois/ROI${roi1}.nii.gz
@@ -63,11 +63,9 @@ echo "running tracking with Trekker"
 	-fod ${input_csd} \
 	-seed_image ${ROI1} \
 	-pathway_A=stop_at_exit ${ROI1} \
-	-pathway_A=require_entry wm.nii.gz \
 	-pathway_A=discard_if_enters csf.nii.gz \
 	-pathway_B=require_entry ${ROI2} \
 	-pathway_B=stop_at_exit ${ROI2} \
-	-pathway_B=require_entry wm.nii.gz \
 	-pathway_B=discard_if_enters csf.nii.gz \
 	-stepSize $(jq -r .stepsize config.json) \
 	-minRadiusOfCurvature $(jq -r .minradius config.json) \
@@ -76,8 +74,8 @@ echo "running tracking with Trekker"
 	-minLength $(jq -r .min_length config.json) \
 	-maxLength $(jq -r .max_length config.json) \
 	-seed_count ${count} \
-	-seed_countPerVoxel ${seedspervoxel} \
 	-seed_maxTrials ${seedmaxtrials} \
+	-maxSamplingPerStep ${maxsampling} \
 	-minFODamp $(jq -r .minfodamp config.json) \
 	-writeColors \
 	-verboseLevel 0 \
@@ -90,7 +88,7 @@ tckconvert track.vtk track/track.tck -force -nthreads $NCORE
 # use output.json as product.Json
 echo "{\"track\": $(cat track.json)}" > product.json
 
-# clean up
+ clean up
 if [ -f ./track/track.tck ]; then
 	rm -rf *.mif *.b* ./tmp *.nii.gz
 else
