@@ -178,7 +178,7 @@ echo "running tracking with Trekker"
 	-maxSamplingPerStep ${maxsampling} \
 	-minFODamp $(jq -r .minfodamp config.json) \
 	-writeColors \
-	-verboseLevel 1 \
+	-verboseLevel 0 \
 	-output track.vtk
 
 # convert output vtk to tck
