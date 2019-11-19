@@ -27,7 +27,7 @@ config = loadjson('config.json');
 % Set tck file path/s
 rois=dir(fullfile('track','*.tck*'));
 
-roiPair = [str2num(config.seed_roi) str2num(config.term_roi)];
+roiNum = str2num(config.seed_roi);
     
 for ii = 1:length(rois); 
     fgPath{ii} = fullfile(topdir,'track',rois(ii).name);
@@ -37,15 +37,22 @@ end
 [mergedFG, classification]=bsc_mergeFGandClass(fgPath);
 
 % Amend name of tract in classification structure
-if isnumeric(roiPair(1))
-    for ii = round((1:length(roiPair))/2)
-        classification.names{ii} = strcat('ROI_',num2str(roiPair((2*ii) - 1)),'_ROI_',num2str(roiPair((2*ii))));
-    end
+%if isnumeric(roiPair(1))
+%    for ii = round((1:length(roiPair))/2)
+%        classification.names{ii} = strcat('ROI_',num2str(roiPair((2*ii) - 1)),'_ROI_',num2str(roiPair((2*ii))));
+%    end
+%else
+%    roiPair = split(roiPair);
+%    for ii = round((1:length(roiPair))/2)
+%        classification.names{ii} = strcat('ROI_',roiPair{(2*ii) - 1},'_ROI_',roiPair{(2*ii)});
+%    end
+%end
+
+% THINK OF BETTER HIEURISTIC FOR THIS. NOT ALL LGNS WILL HAVE THIS ROI NUM
+if roiNum == '008109'
+	classification.names = 'left-optic-radiation';
 else
-    roiPair = split(roiPair);
-    for ii = round((1:length(roiPair))/2)
-        classification.names{ii} = strcat('ROI_',roiPair{(2*ii) - 1},'_ROI_',roiPair{(2*ii)});
-    end
+	classification.names = 'right-optic-radiation';
 end
 
 % Create fg_classified structure
