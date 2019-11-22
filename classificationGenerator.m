@@ -24,45 +24,39 @@ topdir = pwd;
 % Load configuration file
 config = loadjson('config.json');
 
-% Set tck file path/s
-rois=dir(fullfile('track','*.tck*'));
-
-roiNum = str2num(config.seed_roi);
-    
-for ii = 1:length(rois); 
-    fgPath{ii} = fullfile(topdir,'track',rois(ii).name);
+% Set tck (fg) file path/s
+trackdir = dir(fullfile('track','*.tck*'));
+for ii = 1:length(trackdir); 
+    fgPath{ii} = fullfile(topdir,'track',trackdir(ii).name);
 end
 
-% Create classification structure
-[mergedFG, classification]=bsc_mergeFGandClass(fgPath);
+% set seed ROI number: should be 8109 or 8209 for now
+roiNum = str2num(config.seed_roi);
 
-% Amend name of tract in classification structure
-%if isnumeric(roiPair(1))
-%    for ii = round((1:length(roiPair))/2)
-%        classification.names{ii} = strcat('ROI_',num2str(roiPair((2*ii) - 1)),'_ROI_',num2str(roiPair((2*ii))));
-%    end
-%else
-%    roiPair = split(roiPair);
-%    for ii = round((1:length(roiPair))/2)
-%        classification.names{ii} = strcat('ROI_',roiPair{(2*ii) - 1},'_ROI_',roiPair{(2*ii)});
-%    end
-%end
+%% Create whole OR fg_classified structure to feed into eccentricity
+[mergedFG, whole_classification]=bsc_mergeFGandClass(fgPath);
 
 % THINK OF BETTER HIEURISTIC FOR THIS. NOT ALL LGNS WILL HAVE THIS ROI NUM
-if roiNum == '008109'
-	classification.names = 'left-optic-radiation';
+if roiNum == 8109
+	whole_classification.names = {'left-optic-radiation'};
 else
-	classification.names = 'right-optic-radiation';
+	whole_classification.names = {'right-optic-radiation'};
 end
 
-% Create fg_classified structure
+% whole OR tractogram
 wbFG = mergedFG;
-fg_classified = bsc_makeFGsFromClassification_v4(classification,wbFG);
 
-% Save output
+% whole OR fg_classified
+
+whole_fg_classified = bsc_makeFGsFromClassification_v4(whole_classification,wbFG);
+
+%% perform eccentricity classification
+[fg_classified,classification] = eccentricityClassification(config,whole_fg_classified,wbFG);
+
+%% Save output
 save('output.mat','classification','fg_classified','-v7.3');
 
-% Create structure to generate colors for each tract
+%% create tracts for json structures for visualization
 tracts = fg2Array(fg_classified);
 
 mkdir('tracts');
@@ -103,7 +97,6 @@ T = cell2table(tract_info);
 T.Properties.VariableNames = {'Tracts', 'FiberCount'};
 
 writetable(T, 'output_fibercounts.txt');
-
 
 exit;
 end
