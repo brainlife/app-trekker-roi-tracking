@@ -1,5 +1,5 @@
 #!/bin/bash
-#PBS -l nodes=1:ppn=8,vmem=14gb,walltime=1:00:00
+#PBS -l nodes=1:ppn=8,vmem=14gb,walltime=16:00:00
 #PBS -N app-trekker-roi-tracking
 
 [ -z "$FREESURFER_LICENSE" ] && echo "Please set FREESURFER_LICENSE in .bashrc" && exit 1;
