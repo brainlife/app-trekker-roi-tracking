@@ -14,8 +14,10 @@ if [ ! -f varea.nii.gz ]; then
 	time singularity exec -e docker://brainlife/fsl:latest ./mask.sh
 fi
 
-#time singularity exec -e docker://brainlife/trekker:0.4 ./run.sh
+echo "tracking with trekker"
+time singularity exec -e docker://brainlife/trekker:0.4 ./run.sh
 
+echo "eccentricity classification"
 time singularity exec -e docker://brainlife/mcr:neurodebian1604-r2017a ./compiled/classificationGenerator
 
 mv output.mat ./wmc/classification.mat
