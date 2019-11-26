@@ -188,7 +188,7 @@ for (( i_lmax=2; i_lmax<=$MAXLMAX; i_lmax+=2 )); do
 		-maxSamplingPerStep ${maxsampling} \
 		-minFODamp $(jq -r .minfodamp config.json) \
 		-writeColors \
-		-verboseLevel 0 \
+		-verboseLevel 1 \
 		-output track_${i_lmax}.vtk
 	
 	# convert output vtk to tck
@@ -197,7 +197,7 @@ done
 
 ## concatenate tracts
 holder=(*tract*.tck)
-cat_tracks ./track/track.tck ${holder[*]}
+tckedit ${holder[*]} ./track/track.tck
 if [ ! $ret -eq 0 ]; then
     exit $ret
 fi
@@ -208,7 +208,7 @@ tckinfo ./track/track.tck > product.json
 
 # clean up
 if [ -f ./track/track.tck ]; then
-	rm -rf *.mif *.b* ./tmp *.nii.gz
+	rm -rf *.mif *.b* ./tmp *.nii.gz *.vtk* *track*.json
 else
 	echo "tracking failed"
 	exit 1;
