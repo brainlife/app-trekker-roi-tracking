@@ -18,8 +18,7 @@ bvals=`jq -r '.bvals' config.json`
 anat=`jq -r '.t1' config.json`
 mask=`jq -r '.mask' config.json`
 brainmask=`jq -r '.brainmask' config.json`
-LMAX=`jq -r '.lmax' config.json`
-input_csd=`jq -r "$(eval echo '.lmax$LMAX')" config.json`
+MAXLMAX=`jq -r '.maxlmax' config.json`
 rois=`jq -r '.rois' config.json`
 count=`jq -r '.count' config.json`
 roi1=`jq -r '.seed_roi' config.json`
@@ -28,6 +27,14 @@ MINFODAMP=$(jq -r .minfodamp config.json)
 seedmaxtrials=$(jq -r .maxtrials config.json)
 maxsampling=$(jq -r .maxsampling config.json)
 dtiinit=`jq -r '.dtiinit' config.json`
+lmax2=`jq -r '.lmax2' config.json`
+lmax4=`jq -r '.lmax4' config.json`
+lmax6=`jq -r '.lmax6' config.json`
+lmax8=`jq -r '.lmax8' config.json`
+lmax10=`jq -r '.lmax10' config.json`
+lmax12=`jq -r '.lmax12' config.json`
+lmax14=`jq -r '.lmax14' config.json`
+
 
 if [[ ! ${dtiinit} == "null" ]]; then
 	dwi=$dtiinit/*dwi_aligned*.nii.gz
@@ -125,67 +132,79 @@ else
 fi
 
 #creating response (should take about 15min)
-if [ ! -f ./csd/lmax${LMAX}.nii.gz ]; then
-	if [[ ${input_csd} == 'null' ]]; then
-		if [ $MS -eq 0 ]; then
-			echo "Estimating CSD response function"
-			time dwi2response tournier dwi.mif wmt.txt -lmax ${LMAX} -force -nthreads $NCORE -tempdir ./tmp
-		else
-			echo "Estimating MSMT CSD response function"
-			time dwi2response msmt_5tt dwi.mif 5tt.mif wmt.txt gmt.txt csf.txt -mask mask.mif -lmax ${RMAX} -tempdir ./tmp -force -nthreads $NCORE
-		fi
+for (( i_lmax=2; i_lmax<=$MAXLMAX; i_lmax+=2 )); do
+	if [ ! -f ./csd/lmax${i_lmax}.nii.gz ]; then
+		lmaxvar=$(eval "echo \$lmax${i_lmax}")
+		if [[ ${lmaxvar} == 'null' ]]; then
+			if [ $MS -eq 0 ]; then
+				echo "Estimating CSD response function"
+				time dwi2response tournier dwi.mif wmt_${i_lmax}.txt -lmax ${i_lmax} -force -nthreads $NCORE -tempdir ./tmp
+			else
+				echo "Estimating MSMT CSD response function"
+				time dwi2response msmt_5tt dwi.mif 5tt.mif wmt_${i_lmax}.txt gmt_${i_lmax}.txt csf_${i_lmax}.txt -mask mask.mif -lmax ${i_lmax} -tempdir ./tmp -force -nthreads $NCORE
+			fi
 	
 		# fitting CSD FOD of lmax
-		if [ $MS -eq 0 ]; then
-			echo "Fitting CSD FOD of Lmax ${LMAX}..."
-			time dwi2fod -mask mask.mif csd dwi.mif wmt.txt wmt_lmax${LMAX}_fod.mif -lmax ${LMAX} -force -nthreads $NCORE
-		else
-			echo "Estimating MSMT CSD FOD of Lmax ${LMAX}"
-			time dwi2fod msmt_csd dwi.mif wmt.txt wmt_lmax${LMAX}_fod.mif  gmt.txt gmt_lmax${LMAX}_fod.mif csf.txt csf_lmax${LMAX}_fod.mif -force -nthreads $NCORE
-		fi
-		# convert to niftis
-		mrconvert wmt_lmax${LMAX}_fod.mif -stride 1,2,3,4 ./csd/lmax${LMAX}.nii.gz -force -nthreads $NCORE
+			if [ $MS -eq 0 ]; then
+				echo "Fitting CSD FOD of Lmax ${i_lmax}..."
+				time dwi2fod -mask mask.mif csd dwi.mif wmt_${i_lmax}.txt wmt_lmax${i_lmax}_fod.mif -lmax ${i_lmax} -force -nthreads $NCORE
+			else
+				echo "Estimating MSMT CSD FOD of Lmax ${i_lmax}"
+				time dwi2fod msmt_csd dwi.mif wmt_${i_lmax}.txt wmt_lmax${i_lmax}_fod.mif  gmt_${i_lmax}.txt gmt_lmax${i_lmax}_fod.mif csf_${i_lmax}.txt csf_lmax${i_lmax}_fod.mif -force -nthreads $NCORE
+			fi
+			# convert to niftis
+			mrconvert wmt_lmax${i_lmax}_fod.mif -stride 1,2,3,4 ./csd/lmax${i_lmax}.nii.gz -force -nthreads $NCORE
 	
-		# copy response file
-		cp wmt.txt response.txt
+		else
+			echo "csd already inputted. skipping csd generation"
+	                cp ${lmaxvar} ./csd/
+		fi
 	else
-		echo "csd already inputted. skipping csd generation"
-		cp -v ${input_csd} ./csd/lmax${LMAX}.nii.gz
+		echo "csd exists. skipping"
 	fi
-else
-	echo "csd exists. skipping"
+done
+
+
+for (( i_lmax=2; i_lmax<=$MAXLMAX; i_lmax+=2 )); do
+	# Run trekker
+	echo "running tracking on lmax ${i_lmax} with Trekker"
+	/trekker/build/bin/trekker \
+		-enableOutputOverwrite \
+		-fod ./csd/lmax${i_lmax}.nii.gz \
+		-seed_image ${ROI1} \
+		-pathway_A=stop_at_exit ${ROI1} \
+		-pathway_A=discard_if_enters csf.nii.gz \
+		-pathway_B=require_entry ${ROI2} \
+		-pathway_B=discard_if_enters csf.nii.gz \
+		-pathway_B=stop_at_exit ${ROI2} \
+		-stepSize $(jq -r .stepsize config.json) \
+		-minRadiusOfCurvature $(jq -r .minradius config.json) \
+		-probeRadius 0 \
+		-probeLength $(jq -r .probelength config.json) \
+		-minLength $(jq -r .min_length config.json) \
+		-maxLength $(jq -r .max_length config.json) \
+		-seed_count ${count} \
+		-seed_maxTrials ${seedmaxtrials} \
+		-maxSamplingPerStep ${maxsampling} \
+		-minFODamp $(jq -r .minfodamp config.json) \
+		-writeColors \
+		-verboseLevel 0 \
+		-output track_${i_lmax}.vtk
+	
+	# convert output vtk to tck
+	tckconvert track_${i_lmax}.vtk track_${i_lmax}.tck -force -nthreads $NCORE
+done
+
+## concatenate tracts
+holder=(*tract*.tck)
+cat_tracks ./track/track.tck ${holder[*]}
+if [ ! $ret -eq 0 ]; then
+    exit $ret
 fi
-
-# Run trekker
-echo "running tracking with Trekker"
-/trekker/build/bin/trekker \
-	-enableOutputOverwrite \
-	-fod ./csd/lmax${LMAX}.nii.gz \
-	-seed_image ${ROI1} \
-	-pathway_A=stop_at_exit ${ROI1} \
-	-pathway_A=discard_if_enters csf.nii.gz \
-	-pathway_B=require_entry ${ROI2} \
-	-pathway_B=discard_if_enters csf.nii.gz \
-	-pathway_B=stop_at_exit ${ROI2} \
-	-stepSize $(jq -r .stepsize config.json) \
-	-minRadiusOfCurvature $(jq -r .minradius config.json) \
-	-probeRadius 0 \
-	-probeLength $(jq -r .probelength config.json) \
-	-minLength $(jq -r .min_length config.json) \
-	-maxLength $(jq -r .max_length config.json) \
-	-seed_count ${count} \
-	-seed_maxTrials ${seedmaxtrials} \
-	-maxSamplingPerStep ${maxsampling} \
-	-minFODamp $(jq -r .minfodamp config.json) \
-	-writeColors \
-	-verboseLevel 0 \
-	-output track.vtk
-
-# convert output vtk to tck
-tckconvert track.vtk track/track.tck -force -nthreads $NCORE
+rm -rf ${holder[*]}
 
 # use output.json as product.Json
-echo "{\"track\": $(cat track.json)}" > product.json
+tckinfo ./track/track.tck > product.json
 
 # clean up
 if [ -f ./track/track.tck ]; then
