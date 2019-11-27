@@ -6,7 +6,6 @@ NCORE=8
 
 # make top dirs
 mkdir -p track
-mkdir -p csd
 mkdir -p mask
 mkdir -p brainmask
 mkdir -p wmc
@@ -62,57 +61,6 @@ fi
 # convert anatomical t1 to mrtrix format
 [ ! -f anat.mif ] && mrconvert ${anat} anat.mif -nthreads $NCORE
 
-# extract b0 image from dwi
-[ ! -f b0.mif ] && dwiextract dwi.mif - -bzero | mrmath - mean b0.mif -axis 3 -nthreads $NCORE
-
-# check if b0 volume successfully created
-if [ ! -f b0.mif ]; then
-    echo "No b-zero volumes present."
-    NSHELL=`mrinfo -shell_bvalues dwi.mif | wc -w`
-    NB0s=0
-    EB0=''
-else
-    ISHELL=`mrinfo -shell_bvalues dwi.mif | wc -w`
-    NSHELL=$(($ISHELL-1))
-    NB0s=`mrinfo -shell_sizes dwi.mif | awk '{print $1}'`
-    EB0="0,"
-fi
-
-## determine single shell or multishell fit
-if [ $NSHELL -gt 1 ]; then
-    MS=1
-    echo "Multi-shell data: $NSHELL total shells"
-else
-    echo "Single-shell data: $NSHELL shell"
-    MS=0
-    if [ ! -z "$TENSOR_FIT" ]; then
-	echo "Ignoring requested tensor shell. All data will be fit and tracked on the same b-value."
-    fi
-fi
-
-## create the correct length of lmax
-if [ $NB0s -eq 0 ]; then
-    RMAX=${LMAX}
-else
-    RMAX=0
-fi
-iter=1
-
-## for every shell (after starting w/ b0), add the max lmax to estimate
-while [ $iter -lt $(($NSHELL+1)) ]; do
-    
-    ## add the $MAXLMAX to the argument
-    RMAX=$RMAX,$LMAX
-
-    ## update the iterator
-    iter=$(($iter+1))
-
-done
-
-# extract mask
-[ ! -f dt.mif ] && dwi2tensor -mask mask.mif dwi.mif dt.mif -bvalue_scaling false -force -nthreads $NCORE
-
-
 # generate 5-tissue-type (5TT) tracking mask
 if [ ! -f csf.nii.gz ]; then
 	if [[ ${mask} == 'null' ]]; then
@@ -133,44 +81,21 @@ fi
 
 #creating response (should take about 15min)
 for (( i_lmax=2; i_lmax<=$MAXLMAX; i_lmax+=2 )); do
-	if [ ! -f ./csd/lmax${i_lmax}.nii.gz ]; then
+	if [ ! -f lmax${i_lmax}.nii.gz ]; then
 		lmaxvar=$(eval "echo \$lmax${i_lmax}")
-		if [[ ${lmaxvar} == 'null' ]]; then
-			if [ $MS -eq 0 ]; then
-				echo "Estimating CSD response function"
-				time dwi2response tournier dwi.mif wmt_${i_lmax}.txt -lmax ${i_lmax} -force -nthreads $NCORE -tempdir ./tmp
-			else
-				echo "Estimating MSMT CSD response function"
-				time dwi2response msmt_5tt dwi.mif 5tt.mif wmt_${i_lmax}.txt gmt_${i_lmax}.txt csf_${i_lmax}.txt -mask mask.mif -lmax ${i_lmax} -tempdir ./tmp -force -nthreads $NCORE
-			fi
-	
-		# fitting CSD FOD of lmax
-			if [ $MS -eq 0 ]; then
-				echo "Fitting CSD FOD of Lmax ${i_lmax}..."
-				time dwi2fod -mask mask.mif csd dwi.mif wmt_${i_lmax}.txt wmt_lmax${i_lmax}_fod.mif -lmax ${i_lmax} -force -nthreads $NCORE
-			else
-				echo "Estimating MSMT CSD FOD of Lmax ${i_lmax}"
-				time dwi2fod msmt_csd dwi.mif wmt_${i_lmax}.txt wmt_lmax${i_lmax}_fod.mif  gmt_${i_lmax}.txt gmt_lmax${i_lmax}_fod.mif csf_${i_lmax}.txt csf_lmax${i_lmax}_fod.mif -force -nthreads $NCORE
-			fi
-			# convert to niftis
-			mrconvert wmt_lmax${i_lmax}_fod.mif -stride 1,2,3,4 ./csd/lmax${i_lmax}.nii.gz -force -nthreads $NCORE
-	
-		else
-			echo "csd already inputted. skipping csd generation"
-	                cp ${lmaxvar} ./csd/
-		fi
+		echo "csd already inputted. skipping csd generation"
+	        cp ${lmaxvar} ./
 	else
 		echo "csd exists. skipping"
 	fi
 done
-
 
 for (( i_lmax=2; i_lmax<=$MAXLMAX; i_lmax+=2 )); do
 	# Run trekker
 	echo "running tracking on lmax ${i_lmax} with Trekker"
 	/trekker/build/bin/trekker \
 		-enableOutputOverwrite \
-		-fod ./csd/lmax${i_lmax}.nii.gz \
+		-fod lmax${i_lmax}.nii.gz \
 		-seed_image ${ROI1} \
 		-pathway_A=stop_at_exit ${ROI1} \
 		-pathway_A=discard_if_enters csf.nii.gz \
@@ -188,7 +113,7 @@ for (( i_lmax=2; i_lmax<=$MAXLMAX; i_lmax+=2 )); do
 		-maxSamplingPerStep ${maxsampling} \
 		-minFODamp $(jq -r .minfodamp config.json) \
 		-writeColors \
-		-verboseLevel 0 \
+		-verboseLevel 1 \
 		-output track_${i_lmax}.vtk
 	
 	# convert output vtk to tck
@@ -196,7 +121,7 @@ for (( i_lmax=2; i_lmax<=$MAXLMAX; i_lmax+=2 )); do
 done
 
 ## concatenate tracts
-holder=(*tract*.tck)
+holder=(*track*.tck)
 tckedit ${holder[*]} ./track/track.tck
 if [ ! $ret -eq 0 ]; then
     exit $ret

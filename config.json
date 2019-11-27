@@ -3,7 +3,7 @@
 	"max_length": 200,
 	"maxlmax": 8,
 	"seed_roi": "008109",
-	"count": 100,
+	"count": 10,
 	"minradius": 0.1,
 	"probelength": 0.1,
 	"stepsize": 0.05,
@@ -21,5 +21,10 @@
 	"rois": "/home/brad/Desktop/test/rois/",
 	"mask": "/home/brad/Desktop/test/5tt/mask.nii.gz",
 	"brainmask": "/home/brad/Desktop/test/brainmask/mask.nii.gz",
-	"freesurfer": "/home/brad/Desktop/test/output"
+	"freesurfer": "/home/brad/Desktop/test/output",
+	"lmax2":	"/home/brad/Desktop/test/csd/lmax2.nii.gz",
+	"lmax4":        "/home/brad/Desktop/test/csd/lmax4.nii.gz",
+	"lmax6":        "/home/brad/Desktop/test/csd/lmax6.nii.gz",
+	"lmax8":        "/home/brad/Desktop/test/csd/lmax8.nii.gz",
+	"mask":	"/home/brad/Desktop/test/5tt/mask.nii.gz"
 }
