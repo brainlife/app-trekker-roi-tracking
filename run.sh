@@ -114,7 +114,7 @@ for (( i_lmax=2; i_lmax<=$MAXLMAX; i_lmax+=2 )); do
 		-maxSamplingPerStep ${maxsampling} \
 		-minFODamp $(jq -r .minfodamp config.json) \
 		-writeColors \
-		-verboseLevel 1 \
+		-verboseLevel 0 \
 		-output track_${i_lmax}.vtk
 	
 	# convert output vtk to tck
