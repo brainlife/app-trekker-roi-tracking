@@ -39,10 +39,11 @@ if [[ ! ${dtiinit} == "null" ]]; then
 	dwi=$dtiinit/*dwi_aligned*.nii.gz
 	bvals=$dtiinit/*.bvals
 	bvecs=$dtiinit/*.bvecs
+	brainmask=$dtiinit/dti/bin/brainMask.nii.gz
 fi
 
 ROI1=$rois/ROI${roi1}.nii.gz
-ROI2=varea.nii.gz
+ROI2=v1.nii.gz
 
 # convert dwi to mrtrix format
 [ ! -f dwi.b ] && mrconvert -fslgrad $bvecs $bvals $dwi dwi.mif --export_grad_mrtrix dwi.b -nthreads $NCORE
@@ -113,7 +114,7 @@ for (( i_lmax=2; i_lmax<=$MAXLMAX; i_lmax+=2 )); do
 		-maxSamplingPerStep ${maxsampling} \
 		-minFODamp $(jq -r .minfodamp config.json) \
 		-writeColors \
-		-verboseLevel 0 \
+		-verboseLevel 1 \
 		-output track_${i_lmax}.vtk
 	
 	# convert output vtk to tck

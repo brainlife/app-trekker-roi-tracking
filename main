@@ -2,14 +2,14 @@
 #PBS -l nodes=1:ppn=8,vmem=14gb,walltime=24:00:00
 #PBS -N app-trekker-roi-tracking
 
-if [ ! -f varea_whole.nii.gz ]; then
+if [ ! -f rh.ribbon.nii.gz ]; then
 	[ -z "$FREESURFER_LICENSE" ] && echo "Please set FREESURFER_LICENSE in .bashrc" && exit 1;
 	echo $FREESURFER_LICENSE > license.txt
 	echo "convert appropriate parcellations"
 	time singularity exec -e -B `pwd`/license.txt:/usr/local/freesurfer/license.txt docker://brainlife/freesurfer:6.0.0 ./convert.sh
 fi
 
-if [ ! -f varea.nii.gz ]; then
+if [ ! -f v1.nii.gz ]; then
 	echo "making hemispheric rois"
 	time singularity exec -e docker://brainlife/fsl:latest ./mask.sh
 fi
