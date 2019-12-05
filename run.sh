@@ -133,12 +133,12 @@ fi
 rm -rf ${holder[*]}
 
 # use output.json as product.Json
-#tckinfo ./track/track.tck > product.json
-#
-## clean up
-#if [ -f ./track/track.tck ]; then
-#	rm -rf *.mif *.b* ./tmp *.nii.gz *.vtk* *track*.json
-#else
-#	echo "tracking failed"
-#	exit 1;
-#fi
+tckinfo ./track/track.tck > product.json
+
+# clean up
+if [ -f ./track/track.tck ]; then
+	rm -rf *.mif *.b* ./tmp *.nii.gz *.vtk* *track*.json
+else
+	echo "tracking failed"
+	exit 1;
+fi
