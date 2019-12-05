@@ -137,7 +137,7 @@ tckinfo ./track/track.tck > product.json
 
 # clean up
 if [ -f ./track/track.tck ]; then
-	rm -rf *.mif *.b* ./tmp *.nii.gz *.vtk* *track*.json
+	rm -rf *.mif *.b* ./tmp *.vtk* *track*.json
 else
 	echo "tracking failed"
 	exit 1;
