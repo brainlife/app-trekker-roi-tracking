@@ -25,3 +25,11 @@ time singularity exec -e docker://brainlife/mcr:neurodebian1604-r2017a ./compile
 mv output.mat ./wmc/classification.mat
 mv tracts ./wmc/
 mv output_fibercounts.txt ./wmc/
+
+if [ -f ./wmc/classification.mat ]; then
+    rm -rf *.nii.gz
+    exit 0
+else
+    echo "failed"
+    exit 1
+fi
