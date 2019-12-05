@@ -1,54 +1,44 @@
-function [fg_classified,classification] = eccentricityClassification(config,whole_fg_classified,wbFG)
+function [fg_classified,classification] = eccentricityClassification(config,whole_fg_classified,wbFG,clean_classification,hemi)
 
 % parse arguments
-eccentricity = niftiRead(fullfile(config.eccentricity));
-out_ijk = eccentricity.qto_ijk;
+MinDegree = [str2num(config.MinDegree)];
+MaxDegree = [str2num(config.MaxDegree)];
+
+for dd = 1:length(MinDegree)
+    eccen.(sprintf('Ecc%sto%s',num2str(MinDegree(dd)),num2str(MaxDegree(dd)))) = ...
+        bsc_loadAndParseROI(fullfile(sprintf('Ecc%sto%s.nii.gz',num2str(MinDegree(dd)),num2str(MaxDegree(dd)))));
+end
 
 % need to edit this for loop for multiple tracts in classification (i.e.
 % both left and right hemisphere OR, or OT and OR, etc). currently works
 % with one tract at a time
 for ifg = 1:length(whole_fg_classified)
-    fg = whole_fg_classified{ifg};
-    fprintf('%s\n',fg.name);
-    
-    % convert to output space
-    fg = dtiXformFiberCoords(fg, out_ijk, 'img');
-
-    % initialize endpoint outputs
-    iep = zeros(length(fg.fibers), 3);
-
-    % for every fiber, pull the end points
-    for ii = 1:length(fg.fibers)
-        iep(ii,:) = fg.fibers{ii}(:,end)';
-    end
-
-    % combine fiber endpoints & round
-    iepRound = round(iep)+1;
-    ep = iepRound;
-
-    % find eccentricity for endpoints
-    for ii = 1:length(ep)
-        ecc(ii) = eccentricity.data(ep(ii,1),ep(ii,2),ep(ii,3));
-    end
-    
-    % create index for streamlines based on eccentricity critera: R1 = 0-3,
-    % R2 = 15-30, R3 = 30-90
-    for ii = 1:length(ecc)
-        if ecc(ii) >= 0 && ecc(ii) < 5
-            index(ii) = 1;
-        elseif ecc(ii) >= 15 && ecc(ii) < 30
-            index(ii) = 2;
-        elseif ecc(ii) >= 30 && ecc(ii) <= 90
-            index(ii) = 3;
-        else
-            index(ii) = 0;
-        end
+    for dd = 1:length(MinDegree)
+        [~, keep.(sprintf('Ecc%sto%s',num2str(MinDegree(dd)),num2str(MaxDegree(dd))))] = ...
+            wma_SegmentFascicleFromConnectome(whole_fg_classified{ifg}, ...
+            [{eccen.(sprintf('Ecc%sto%s',num2str(MinDegree(dd)),num2str(MaxDegree(dd))))} ],...
+            {'endpoints' }, 'dud');
+        keep.(sprintf('Ecc%sto%s',num2str(MinDegree(dd)),num2str(MaxDegree(dd)))) = ...
+            keep.(sprintf('Ecc%sto%s',num2str(MinDegree(dd)),num2str(MaxDegree(dd)))) * dd;
     end
 end
 
+index_pre = [keep.(sprintf('Ecc%sto%s',num2str(MinDegree(1)),num2str(MaxDegree(1)))) ...
+    keep.(sprintf('Ecc%sto%s',num2str(MinDegree(2)),num2str(MaxDegree(2)))) ...
+    keep.(sprintf('Ecc%sto%s',num2str(MinDegree(3)),num2str(MaxDegree(3))))];
+
+for ii = 1:length(index_pre)
+    if isequal(median(index_pre(ii,:)),0)
+        index(ii) = max(index_pre(ii,:));
+    elseif isequal(median(index_pre(ii,:)),2) && isequal(min(index_pre(ii,:)),1)
+        index(ii) = min(index_pre(ii,:));
+    elseif isequal(median(index_pre(ii,:)),2) || isequal(median(index_pre(ii,:)),1)
+        index(ii) = median(index_pre(ii,:));
+    end
+end
+
+classification.index = clean_classification.index.*index';
 % create new classification structure
 classification.names = {'macular','periphery','far_periphery'};
-classification.index = index';
 fg_classified = bsc_makeFGsFromClassification_v4(classification,wbFG);
-
 end

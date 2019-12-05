@@ -76,6 +76,7 @@ if [ ! -f csf.nii.gz ]; then
 
 	[ ! -f csf.mif ] && mrconvert -coord 3 3 5tt.mif csf.mif -force -nthreads $NCORE
 	[ ! -f csf.nii.gz ] && mrconvert csf.mif -stride 1,2,3,4 csf.nii.gz -force -nthreads $NCORE
+	[ ! -f csf_bin.nii.gz ] && mrthreshold -abs 0.000000000001 csf.nii.gz csf_bin.nii.gz -force -nthreads $NCORE
 else
 	echo "csf mask already exits. skipping"
 fi
@@ -92,33 +93,35 @@ for (( i_lmax=2; i_lmax<=$MAXLMAX; i_lmax+=2 )); do
 done
 
 for (( i_lmax=2; i_lmax<=$MAXLMAX; i_lmax+=2 )); do
-	# Run trekker
-	echo "running tracking on lmax ${i_lmax} with Trekker"
-	/trekker/build/bin/trekker \
-		-enableOutputOverwrite \
-		-fod lmax${i_lmax}.nii.gz \
-		-seed_image ${ROI1} \
-		-pathway_A=stop_at_exit ${ROI1} \
-		-pathway_A=discard_if_enters csf.nii.gz \
-		-pathway_B=require_entry ${ROI2} \
-		-pathway_B=discard_if_enters csf.nii.gz \
-		-pathway_B=stop_at_exit ${ROI2} \
-		-stepSize $(jq -r .stepsize config.json) \
-		-minRadiusOfCurvature $(jq -r .minradius config.json) \
-		-probeRadius 0 \
-		-probeLength $(jq -r .probelength config.json) \
-		-minLength $(jq -r .min_length config.json) \
-		-maxLength $(jq -r .max_length config.json) \
-		-seed_count ${count} \
-		-seed_maxTrials ${seedmaxtrials} \
-		-maxSamplingPerStep ${maxsampling} \
-		-minFODamp $(jq -r .minfodamp config.json) \
-		-writeColors \
-		-verboseLevel 0 \
-		-output track_${i_lmax}.vtk
-	
-	# convert output vtk to tck
-	tckconvert track_${i_lmax}.vtk track_${i_lmax}.tck -force -nthreads $NCORE
+	for curv in 0.2 0.225 0.25 0.275 0.3; do
+		# Run trekker
+		echo "running tracking on lmax ${i_lmax} with Trekker"
+		/trekker/build/bin/trekker \
+			-enableOutputOverwrite \
+			-fod lmax${i_lmax}.nii.gz \
+			-seed_image ${ROI1} \
+			-pathway_A=stop_at_exit ${ROI1} \
+			-pathway_A=discard_if_enters csf.nii.gz \
+			-pathway_B=require_entry ${ROI2} \
+			-pathway_B=discard_if_enters csf.nii.gz \
+			-pathway_B=stop_at_exit ${ROI2} \
+			-stepSize $(jq -r .stepsize config.json) \
+			-minRadiusOfCurvature ${curv} \
+			-probeRadius 0 \
+			-probeLength $(jq -r .probelength config.json) \
+			-minLength $(jq -r .min_length config.json) \
+			-maxLength $(jq -r .max_length config.json) \
+			-seed_count ${count} \
+			-seed_maxTrials ${seedmaxtrials} \
+			-maxSamplingPerStep ${maxsampling} \
+			-minFODamp $(jq -r .minfodamp config.json) \
+			-writeColors \
+			-verboseLevel 1 \
+			-output track_${i_lmax}_${curv}.vtk
+		
+		# convert output vtk to tck
+		tckconvert track_${i_lmax}_${curv}.vtk track_${i_lmax}_${curv}.tck -force -nthreads $NCORE
+	done
 done
 
 ## concatenate tracts
@@ -130,12 +133,12 @@ fi
 rm -rf ${holder[*]}
 
 # use output.json as product.Json
-tckinfo ./track/track.tck > product.json
-
-# clean up
-if [ -f ./track/track.tck ]; then
-	rm -rf *.mif *.b* ./tmp *.nii.gz *.vtk* *track*.json
-else
-	echo "tracking failed"
-	exit 1;
-fi
+#tckinfo ./track/track.tck > product.json
+#
+## clean up
+#if [ -f ./track/track.tck ]; then
+#	rm -rf *.mif *.b* ./tmp *.nii.gz *.vtk* *track*.json
+#else
+#	echo "tracking failed"
+#	exit 1;
+#fi

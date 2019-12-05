@@ -38,8 +38,10 @@ roiNum = str2num(config.seed_roi);
 
 % THINK OF BETTER HIEURISTIC FOR THIS. NOT ALL LGNS WILL HAVE THIS ROI NUM
 if roiNum == 8109
-	whole_classification.names = {'left-optic-radiation'};
+	hemi = 'left';
+    whole_classification.names = {'left-optic-radiation'};
 else
+    hemi = 'right';
 	whole_classification.names = {'right-optic-radiation'};
 end
 
@@ -49,9 +51,10 @@ wbFG = mergedFG;
 % whole OR fg_classified
 
 whole_fg_classified = bsc_makeFGsFromClassification_v4(whole_classification,wbFG);
+[clean_classification] = cleanFibers(whole_classification,mergedFG,hemi);
 
 %% perform eccentricity classification
-[fg_classified,classification] = eccentricityClassification(config,whole_fg_classified,wbFG);
+[fg_classified,classification] = eccentricityClassification(config,whole_fg_classified,wbFG,clean_classification,hemi);
 
 %% Save output
 save('output.mat','classification','fg_classified','-v7.3');

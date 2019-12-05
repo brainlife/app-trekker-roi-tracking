@@ -2,16 +2,16 @@
 #PBS -l nodes=1:ppn=8,vmem=14gb,walltime=48:00:00
 #PBS -N app-trekker-roi-tracking
 
-if [ ! -f rh.ribbon.nii.gz ]; then
+if [ ! -f eccentricity.nii.gz ]; then
 	[ -z "$FREESURFER_LICENSE" ] && echo "Please set FREESURFER_LICENSE in .bashrc" && exit 1;
 	echo $FREESURFER_LICENSE > license.txt
 	echo "convert appropriate parcellations"
-	time singularity exec -e -B `pwd`/license.txt:/usr/local/freesurfer/license.txt docker://brainlife/freesurfer:6.0.0 ./convert.sh
+	time singularity exec -e -B `pwd`/license.txt:/usr/local/freesurfer/license.txt docker://brainlife/freesurfer:6.0.0 ./convert_new.sh
 fi
 
 if [ ! -f v1.nii.gz ]; then
 	echo "making hemispheric rois"
-	time singularity exec -e docker://brainlife/fsl:latest ./mask.sh
+	time singularity exec -e docker://brainlife/fsl:latest ./mask_new.sh
 fi
 
 if [ ! -f ./track/track.tck ]; then
@@ -19,7 +19,7 @@ if [ ! -f ./track/track.tck ]; then
 	time singularity exec -e docker://brainlife/trekker:0.4 ./run.sh
 fi
 
-echo "eccentricity classification"
+#echo "eccentricity classification"
 time singularity exec -e docker://brainlife/mcr:neurodebian1604-r2017a ./compiled/classificationGenerator
 
 mv output.mat ./wmc/classification.mat
