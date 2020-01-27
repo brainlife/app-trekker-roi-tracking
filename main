@@ -2,34 +2,37 @@
 #PBS -l nodes=1:ppn=8,vmem=14gb,walltime=16:00:00
 #PBS -N app-trekker-roi-tracking
 
+# this script will move the appropriate freesurfer files and the eccentricity map into diffusion space
 if [ ! -f eccentricity.nii.gz ]; then
-	[ -z "$FREESURFER_LICENSE" ] && echo "Please set FREESURFER_LICENSE in .bashrc" && exit 1;
+	#[ -z "$FREESURFER_LICENSE" ] && echo "Please set FREESURFER_LICENSE in .bashrc" && exit 1;
 	echo $FREESURFER_LICENSE > license.txt
 	echo "convert appropriate parcellations"
-	time singularity exec -e -B `pwd`/license.txt:/usr/local/freesurfer/license.txt docker://brainlife/freesurfer:6.0.0 ./convert_new.sh
+	time singularity exec -e -B `pwd`/license.txt:/usr/local/freesurfer/license.txt docker://brainlife/freesurfer:6.0.0 ./convert.sh
 fi
 
+# this script will generate the appropriate hemispheric rois for tracking
 if [ ! -f v1.nii.gz ]; then
 	echo "making hemispheric rois"
-	time singularity exec -e docker://brainlife/fsl:latest ./mask_new.sh
+	time singularity exec -e docker://brainlife/fsl:latest ./mask.sh
 fi
 
+# this script will track the eccentricity tracks
 if [ ! -f ./track/track.tck ]; then
 	echo "tracking with trekker"
 	time singularity exec -e docker://brainlife/trekker:0.4 ./run.sh
 fi
 
 #echo "eccentricity classification"
-time singularity exec -e docker://brainlife/mcr:neurodebian1604-r2017a ./compiled/classificationGenerator
+#time singularity exec -e docker://brainlife/mcr:neurodebian1604-r2017a ./compiled/classificationGenerator
+#
+#mv output.mat ./wmc/classification.mat
+#mv tracts ./wmc/
+#mv output_fibercounts.txt ./wmc/
 
-mv output.mat ./wmc/classification.mat
-mv tracts ./wmc/
-mv output_fibercounts.txt ./wmc/
-
-if [ -f ./wmc/classification.mat ]; then
-    rm -rf *.nii.gz
-    exit 0
-else
-    echo "failed"
-    exit 1
-fi
+#if [ -f ./wmc/classification.mat ]; then
+#    rm -rf *.nii.gz
+#    exit 0
+#else
+#    echo "failed"
+#    exit 1
+#fi
