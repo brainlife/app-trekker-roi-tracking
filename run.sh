@@ -13,6 +13,7 @@ mkdir -p 5tt
 
 # set variables
 anat=`jq -r '.anat' config.json`
+dtiinit=`jq -r '.dtiinit' config.json`
 dwi=$(jq -r .dwi config.json)
 bvecs=`jq -r '.bvecs' config.json`
 bvals=`jq -r '.bvals' config.json`
