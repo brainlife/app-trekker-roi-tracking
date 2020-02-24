@@ -63,8 +63,19 @@ else
 	seed=${ROI1}
 fi
 
-# convert dwi to mrtrix format
-[ ! -f dwi.b ] && mrconvert -fslgrad $bvecs $bvals $dwi dwi.mif --export_grad_mrtrix dwi.b -nthreads $NCORE
+# parse whether dtiinit or dwi input
+if [[ ! ${dtiinit} == "null" ]]; then
+        input_nii_gz=$dtiinit/*dwi_aligned*.nii.gz
+        BVALS=$dtiinit/*.bvals
+        BVECS=$dtiinit/*.bvecs
+        brainmask=$dtiinit/dti/bin/brainMask.nii.gz
+        [ ! -f mask.mif ] && mrconvert ${brainmask} mask.mif -force -nthreads $NCORE
+else
+	input_nii_gz=${dwi}
+fi
+
+# convert input diffusion nifti to mrtrix format
+[ ! -f dwi.b ] && mrconvert -fslgrad $bvecs $bvals ${input_nii_gz} dwi.mif --export_grad_mrtrix dwi.b -nthreads $NCORE
 
 # create mask of dwi
 if [[ ${brainmask} == 'null' ]]; then
