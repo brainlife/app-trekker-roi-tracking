@@ -1,4 +1,4 @@
-./sophia-test/
+./sophia-test/*
 *.mif
 *.nii.gz
 *.tck*
@@ -6,3 +6,7 @@
 ./track/
 ./wmc/
 *.txt*
+dwi.b
+config.json
+product.json
+*track_*.json
