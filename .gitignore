@@ -1,0 +1,8 @@
+./sophia-test/
+*.mif
+*.nii.gz
+*.tck*
+*.vtk*
+./track/
+./wmc/
+*.txt*

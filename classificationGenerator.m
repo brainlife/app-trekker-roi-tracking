@@ -25,34 +25,36 @@ topdir = pwd;
 config = loadjson('config.json');
 
 % Set tck file path/s
-rois=dir(fullfile('track','*.tck*'));
+track=dir(fullfile('track','*.tck*'));
 
-if ~strcmp(extractBefore(config.term_roi,'_'),'parietal')
-	roiPair = [str2num(config.seed_roi) str2num(config.term_roi)];
-end
-    
-for ii = 1:length(rois) 
-    fgPath{ii} = fullfile(topdir,'track',rois(ii).name);
+%if ~strcmp(extractBefore(config.term_roi,'_'),'parietal')
+%	roiPair = [str2num(config.seed_roi) str2num(config.term_roi)];
+%end
+
+roiPair = [str2num(config.seed_roi) str2num(config.term_roi)];
+
+for ii = 1:length(track) 
+    fgPath{ii} = fullfile(topdir,'track',track(ii).name);
 end
 
 % Create classification structure
 [mergedFG, classification]=bsc_mergeFGandClass(fgPath);
 
 % Amend name of tract in classification structure
-if strcmp(extractBefore(config.term_roi,'_'),'parietal')
-	classification.names{ii} = strcat('ROI_',config.seed_roi,'_ROI_',config.term_roi);
+%if strcmp(extractBefore(config.term_roi,'_'),'parietal')
+%	classification.names{ii} = strcat('ROI_',config.seed_roi,'_ROI_',config.term_roi);
+%else
+if isnumeric(roiPair(1))
+    for ii = round((1:length(roiPair))/2)
+        classification.names{ii} = strcat('ROI_',num2str(roiPair((2*ii) - 1)),'_ROI_',num2str(roiPair((2*ii))));
+    end
 else
-	if isnumeric(roiPair(1))
-	    for ii = round((1:length(roiPair))/2)
-	        classification.names{ii} = strcat('ROI_',num2str(roiPair((2*ii) - 1)),'_ROI_',num2str(roiPair((2*ii))));
-	    end
-	else
-	    roiPair = split(roiPair);
-	    for ii = round((1:length(roiPair))/2)
-	        classification.names{ii} = strcat('ROI_',roiPair{(2*ii) - 1},'_ROI_',roiPair{(2*ii)});
-	    end
-	end
+    roiPair = split(roiPair);
+    for ii = round((1:length(roiPair))/2)
+        classification.names{ii} = strcat('ROI_',roiPair{(2*ii) - 1},'_ROI_',roiPair{(2*ii)});
+    end
 end
+%end
 
 % Create fg_classified structure
 wbFG = mergedFG;
