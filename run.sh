@@ -113,26 +113,75 @@ else
 	lmaxs=$(seq 2 2 ${max_lmax})
 fi
 
+# extract b0 image from dwi
+[ ! -f b0.mif ] && dwiextract dwi.mif - -bzero | mrmath - mean b0.mif -axis 3 -nthreads $NCORE
+
+# check if b0 volume successfully created
+if [ ! -f b0.mif ]; then
+    echo "No b-zero volumes present."
+    NSHELL=`mrinfo -shell_bvalues dwi.mif | wc -w`
+    NB0s=0
+    EB0=''
+else
+    ISHELL=`mrinfo -shell_bvalues dwi.mif | wc -w`
+    NSHELL=$(($ISHELL-1))
+    NB0s=`mrinfo -shell_sizes dwi.mif | awk '{print $1}'`
+    EB0="0,"
+fi
+
+## determine single shell or multishell fit
+if [ $NSHELL -gt 1 ]; then
+    MS=1
+    echo "Multi-shell data: $NSHELL total shells"
+else
+    echo "Single-shell data: $NSHELL shell"
+    MS=0
+    if [ ! -z "$TENSOR_FIT" ]; then
+	echo "Ignoring requested tensor shell. All data will be fit and tracked on the same b-value."
+    fi
+fi
+
+## create the correct length of lmax
+if [ $NB0s -eq 0 ]; then
+    RMAX=${LMAX}
+else
+    RMAX=0
+fi
+iter=1
+
+## for every shell (after starting w/ b0), add the max lmax to estimate
+while [ $iter -lt $(($NSHELL+1)) ]; do
+    
+    ## add the $MAXLMAX to the argument
+    RMAX=$RMAX,$LMAX
+
+    ## update the iterator
+    iter=$(($iter+1))
+
+done
+
 # if csd does not already exist for specific lmax, generate using mrtrix3.0. Code grabbed from Brent McPherson's brainlife app app-mrtrix3-act
 for LMAXS in ${lmaxs}; do
 	input_csd=$(eval "echo \$lmax${LMAXS}")
 	if [[ ${input_csd} == 'null' ]]; then
 		if [ $MS -eq 0 ]; then
 			echo "Estimating CSD response function"
-			time dwi2response tournier dwi.mif wmt.txt -lmax ${LMAXS} -force -nthreads $NCORE -tempdir ./tmp
+			time dwi2response tournier dwi.mif wmt_lmax${LMAXS}.txt -lmax ${LMAXS} -force -nthreads $NCORE -tempdir ./tmp
 			echo "Fitting CSD FOD of Lmax ${LMAXS}..."
-			time dwi2fod -mask mask.mif csd dwi.mif wmt.txt wmt_lmax${LMAXS}_fod.mif -lmax ${LMAXS} -force -nthreads $NCORE
+			time dwi2fod -mask mask.mif csd dwi.mif wmt_lmax${LMAXS}.txt wmt_lmax${LMAXS}_fod.mif -lmax ${LMAXS} -force -nthreads $NCORE
 		else
 			echo "Estimating MSMT CSD response function"
-			time dwi2response msmt_5tt dwi.mif 5tt.mif wmt.txt gmt.txt csf.txt -mask mask.mif -lmax ${LMAXS} -tempdir ./tmp -force -nthreads $NCORE
+			time dwi2response msmt_5tt dwi.mif 5tt.mif wmt_lmax${LMAXS}.txt gmt_lmax${LMAXS}.txt csf_lmax${LMAXS}.txt -mask mask.mif -lmax ${LMAXS} -tempdir ./tmp -force -nthreads $NCORE
 			echo "Estimating MSMT CSD FOD of Lmax ${LMAXS}"
-			time dwi2fod msmt_csd dwi.mif wmt.txt wmt_lmax${LMAXS}_fod.mif  gmt.txt gmt_lmax${LMAXS}_fod.mif csf.txt csf_lmax${LMAXS}_fod.mif -force -nthreads $NCORE
+			time dwi2fod msmt_csd dwi.mif wmt_lmax${LMAXS}.txt wmt_lmax${LMAXS}_fod.mif  gmt_lmax${LMAXS}.txt gmt_lmax${LMAXS}_fod.mif csf_lmax${LMAXS}.txt csf_lmax${LMAXS}_fod.mif -force -nthreads $NCORE
 		fi
 		# convert to niftis
 		mrconvert wmt_lmax${LMAXS}_fod.mif -stride 1,2,3,4 ./csd/lmax${LMAXS}.nii.gz -force -nthreads $NCORE
 	
 		# copy response file
-		cp wmt.txt response.txt
+		if [[ ${LMAXS} == ${lmax} ]]; then
+			cp wmt_lmax${LMAXS}.txt response.txt
+		fi
 	else
 		echo "csd already inputted. skipping csd generation"
 		cp -v ${input_csd} ./csd/lmax${LMAXS}.nii.gz
@@ -140,7 +189,7 @@ for LMAXS in ${lmaxs}; do
 done
 
 # Run trekker
-for LMAX in ${lmaxs}; do
+for LMAXS in ${lmaxs}; do
 	input_csd=./csd/lmax${LMAXS}.nii.gz
 	echo "running tracking with Trekker on lmax ${LMAXS}"
 	for CURV in ${curvatures}; do
@@ -186,9 +235,9 @@ tckedit ${holder[*]} ./track/track.tck -force -nthreads $NCORE -quiet
 echo "{\"track\": $(eval 'tckinfo ./track/track.tck')}" > product.json
 
 # clean up
-if [ -f ./track/track.tck ]; then
-	rm -rf *.mif *.b* ./tmp *.nii.gz *track_*
-else
-	echo "tracking failed"
-	exit 1;
-fi
+#if [ -f ./track/track.tck ]; then
+#	rm -rf *.mif *.b* ./tmp *.nii.gz *track_*
+#else
+#	echo "tracking failed"
+#	exit 1;
+#fi
