@@ -168,7 +168,7 @@ for LMAX in ${lmaxs}; do
 				-maxSamplingPerStep ${max_sampling} \
 				-minFODamp ${min_fod_amp} \
 				-writeColors \
-				-verboseLevel 1 \
+				-verboseLevel 0 \
 				-numberOfThreads $NCORE \
 				-output track_lmax${LMAXS}_curv${CURV}.vtk
 
