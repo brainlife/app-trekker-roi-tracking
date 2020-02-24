@@ -1,6 +1,7 @@
 #!/bin/bash
 
-#set -e
+set -x
+set -e
 
 NCORE=8
 
