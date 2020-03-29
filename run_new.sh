@@ -37,7 +37,7 @@ lmax12=`jq -r '.lmax2' config.json`
 lmax14=`jq -r '.lmax2' config.json`
 response=`jq -r '.response' config.json`
 single_lmax=`jq -r '.single_lmax' config.json`
-step_size=`jq -r '.stepsize' config.json`
+Step=`jq -r '.stepsize' config.json`
 min_length=`jq -r '.min_length' config.json`
 max_length=`jq -r '.max_length' config.json`
 probe_length=`jq -r '.probelength' config.json`
@@ -51,6 +51,7 @@ max_degree=`jq -r '.MaxDegree' config.json`
 #mac_curv=`jq -r '.mac_curv' config.json`
 multiple_seeds=`jq -r '.multiple_seeds' config.json`
 track=`jq -r '.track' config.json`
+curv=`jq -r '.curv' config.json`
 
 # if maximum lmax is not inputted, calculate based on number of volumes
 if [[ $max_lmax == "null" || -z $max_lmax ]]; then
@@ -207,8 +208,8 @@ done
 # far periphery
 echo "${track}"
 for (( i_lmax=2; i_lmax<=$max_lmax; i_lmax+=2 )); do
-        for curv in 0.25 0.5 0.75 1 2; do
-		for step in 0.025 0.05 0.1 0.15 0.2 0.25; do
+        for curv in ${Curv}; do
+		for step in ${Step}; do
                 	if [ ! -f track_${track}_${i_lmax}_${curv}.tck ]; then
                 	        # Run trekker
                 	        echo "running tracking on lmax ${i_lmax} curv ${curv} step ${step} with Trekker"
