@@ -199,7 +199,7 @@ done
 # far periphery
 echo "${farperiph_roi}"
 for (( i_lmax=2; i_lmax<=$max_lmax; i_lmax+=2 )); do
-        for Farperiph_curv in ${farperiph_curv}; do
+        for Farperiph_curv in 0.25 0.5 0.75 1 2; do
 		for step in 0.025 0.05 0.1 0.15 0.2 0.25; do
                 	if [ ! -f track_${farperiph_roi}_${i_lmax}_${Farperiph_curv}.tck ]; then
                 	        # Run trekker
@@ -224,7 +224,7 @@ for (( i_lmax=2; i_lmax<=$max_lmax; i_lmax+=2 )); do
                 	                -probeLength ${probe_length} \
                 	                -minLength ${min_length} \
                 	                -maxLength ${max_length} \
-                	                -seed_count ${count} \
+                	                -seed_countPerVoxel ${count} \
                 	                -seed_maxTrials ${seedmaxtrials} \
                 	                -maxSamplingPerStep ${maxsampling} \
                 	                -minFODamp ${min_fod_amp} \
@@ -232,6 +232,7 @@ for (( i_lmax=2; i_lmax<=$max_lmax; i_lmax+=2 )); do
                 	                -verboseLevel 0 \
 					-output track_${farperiph_roi}_${i_lmax}_${Farperiph_curv}_${step}.vtk \
                 	                -numberOfThreads $NCORE \
+					-timeLimit 10 \
 					-useBestAtInit
 
                 	        # convert output vtk to tck
@@ -247,7 +248,7 @@ tckedit ${holder[*]} ./track_${farperiph_roi}.tck
 # periphery
 echo "${periph_roi}"
 for (( i_lmax=2; i_lmax<=$max_lmax; i_lmax+=2 )); do
-        for Periph_curv in ${periph_curv}; do
+        for Periph_curv in 0.25 0.5 0.75 1 2; do
 		for step in 0.025 0.05 0.1 0.15 0.2 0.25; do
                 	if [ ! -f track_${periph_roi}_${i_lmax}_${Periph_curv}.tck ]; then
                 	        # Run trekker
@@ -272,7 +273,7 @@ for (( i_lmax=2; i_lmax<=$max_lmax; i_lmax+=2 )); do
                 	                -probeLength ${probe_length} \
                 	                -minLength ${min_length} \
                 	                -maxLength ${max_length} \
-                	                -seed_count ${count} \
+                	                -seed_countPerVoxel ${count} \
                 	                -seed_maxTrials ${seedmaxtrials} \
                 	                -maxSamplingPerStep ${maxsampling} \
                 	                -minFODamp ${min_fod_amp} \
@@ -280,6 +281,7 @@ for (( i_lmax=2; i_lmax<=$max_lmax; i_lmax+=2 )); do
                 	                -verboseLevel 0 \
 					-output track_${periph_roi}_${i_lmax}_${Periph_curv}_${step}.vtk \
                 	                -numberOfThreads $NCORE \
+					-timeLimit 10 \
                 	                -useBestAtInit
 
                 	        # convert output vtk to tck
@@ -295,7 +297,7 @@ tckedit ${holder[*]} ./track_${periph_roi}.tck
 # macular
 echo "${mac_roi}"
 for (( i_lmax=2; i_lmax<=$max_lmax; i_lmax+=2 )); do
-        for Mac_curv in ${mac_curv}; do
+        for Mac_curv in 0.5 1 2 3 4; do
 		for step in 0.025 0.05 0.1 0.15 0.2 0.25; do
                 	if [ ! -f track_${mac_roi}_${i_lmax}_${Mac_curv}.tck ]; then
                 	        # Run trekker
@@ -320,7 +322,7 @@ for (( i_lmax=2; i_lmax<=$max_lmax; i_lmax+=2 )); do
                 	                -probeLength ${probe_length} \
                 	                -minLength ${min_length} \
                 	                -maxLength ${max_length} \
-                	                -seed_count ${count} \
+                	                -seed_countPerVoxel ${count} \
                 	                -seed_maxTrials ${seedmaxtrials} \
                 	                -maxSamplingPerStep ${maxsampling} \
                 	                -minFODamp ${min_fod_amp} \
@@ -328,6 +330,7 @@ for (( i_lmax=2; i_lmax<=$max_lmax; i_lmax+=2 )); do
                 	                -verboseLevel 0 \
 					-output track_${mac_roi}_${i_lmax}_${Mac_curv}_${step}.vtk \
                 	                -numberOfThreads $NCORE \
+					-timeLimit 10 \
                 	                -useBestAtInit
 
                 	        # convert output vtk to tck

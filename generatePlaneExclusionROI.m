@@ -36,9 +36,9 @@ referenceParc = fullfile('aparc.a2009s.aseg.nii.gz');
 
 % set exclusion ROIS
 if str2num(lgn_seed) == 8109
-    exclusionRoiLUT = [41 42 7 8 4 28];
+    exclusionRoiLUT = [41 42 7 8 4];
 else
-    exclusionRoiLUT = [2 3 46 47 43 60];
+    exclusionRoiLUT = [2 3 46 47 43];
 end
 
 %% Generate plane ROI for forced tracking to get loop
