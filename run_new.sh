@@ -20,7 +20,7 @@ bvecs=`jq -r '.bvecs' config.json`
 bvals=`jq -r '.bvals' config.json`
 mask=`jq -r '.mask' config.json`
 brainmask=`jq -r '.brainmask' config.json`
-max_lmax=`jq -r '.lmax' config.json`
+max_lmax=`jq -r '.maxlmax' config.json`
 rois=`jq -r '.rois' config.json`
 count=`jq -r '.count' config.json`
 roi1=`jq -r '.seed_roi' config.json`
@@ -51,7 +51,7 @@ max_degree=`jq -r '.MaxDegree' config.json`
 #mac_curv=`jq -r '.mac_curv' config.json`
 multiple_seeds=`jq -r '.multiple_seeds' config.json`
 track=`jq -r '.track' config.json`
-curv=`jq -r '.curv' config.json`
+Curv=`jq -r '.curv' config.json`
 
 # if maximum lmax is not inputted, calculate based on number of volumes
 if [[ $max_lmax == "null" || -z $max_lmax ]]; then
@@ -210,7 +210,7 @@ echo "${track}"
 for (( i_lmax=2; i_lmax<=$max_lmax; i_lmax+=2 )); do
         for curv in ${Curv}; do
 		for step in ${Step}; do
-                	if [ ! -f track_${track}_${i_lmax}_${curv}.tck ]; then
+                	if [ ! -f track_${track}_${i_lmax}_${curv}_${step}.tck ]; then
                 	        # Run trekker
                 	        echo "running tracking on lmax ${i_lmax} curv ${curv} step ${step} with Trekker"
                 	        /trekker/build/bin/trekker \
