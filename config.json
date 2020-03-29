@@ -17,7 +17,7 @@
         "count":        100,
         "min_length": 30,
         "max_length": 160,
-        "lmax": 8,
+        "maxlmax": 8,
         "seed_roi": "008109",
         "probelength": 0.25,
         "maxtrials": 1000000,
@@ -27,8 +27,8 @@
         "minfodamp": 0.01,
         "MinDegree": "0 15 30",
         "MaxDegree": "3 30 90",
-        "single_lmax":  false,
-        "multiple_seeds":       false,
         "proberadius":  0,
-	"single_lmax":	false
+	"track":	"farperiph",
+	"curv":	"0.25 0.5 0.75 1 2",
+	"stepsize":	"0.025 0.05 0.1 0.15 0.2 025"
 }

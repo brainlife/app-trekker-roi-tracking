@@ -24,7 +24,6 @@ max_lmax=`jq -r '.maxlmax' config.json`
 rois=`jq -r '.rois' config.json`
 count=`jq -r '.count' config.json`
 roi1=`jq -r '.seed_roi' config.json`
-roi2=`jq -r '.term_roi' config.json`
 min_fod_amp=`jq -r '.minfodamp' config.json`
 seedmaxtrials=`jq -r '.maxtrials' config.json`
 maxsampling=`jq -r '.maxsampling' config.json`
@@ -36,7 +35,6 @@ lmax10=`jq -r '.lmax2' config.json`
 lmax12=`jq -r '.lmax2' config.json`
 lmax14=`jq -r '.lmax2' config.json`
 response=`jq -r '.response' config.json`
-single_lmax=`jq -r '.single_lmax' config.json`
 Step=`jq -r '.stepsize' config.json`
 min_length=`jq -r '.min_length' config.json`
 max_length=`jq -r '.max_length' config.json`
@@ -49,7 +47,7 @@ max_degree=`jq -r '.MaxDegree' config.json`
 #farperiph_curv=`jq -r '.farperiph_curv' config.json`
 #periph_curv=`jq -r '.periph_curv' config.json`
 #mac_curv=`jq -r '.mac_curv' config.json`
-multiple_seeds=`jq -r '.multiple_seeds' config.json`
+#multiple_seeds=`jq -r '.multiple_seeds' config.json`
 track=`jq -r '.track' config.json`
 Curv=`jq -r '.curv' config.json`
 
@@ -74,12 +72,12 @@ fi
 
 
 # merge rois if seeding in both rois is preferred
-if [[ ${multiple_seeds} == true ]]; then
-	mrcalc ${ROI1} ${ROI2} -add seed.nii.gz
-	seed=seed.nii.gz
-else
-	seed=${ROI1}
-fi
+#if [[ ${multiple_seeds} == true ]]; then
+#	mrcalc ${ROI1} ${ROI2} -add seed.nii.gz
+#	seed=seed.nii.gz
+#else
+#	seed=${ROI1}
+#fi
 
 # parse whether dtiinit or dwi input
 if [[ ! ${dtiinit} == "null" ]]; then
