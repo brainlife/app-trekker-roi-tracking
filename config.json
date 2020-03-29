@@ -5,7 +5,7 @@
 	"rois":	"/home/brad/Desktop/OR/HCP/100206/rois/rois/",
 	"seed_roi":	"00008109",
 	"term_roi":	"0001",
-	"prf":	"/home/brad/Desktop/OR/HCP/100206/prf/",
+	"prfSurfacesDir":	"/home/brad/Desktop/OR/HCP/100206/prf/prf_surfaces",
 	"mask":	"/home/brad/Desktop/OR/HCP/100206/5tt/mask.nii.gz",
 	"freesurfer":	"/home/brad/Desktop/OR/HCP/100206/output/",
 	"anat":	"/home/brad/Desktop/OR/HCP/100206/anat/t1.nii.gz",
