@@ -2,24 +2,32 @@
 #PBS -l nodes=1:ppn=8,vmem=14gb,walltime=16:00:00
 #PBS -N app-trekker-roi-tracking
 
-# this script will move the appropriate freesurfer files and the eccentricity map into diffusion space
-if [ ! -f eccentricity.nii.gz ]; then
-	#[ -z "$FREESURFER_LICENSE" ] && echo "Please set FREESURFER_LICENSE in .bashrc" && exit 1;
+minDegree=(`jq -r '.MinDegree' config.json`)
+maxDegree=(`jq -r '.MaxDegree' config.json`)
+
+# this script will move the appropriate freesurfer files and the eccentricity map into diffusion space and will generate the appropriate hemispheric rois for tracking
+if [ ! -f Ecc${minDegree[0]}to${maxDegree[0]}.nii.gz ]; then
+	echo "making hemispheric rois"
 	echo $FREESURFER_LICENSE > license.txt
-	echo "convert appropriate parcellations"
-	time singularity exec -e -B `pwd`/license.txt:/usr/local/freesurfer/license.txt docker://brainlife/freesurfer:6.0.0 ./convert.sh
+	time singularity exec -e -B `pwd`/license.txt:/usr/local/freesurfer/license.txt docker://brainlife/connectome_workbench:1.4.2-freesurfer-update ./surface-generator.sh
 fi
 
-# this script will generate the appropriate hemispheric rois for tracking
-if [ ! -f v1.nii.gz ]; then
-	echo "making hemispheric rois"
-	time singularity exec -e docker://brainlife/fsl:latest ./mask.sh
+# this script will generate roi used to force tracking in specific direction
+if [ ! -f thalLatPost.nii.gz ]; then
+	echo "make thal lat post roi"
+	time singularity exec -e docker://brainlife/mcr:neurodebian1604-r2017a ./planeExclusionROI/generatePlaneExclusionROI
+fi
+
+# convert planar ROI to diffusion space
+if [ ! -f thalLatPostDwi.nii.gz ]; then
+	echo "move thalLatPost to DWI"
+	time singularity time singularity exec -e -B `pwd`/license.txt:/usr/local/freesurfer/license.txt docker://brainlife/connectome_workbench:1.4.2-freesurfer-update ./planar-dwi.sh
 fi
 
 # this script will track the eccentricity tracks
 if [ ! -f ./track/track.tck ]; then
 	echo "tracking with trekker"
-	time singularity exec -e docker://brainlife/trekker:0.4 ./run.sh
+	time singularity exec -e docker://brainlife/trekker:0.4 ./run_new.sh
 fi
 
 #echo "eccentricity classification"
@@ -28,7 +36,7 @@ fi
 #mv output.mat ./wmc/classification.mat
 #mv tracts ./wmc/
 #mv output_fibercounts.txt ./wmc/
-
+#
 #if [ -f ./wmc/classification.mat ]; then
 #    rm -rf *.nii.gz
 #    exit 0

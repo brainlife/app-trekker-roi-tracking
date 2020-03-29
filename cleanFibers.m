@@ -24,17 +24,9 @@ csfROI = bsc_loadAndParseROI('csf_bin.nii.gz');
 % Planar ROI
 % load reference nifti for planar ROI
 if strcmp(hemi,'left')
-    thal = bsc_roiFromAtlasNums(referenceNifti,[thalLUT.left ],1);
-    posteriorThalLimit = bsc_planeFromROI_v2([thal],'posterior',referenceNifti);
-    lateralThalLimit = bsc_planeFromROI_v2([thal],'lateral',referenceNifti);
-    thalLatPost = bsc_modifyROI_v2(referenceNifti,lateralThalLimit,posteriorThalLimit,'anterior');
     hemisphereROI = bsc_roiFromAtlasNums(referenceNifti,[exclusionROIs.left ],1);
     %hemisphereROI = bsc_loadAndParseROI('ribbon_right.nii.gz');
 else
-    thal = bsc_roiFromAtlasNums(referenceNifti,[thalLUT.right ],1);
-    posteriorThalLimit = bsc_planeFromROI_v2([thal],'posterior',referenceNifti);
-    lateralThalLimit = bsc_planeFromROI_v2([thal],'lateral',referenceNifti);
-    thalLatPost = bsc_modifyROI_v2(referenceNifti,lateralThalLimit,posteriorThalLimit,'anterior');
     hemisphereROI = bsc_roiFromAtlasNums(referenceNifti,[exclusionROIs.right ],1);
     %hemisphereROI = bsc_loadAndParseROI('ribbon_left.nii.gz');
 end
@@ -44,13 +36,17 @@ Not = bsc_mergeROIs(hemisphereROI,csfROI);
 
 %% Load Optic radiations and clip for cleaning
 % clip hemispheres and CSF for OR
-for ifg = 1:length(whole_classification)
+classification = whole_classification;
+for ifg = 1:length(whole_classification.names)
     tractFG.name = whole_classification.names{ifg};
     tractFG.colorRgb = mergedFG.colorRgb;
     display(sprintf('%s',tractFG.name))
-    tractFG.fibers = mergedFG.fibers;
+    indexes = find(whole_classification.index == ifg);
+	tractFG.fibers = mergedFG.fibers(indexes);
+    %tractFG.fibers = mergedFG.fibers;
     [~, keep] = wma_SegmentFascicleFromConnectome(tractFG, [{Not} {thalLatPost} ], {'not','and' }, ['dud']);
     % set indices of streamlines that intersect the not ROI to 0 as if they
     % have never been classified
-    classification.index = keep;
+    classification.index(indexes(~keep)) = 0;
+    %classification.index = keep;
 end

@@ -2,7 +2,6 @@ function [] = classificationGenerator()
 
 if ~isdeployed
     disp('loading path')
-
     %for IU HPC
     addpath(genpath('/N/u/brlife/git/vistasoft'))
     addpath(genpath('/N/u/brlife/git/encode'))
@@ -34,27 +33,16 @@ end
 roiNum = str2num(config.seed_roi);
 
 %% Create whole OR fg_classified structure to feed into eccentricity
-[mergedFG, whole_classification]=bsc_mergeFGandClass(fgPath);
+[mergedFG, classification]=bsc_mergeFGandClass(fgPath);
 
-% THINK OF BETTER HIEURISTIC FOR THIS. NOT ALL LGNS WILL HAVE THIS ROI NUM
-if roiNum == 8109
-	hemi = 'left';
-    whole_classification.names = {'left-optic-radiation'};
-else
-    hemi = 'right';
-	whole_classification.names = {'right-optic-radiation'};
-end
+% set classification names
+classification.names = {'macular','periphery','far-periphery'};
 
-% whole OR tractogram
+% OR tractogram
 wbFG = mergedFG;
 
-% whole OR fg_classified
-
-whole_fg_classified = bsc_makeFGsFromClassification_v4(whole_classification,wbFG);
-[clean_classification] = cleanFibers(whole_classification,mergedFG,hemi);
-
-%% perform eccentricity classification
-[fg_classified,classification] = eccentricityClassification(config,whole_fg_classified,wbFG,clean_classification,hemi);
+% OR fg_classified
+fg_classified = bsc_makeFGsFromClassification_v4(whole_classification,wbFG);
 
 %% Save output
 save('output.mat','classification','fg_classified','-v7.3');
