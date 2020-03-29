@@ -4,4 +4,5 @@ addpath(genpath('/N/u/brlife/git/encode'))
 addpath(genpath('/N/u/brlife/git/spm'))
 addpath(genpath('/N/u/brlife/git/wma_tools'))
 mcc -m -R -nodisplay -d compiled classificationGenerator
+mcc -m -R -nodisplay -d planeExclusionROI generatePlaneExclusionROI
 exit
