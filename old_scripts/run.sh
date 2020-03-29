@@ -1,6 +1,5 @@
 #!/bin/bash
 
-set -x
 #set -e
 
 NCORE=8
@@ -36,13 +35,13 @@ lmax14=`jq -r '.lmax14' config.json` # lmax14
 
 # set seed and term roi inputs
 ROI1=$rois/ROI${roi1}.nii.gz # seed roi (i.e. left or right lgn)
-farperiph="Ecc30to90.nii.gz"
-periph="Ecc15to30.nii.gz"
-mac="Ecc0to3.nii.gz"
+farperiph="Ecc30to90_smooth_thresh_bin"
+periph="Ecc15to30_smooth_thresh_bin"
+mac="Ecc0to3_smooth_thresh_bin"
 
 # set curvature parameterse
-#farperiph_periph_curv=.5
-#mac_curv=.8
+farperiph_periph_curv=.5
+mac_curv=.8
 
 # if dtiinit is inputted, set appropriate fields 
 if [[ ! ${dtiinit} == "null" ]]; then
@@ -102,8 +101,8 @@ done
 
 # far periphery
 echo "${farperiph}"
-for (( i_lmax=2; i_lmax<=$MAXLMAX; i_lmax+=2 )); do
-	for farperiph_periph_curv in 0.2 0.25 0.3 0.35 0.4; do
+for (( i_lmax=6; i_lmax<=$MAXLMAX; i_lmax+=2 )); do
+	#for curv in 0.2 0.25 0.3 0.35 0.4; do
 		if [ ! -f track_${farperiph}_${i_lmax}_${farperiph_periph_curv}.tck ]; then
 			# Run trekker
 			echo "running tracking on lmax ${i_lmax} with Trekker"
@@ -113,9 +112,9 @@ for (( i_lmax=2; i_lmax<=$MAXLMAX; i_lmax+=2 )); do
 				-seed_image ${ROI1} \
 				-pathway_A=stop_at_exit ${ROI1} \
 				-pathway_A=discard_if_enters csf_bin.nii.gz \
-				-pathway_B=require_entry ${farperiph} \
+				-pathway_B=require_entry ${farperiph}.nii.gz \
 				-pathway_B=discard_if_enters csf_bin.nii.gz \
-				-pathway_B=stop_at_exit ${farperiph} \
+				-pathway_B=stop_at_exit ${farperiph}.nii.gz \
 				-stepSize $(jq -r .stepsize config.json) \
 				-minRadiusOfCurvature ${farperiph_periph_curv} \
 				-probeRadius 0 \
@@ -127,7 +126,7 @@ for (( i_lmax=2; i_lmax<=$MAXLMAX; i_lmax+=2 )); do
 				-maxSamplingPerStep ${maxsampling} \
 				-minFODamp $(jq -r .minfodamp config.json) \
 				-writeColors \
-				-verboseLevel 1 \
+				-verboseLevel 0 \
 				-output track_${farperiph}_${i_lmax}_${farperiph_periph_curv}.vtk \
 				-numberOfThreads $NCORE \
 				-useBestAtInit
@@ -135,7 +134,7 @@ for (( i_lmax=2; i_lmax<=$MAXLMAX; i_lmax+=2 )); do
 			# convert output vtk to tck
 			tckconvert track_${farperiph}_${i_lmax}_${farperiph_periph_curv}.vtk track_${farperiph}_${i_lmax}_${farperiph_periph_curv}.tck -force -nthreads $NCORE
 		fi
-	done
+	#done
 done
 
 holder=(*track_${farperiph}*.tck)
@@ -143,8 +142,8 @@ tckedit ${holder[*]} ./track_${farperiph}.tck
 
 # periphery
 echo "${periph}"
-for (( i_lmax=2; i_lmax<=$MAXLMAX; i_lmax+=2 )); do
-	for farperiph_periph_curv in 0.3 0.4 0.5 0.6 0.7; do
+for (( i_lmax=6; i_lmax<=$MAXLMAX; i_lmax+=2 )); do
+	#for curv in 0.4 0.45 0.5 0.55 0.6; do
 		if [ ! -f track_${periph}_${i_lmax}_${farperiph_periph_curv}.tck ]; then
 			# Run trekker
 			echo "running tracking on lmax ${i_lmax} with Trekker"
@@ -154,9 +153,9 @@ for (( i_lmax=2; i_lmax<=$MAXLMAX; i_lmax+=2 )); do
 				-seed_image ${ROI1} \
 				-pathway_A=stop_at_exit ${ROI1} \
 				-pathway_A=discard_if_enters csf_bin.nii.gz \
-				-pathway_B=require_entry ${periph} \
+				-pathway_B=require_entry ${periph}.nii.gz \
 				-pathway_B=discard_if_enters csf_bin.nii.gz \
-				-pathway_B=stop_at_exit ${periph} \
+				-pathway_B=stop_at_exit ${periph}.nii.gz \
 				-stepSize $(jq -r .stepsize config.json) \
 				-minRadiusOfCurvature ${farperiph_periph_curv} \
 				-probeRadius 0 \
@@ -168,7 +167,7 @@ for (( i_lmax=2; i_lmax<=$MAXLMAX; i_lmax+=2 )); do
 				-maxSamplingPerStep ${maxsampling} \
 				-minFODamp $(jq -r .minfodamp config.json) \
 				-writeColors \
-				-verboseLevel 1 \
+				-verboseLevel 0 \
 				-output track_${periph}_${i_lmax}_${farperiph_periph_curv}.vtk \
 				-numberOfThreads $NCORE \
 				-useBestAtInit		
@@ -176,7 +175,7 @@ for (( i_lmax=2; i_lmax<=$MAXLMAX; i_lmax+=2 )); do
 			# convert output vtk to tck
 			tckconvert track_${periph}_${i_lmax}_${farperiph_periph_curv}.vtk track_${periph}_${i_lmax}_${farperiph_periph_curv}.tck -force -nthreads $NCORE
 		fi
-	done
+	#done
 done
 
 holder=(*track_${periph}*.tck)
@@ -184,8 +183,8 @@ tckedit ${holder[*]} ./track_${periph}.tck
 
 # macular
 echo "${mac}"
-for (( i_lmax=2; i_lmax<=$MAXLMAX; i_lmax+=2 )); do
-	for mac_curv in 0.6 0.7 0.8 0.9 1; do
+for (( i_lmax=6; i_lmax<=$MAXLMAX; i_lmax+=2 )); do
+	#for curv in 0.7 0.75 0.8 0.85 0.9; do
 		if [ ! -f track_${mac}_${i_lmax}_${mac_curv}.tck ]; then
 			# Run trekker
 			echo "running tracking on lmax ${i_lmax} with Trekker"
@@ -209,7 +208,7 @@ for (( i_lmax=2; i_lmax<=$MAXLMAX; i_lmax+=2 )); do
 				-maxSamplingPerStep ${maxsampling} \
 				-minFODamp $(jq -r .minfodamp config.json) \
 				-writeColors \
-				-verboseLevel 1 \
+				-verboseLevel 0 \
 				-output track_${mac}_${i_lmax}_${mac_curv}.vtk \
 				-numberOfThreads $NCORE \
 				-useBestAtInit
@@ -217,22 +216,22 @@ for (( i_lmax=2; i_lmax<=$MAXLMAX; i_lmax+=2 )); do
 			# convert output vtk to tck
 			tckconvert track_${mac}_${i_lmax}_${mac_curv}.vtk track_${mac}_${i_lmax}_${mac_curv}.tck -force -nthreads $NCORE
 		fi
-	done
+	#done
 done
 
 holder=(*track_${mac}*.tck)
 tckedit ${holder[*]} ./track_${mac}.tck
 
 # concatenate tracts
-#holder=(track_${farperiph}.tck track_${periph}.tck track_${mac}.tck)
-#tckedit ${holder[*]} ./track/track.tck
-#if [ ! $ret -eq 0 ]; then
-#    exit $ret
-#fi
+holder=(track_${farperiph}.tck track_${periph}.tck track_${mac}.tck)
+tckedit ${holder[*]} ./track/track.tck
+if [ ! $ret -eq 0 ]; then
+    exit $ret
+fi
 #rm -rf ${holder[*]}
-#
-## use output.json as product.Json
-#tckinfo ./track/track.tck > product.json
+
+# use output.json as product.Json
+tckinfo ./track/track.tck > product.json
 
 # clean up
 #if [ -f ./track/track.tck ]; then
