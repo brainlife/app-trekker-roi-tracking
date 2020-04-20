@@ -32,6 +32,9 @@ track=dir(fullfile('track','*.tck*'));
 %end
 
 roiPair = [str2num(config.seed_roi) str2num(config.term_roi)];
+if isempty(roiPair)
+    roiPair = {config.seed_roi,config.term_roi};
+end
 
 for ii = 1:length(track) 
     fgPath{ii} = fullfile(topdir,'track',track(ii).name);
