@@ -4,7 +4,7 @@ if ~isdeployed
     disp('loading path')
 
     %for IU HPC
-    addpath(genpath('/N/u/brlife/git/vistasoft'))
+    addpath(genpath('/N/u/hayashis/git/vistasoft'))
     addpath(genpath('/N/u/brlife/git/encode'))
     addpath(genpath('/N/u/brlife/git/jsonlab'))
     addpath(genpath('/N/u/brlife/git/spm'))
