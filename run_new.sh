@@ -60,6 +60,14 @@ fi
 # roi files
 ROI1=$rois/ROI${roi1}.nii.gz
 
+if [[ ${roi1} == '008109' ]]; then
+	exclusion=${rois}/ROIexclusion_L.nii.gz
+else
+	exclusion=${rois}/ROIexclusion_R.nii.gz
+fi
+
+cp ${exclusion} exclusion.nii.gz
+
 if [[ ${track} == 'farperiph' ]]; then
 	track_roi="Ecc$(echo ${min_degree} | cut -d' ' -f3)to$(echo ${max_degree} | cut -d' ' -f3)"
 elif [[ ${track} == 'periph' ]]; then

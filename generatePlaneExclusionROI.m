@@ -35,11 +35,11 @@ referenceNifti = fullfile(config.anat);
 referenceParc = fullfile('aparc.a2009s.aseg.nii.gz');
 
 % set exclusion ROIS
-if str2num(lgn_seed) == 8109
-    exclusionRoiLUT = [41 42 7 8 4];
-else
-    exclusionRoiLUT = [2 3 46 47 43];
-end
+%if str2num(lgn_seed) == 8109
+%    exclusionRoiLUT = [41 42 7 8 4];
+%else
+%    exclusionRoiLUT = [2 3 46 47 43];
+%end
 
 %% Generate plane ROI for forced tracking to get loop
 % Planar ROI
@@ -57,10 +57,10 @@ thalLatPost = bsc_modifyROI_v2(referenceNifti,lateralThalLimit,posteriorThalLimi
 
 %% genereate exclusion ROI
 % define exclusion coords
-exclusionROI = bsc_roiFromAtlasNums(referenceParc,[exclusionRoiLUT ],1);
-
-% save as nifti
-[~,~] = dtiRoiNiftiFromMat(exclusionROI,referenceParc,'exclusion.nii.gz',true);
+%exclusionROI = bsc_roiFromAtlasNums(referenceParc,[exclusionRoiLUT ],1);
+%
+%% save as nifti
+%[~,~] = dtiRoiNiftiFromMat(exclusionROI,referenceParc,'exclusion.nii.gz',true);
 
 end
 
