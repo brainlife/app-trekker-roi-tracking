@@ -195,36 +195,42 @@ for LMAXS in ${lmaxs}; do
 	echo "running tracking with Trekker on lmax ${LMAXS}"
 	for CURV in ${curvatures}; do
 		echo "curvature ${CURV}"
-		if [ ! -f track_lmax${LMAXS}_curv${CURV}.vtk ]; then
-			/trekker/build/bin/trekker \
-				-enableOutputOverwrite \
-				-fod ${input_csd} \
-				-seed_image ${seed} \
-				-pathway_A=stop_at_exit ${ROI1} \
-				-pathway_A=discard_if_enters csf.nii.gz \
-				-pathway_B=require_entry ${ROI2} \
-				-pathway_B=stop_at_exit ${ROI2} \
-				-pathway_B=discard_if_enters csf.nii.gz \
-				-stepSize ${step_size} \
-				-minRadiusOfCurvature ${CURV} \
-				-probeRadius ${probe_radius} \
-				-probeCount ${probe_count} \
-				-probeQuality ${probe_quality} \
-				-probeLength ${probe_length} \
-				-minLength ${min_length} \
-				-maxLength ${max_length} \
-				-seed_count ${count} \
-				-seed_maxTrials ${seed_max_trials} \
-				-maxSamplingPerStep ${max_sampling} \
-				-minFODamp ${min_fod_amp} \
-				-writeColors \
-				-verboseLevel 0 \
-				-numberOfThreads $NCORE \
-				-output track_lmax${LMAXS}_curv${CURV}.vtk
+		for FOD in ${min_fod_amp}; do
+			echo "FOD amplitude ${FOD}"
+			for STEP in ${step_size}; do
+				echo "Step size ${STEP}"
+				if [ ! -f track_lmax${LMAXS}_curv${CURV}_fod${FOD}_step${STEP}.vtk ]; then
+					/trekker/build/bin/trekker \
+						-enableOutputOverwrite \
+						-fod ${input_csd} \
+						-seed_image ${seed} \
+						-pathway_A=stop_at_exit ${ROI1} \
+						-pathway_A=discard_if_enters csf.nii.gz \
+						-pathway_B=require_entry ${ROI2} \
+						-pathway_B=stop_at_exit ${ROI2} \
+						-pathway_B=discard_if_enters csf.nii.gz \
+						-stepSize ${STEP} \
+						-minRadiusOfCurvature ${CURV} \
+						-probeRadius ${probe_radius} \
+						-probeCount ${probe_count} \
+						-probeQuality ${probe_quality} \
+						-probeLength ${probe_length} \
+						-minLength ${min_length} \
+						-maxLength ${max_length} \
+						-seed_count ${count} \
+						-seed_maxTrials ${seed_max_trials} \
+						-maxSamplingPerStep ${max_sampling} \
+						-minFODamp ${FOD} \
+						-writeColors \
+						-verboseLevel 0 \
+						-numberOfThreads $NCORE \
+						-output track_lmax${LMAXS}_curv${CURV}.vtk
 
-				# convert output vtk to tck
-				tckconvert track_lmax${LMAXS}_curv${CURV}.vtk track_lmax${LMAXS}_curv${CURV}.tck -force -nthreads $NCORE
-			fi
+						# convert output vtk to tck
+						tckconvert track_lmax${LMAXS}_curv${CURV}_fod${FOD}_step${STEP}.vtk track_lmax${LMAXS}_curv${CURV}_fod${FOD}_step${STEP}.tck -force -nthreads $NCORE
+					fi
+				done
+			done
 		done
 	done
 
