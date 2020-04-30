@@ -229,16 +229,16 @@ for LMAXS in ${lmaxs}; do
 	done
 
 # merge tracks together
-holder=(*.tck)
-tckedit ${holder[*]} ./track/track.tck -force -nthreads $NCORE -quiet
+# holder=(*.tck)
+# tckedit ${holder[*]} ./track/track.tck -force -nthreads $NCORE -quiet
 
 # use output.json as product.Json
-echo "{\"track\": $(eval 'tckinfo ./track/track.tck')}" > product.json
+# echo "{\"track\": $(eval 'tckinfo ./track/track.tck')}" > product.json
 
-# clean up
-if [ -f ./track/track.tck ]; then
-	rm -rf *.mif *.b* ./tmp *.nii.gz *track_*
-else
-	echo "tracking failed"
-	exit 1;
-fi
+# # clean up
+# if [ -f ./track/track.tck ]; then
+# 	rm -rf *.mif *.b* ./tmp *.nii.gz *track_*
+# else
+# 	echo "tracking failed"
+# 	exit 1;
+# fi
