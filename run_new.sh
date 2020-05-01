@@ -1,9 +1,9 @@
 #!/bin/bash
 
-#set -x
-#set -e
+set -x
+set -e
 
-NCORE=6
+NCORE=8
 
 # make top dirs
 mkdir -p track
@@ -11,6 +11,7 @@ mkdir -p brainmask
 mkdir -p wmc
 mkdir -p csd
 mkdir -p 5tt
+mkdir -p raw
 
 # set variables
 anat=`jq -r '.anat' config.json`
@@ -247,7 +248,6 @@ for track in ${track_roi[*]}; do
 						-verboseLevel 1 \
 						-output track_${track}_${i_lmax}_${curv}_${step}.vtk \
 						-numberOfThreads $NCORE \
-						-timeLimit 10 \
 						-useBestAtInit
 
 				# convert output vtk to tck
@@ -263,7 +263,7 @@ for track in ${track_roi[*]}; do
 done
 
 #cleanup
-mv *track_E*.tck *.vtk *.nii.gz *.mif *.gii ./raw/
+mv *track_E*.json *track_E*.tck *.vtk *.nii.gz *.mif *.gii ./raw/
 mv ./track/*.tck ./
 ## concatenate tracts
 #holder=(track_${farperiph_roi}.tck track_${periph_roi}.tck track_${mac_roi}.tck)
@@ -276,6 +276,7 @@ tckedit ${holder[*]} ./track/track.tck
 #
 # use output.json as product.Json
 tckinfo ./track/track.tck > product.json
+cp product.json ./track/track_info.txt
 
 # clean up
 if [ -f ./track/track.tck ]; then

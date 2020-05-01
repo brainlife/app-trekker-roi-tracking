@@ -18,12 +18,12 @@ if [ ! -f thalLatPost.nii.gz ]; then
 	time singularity exec -e docker://brainlife/mcr:neurodebian1604-r2017a ./planeROI/generatePlaneROI
 fi
 
-# convert planar ROI to diffusion space
-#if [ ! -f thalLatPostDwi.nii.gz ]; then
-#	echo "move thalLatPost to DWI"
-#	time singularity exec -e -B `pwd`/license.txt:/usr/local/freesurfer/license.txt docker://brainlife/connectome_workbench:1.4.2-freesurfer-update ./planar-dwi.sh
-#fi
-
+## convert planar ROI to diffusion space
+##if [ ! -f thalLatPostDwi.nii.gz ]; then
+##	echo "move thalLatPost to DWI"
+##	time singularity exec -e -B `pwd`/license.txt:/usr/local/freesurfer/license.txt docker://brainlife/connectome_workbench:1.4.2-freesurfer-update ./planar-dwi.sh
+##fi
+#
 # this script will track the eccentricity tracks
 if [ ! -f ./track/track.tck ]; then
 	echo "tracking with trekker"
@@ -36,12 +36,12 @@ time singularity exec -e docker://brainlife/mcr:neurodebian1604-r2017a ./compile
 mv output.mat ./wmc/classification.mat
 mv tracts ./wmc/
 mv output_fibercounts.txt ./wmc/
-mv ./*.tck ./track/
+mv ./*.tck ./raw/
 
-if [ -f ./wmc/classification.mat ]; then
-    rm -rf *.nii.gz
-    exit 0
-else
-    echo "failed"
-    exit 1
-fi
+#if [ -f ./wmc/classification.mat ]; then
+#    rm -rf *.nii.gz
+#    exit 0
+#else
+#    echo "failed"
+#    exit 1
+#fi
