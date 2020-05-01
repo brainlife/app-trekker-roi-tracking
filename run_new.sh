@@ -59,7 +59,6 @@ fi
 
 # roi files
 ROI1=$rois/ROI${roi1}.nii.gz
-#ROI1="ROI008109_smoothed_bin.nii.gz"
 
 if [[ ${roi1} == '008109' ]]; then
 	exclusion=${rois}/ROIexclusion_L.nii.gz
@@ -80,8 +79,8 @@ cp ${exclusion} exclusion.nii.gz
 #farperiph_roi="Ecc$(echo ${min_degree} | cut -d' ' -f3)to$(echo ${max_degree} | cut -d' ' -f3)"
 
 #track_roi="ROI0001"
-periph_roi="Ecc7to90"
-mac_roi="Ecc0to5"
+periph_roi="Ecc$(echo ${min_degree} | cut -d' ' -f2)to$(echo ${max_degree} | cut -d' ' -f2)"
+mac_roi="Ecc$(echo ${min_degree} | cut -d' ' -f1)to$(echo ${max_degree} | cut -d' ' -f1)"
 track_roi=($periph_roi $mac_roi)
 
 # merge rois if seeding in both rois is preferred
@@ -230,7 +229,7 @@ for track in ${track_roi[*]}; do
 						-fod ./csd/lmax${i_lmax}.nii.gz \
 						-seed_image ${ROI1} \
 						-pathway_A=discard_if_enters exclusion.nii.gz \
-						-pathway_B=require_entry thalLatPostDwi.nii.gz \
+						-pathway_B=require_entry thalLatPost.nii.gz \
 						-pathway_B=discard_if_enters exclusion.nii.gz \
 						-pathway_B=require_entry ${track}.nii.gz \
 						-pathway_B=stop_at_entry ${track}.nii.gz \

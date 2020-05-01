@@ -15,14 +15,14 @@ fi
 # this script will generate roi used to force tracking in specific direction
 if [ ! -f thalLatPost.nii.gz ]; then
 	echo "make thal lat post roi"
-	time singularity exec -e docker://brainlife/mcr:neurodebian1604-r2017a ./planeExclusionROI/generatePlaneExclusionROI
+	time singularity exec -e docker://brainlife/mcr:neurodebian1604-r2017a ./planeROI/generatePlaneROI
 fi
 
 # convert planar ROI to diffusion space
-if [ ! -f thalLatPostDwi.nii.gz ]; then
-	echo "move thalLatPost to DWI"
-	time singularity exec -e -B `pwd`/license.txt:/usr/local/freesurfer/license.txt docker://brainlife/connectome_workbench:1.4.2-freesurfer-update ./planar-dwi.sh
-fi
+#if [ ! -f thalLatPostDwi.nii.gz ]; then
+#	echo "move thalLatPost to DWI"
+#	time singularity exec -e -B `pwd`/license.txt:/usr/local/freesurfer/license.txt docker://brainlife/connectome_workbench:1.4.2-freesurfer-update ./planar-dwi.sh
+#fi
 
 # this script will track the eccentricity tracks
 if [ ! -f ./track/track.tck ]; then
