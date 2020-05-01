@@ -80,9 +80,10 @@ cp ${exclusion} exclusion.nii.gz
 #farperiph_roi="Ecc$(echo ${min_degree} | cut -d' ' -f3)to$(echo ${max_degree} | cut -d' ' -f3)"
 
 #track_roi="ROI0001"
+#farperiph_roi="Ecc$(echo ${min_degree} | cut -d' ' -f3)to$(echo ${max_degree} | cut -d' ' -f3)"
 periph_roi="Ecc$(echo ${min_degree} | cut -d' ' -f2)to$(echo ${max_degree} | cut -d' ' -f2)"
 mac_roi="Ecc$(echo ${min_degree} | cut -d' ' -f1)to$(echo ${max_degree} | cut -d' ' -f1)"
-track_roi=($periph_roi $mac_roi)
+track_roi=($farperiph_roi $periph_roi $mac_roi)
 
 # merge rois if seeding in both rois is preferred
 #if [[ ${multiple_seeds} == true ]]; then

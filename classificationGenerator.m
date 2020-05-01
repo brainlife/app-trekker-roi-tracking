@@ -32,17 +32,20 @@ end
 % set seed ROI number: should be 8109 or 8209 for now
 roiNum = str2num(config.seed_roi);
 
-%% Create whole OR fg_classified structure to feed into eccentricity
-[mergedFG, classification]=bsc_mergeFGandClass(fgPath);
+%% Create classification and fg_classified
+[mergedFG, whole_classification]=bsc_mergeFGandClass(fgPath);
 
 % set classification names
 trackNames = split(config.names,' ');
-for ii = 1:length(classification.names)
-    classification.names{ii} = trackNames{ii};
+for ii = 1:length(whole_classification.names)
+    whole_classification.names{ii} = trackNames{ii};
 end
 
 % OR tractogram
 wbFG = mergedFG;
+
+% clean fibers
+classification = cleanFibers(whole_classification,wbFG);
 
 % OR fg_classified
 fg_classified = bsc_makeFGsFromClassification_v4(classification,wbFG);
