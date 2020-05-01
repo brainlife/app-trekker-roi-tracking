@@ -33,10 +33,10 @@ referenceNifti = fullfile(rois,sprintf('ROI%s.nii.gz',lgn_seed));
 %% Generate plane ROI for forced tracking to get loop
 % Planar ROI
 % define posterior limit coords
-posteriorThalLimit = bsc_planeFromROI_v2([lgn],'posterior',referenceNifti);
+posteriorThalLimit = bsc_planeFromROI_v2_brad([lgn],'posterior',referenceNifti);
 
 % define lateral limit coords
-lateralThalLimit = bsc_planeFromROI_v2([lgn],'lateral',referenceNifti);
+lateralThalLimit = bsc_planeFromROI_v2_brad([lgn],'lateral',referenceNifti);
 
 % generate lateral posterior plane of thalamus to capture loop
 thalLatPost = bsc_modifyROI_v2(referenceNifti,lateralThalLimit,posteriorThalLimit,'anterior');
