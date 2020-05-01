@@ -25,21 +25,10 @@ topdir = pwd;
 config = loadjson('config.json');
 lgn_seed = config.seed_roi;
 rois = config.rois;
-fsurf = config.freesurfer;
 
 % load lgn roi so we can extract thalamus
 lgn = bsc_loadAndParseROI(fullfile(rois,sprintf('ROI%s.nii.gz',lgn_seed)));
-referenceNifti = fullfile(config.anat);
-
-% load stuff for exclusion ROI
-referenceParc = fullfile('aparc.a2009s.aseg.nii.gz');
-
-% set exclusion ROIS
-%if str2num(lgn_seed) == 8109
-%    exclusionRoiLUT = [41 42 7 8 4];
-%else
-%    exclusionRoiLUT = [2 3 46 47 43];
-%end
+referenceNifti = fullfile(rois,sprintf('ROI%s.nii.gz',lgn_seed));
 
 %% Generate plane ROI for forced tracking to get loop
 % Planar ROI
@@ -54,13 +43,6 @@ thalLatPost = bsc_modifyROI_v2(referenceNifti,lateralThalLimit,posteriorThalLimi
 
 % save ROI as nifti
 [~,~] = dtiRoiNiftiFromMat(thalLatPost,referenceNifti,'thalLatPost.nii.gz',true);
-
-%% genereate exclusion ROI
-% define exclusion coords
-%exclusionROI = bsc_roiFromAtlasNums(referenceParc,[exclusionRoiLUT ],1);
-%
-%% save as nifti
-%[~,~] = dtiRoiNiftiFromMat(exclusionROI,referenceParc,'exclusion.nii.gz',true);
 
 end
 

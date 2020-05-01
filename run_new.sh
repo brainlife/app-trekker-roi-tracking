@@ -3,7 +3,7 @@
 #set -x
 #set -e
 
-NCORE=8
+NCORE=6
 
 # make top dirs
 mkdir -p track
@@ -48,7 +48,7 @@ max_degree=`jq -r '.MaxDegree' config.json`
 #periph_curv=`jq -r '.periph_curv' config.json`
 #mac_curv=`jq -r '.mac_curv' config.json`
 #multiple_seeds=`jq -r '.multiple_seeds' config.json`
-track=`jq -r '.track' config.json`
+#track=`jq -r '.track' config.json`
 Curv=`jq -r '.curv' config.json`
 
 # if maximum lmax is not inputted, calculate based on number of volumes
@@ -59,6 +59,7 @@ fi
 
 # roi files
 ROI1=$rois/ROI${roi1}.nii.gz
+#ROI1="ROI008109_smoothed_bin.nii.gz"
 
 if [[ ${roi1} == '008109' ]]; then
 	exclusion=${rois}/ROIexclusion_L.nii.gz
@@ -68,16 +69,20 @@ fi
 
 cp ${exclusion} exclusion.nii.gz
 
-if [[ ${track} == 'farperiph' ]]; then
-	track_roi="Ecc$(echo ${min_degree} | cut -d' ' -f3)to$(echo ${max_degree} | cut -d' ' -f3)"
-elif [[ ${track} == 'periph' ]]; then
-	track_roi="Ecc$(echo ${min_degree} | cut -d' ' -f2)to$(echo ${max_degree} | cut -d' ' -f2)"
-else
-	track_roi="Ecc$(echo ${min_degree} | cut -d' ' -f1)to$(echo ${max_degree} | cut -d' ' -f1)"
-fi
+#if [[ ${track} == 'farperiph' ]]; then
+#	track_roi="Ecc$(echo ${min_degree} | cut -d' ' -f3)to$(echo ${max_degree} | cut -d' ' -f3)"
+#elif [[ ${track} == 'periph' ]]; then
+#	track_roi="Ecc$(echo ${min_degree} | cut -d' ' -f2)to$(echo ${max_degree} | cut -d' ' -f2)"
+#else
+#	track_roi="Ecc$(echo ${min_degree} | cut -d' ' -f1)to$(echo ${max_degree} | cut -d' ' -f1)"
+#fi
 #periph_roi="Ecc$(echo ${min_degree} | cut -d' ' -f2)to$(echo ${max_degree} | cut -d' ' -f2)"
 #farperiph_roi="Ecc$(echo ${min_degree} | cut -d' ' -f3)to$(echo ${max_degree} | cut -d' ' -f3)"
 
+#track_roi="ROI0001"
+periph_roi="Ecc7to90"
+mac_roi="Ecc0to5"
+track_roi=($periph_roi $mac_roi)
 
 # merge rois if seeding in both rois is preferred
 #if [[ ${multiple_seeds} == true ]]; then
@@ -121,7 +126,7 @@ fi
 ## generate csf,gm,wm masks
 [ ! -f gm.mif ] && mrconvert -coord 3 0 5tt.mif gm.mif -force -nthreads $NCORE
 [ ! -f csf.mif ] && mrconvert -coord 3 3 5tt.mif csf.mif -force -nthreads $NCORE
-[ ! -f csf_bin.nii.gz ] && mrconvert csf.mif -stride 1,2,3,4 csf.nii.gz -force -nthreads $NCORE && fslmaths csf.nii.gz -bin csf_bin.nii.gz
+[ ! -f csf_bin.nii.gz ] && mrconvert csf.mif -stride 1,2,3,4 csf.nii.gz -force -nthreads $NCORE && fslmaths csf.nii.gz -thr 0.5 -bin csf_bin.nii.gz
 [ ! -f wm.mif ] && mrconvert -coord 3 2 5tt.mif wm.mif -force -nthreads $NCORE
 [ ! -f wm_bin.nii.gz ] && mrconvert wm.mif -stride 1,2,3,4 wm.nii.gz -force -nthreads $NCORE && fslmaths wm.nii.gz -bin wm_bin.nii.gz
 [ ! -f ./5tt/mask.nii.gz ] && mrconvert 5tt.mif -stride 1,2,3,4 ./5tt/mask.nii.gz -force -nthreads $NCORE
@@ -212,170 +217,72 @@ for LMAXS in ${lmaxs}; do
 done
 
 # far periphery
-echo "${track}"
-for (( i_lmax=2; i_lmax<=$max_lmax; i_lmax+=2 )); do
-        for curv in ${Curv}; do
-		for step in ${Step}; do
-                	if [ ! -f track_${track}_${i_lmax}_${curv}_${step}.tck ]; then
-                	        # Run trekker
-                	        echo "running tracking on lmax ${i_lmax} curv ${curv} step ${step} with Trekker"
-                	        /trekker/build/bin/trekker \
-                	                -enableOutputOverwrite \
-                	                -fod ./csd/lmax${i_lmax}.nii.gz \
-                	                -seed_image ${ROI1} \
-                	                -pathway_A=stop_at_exit ${ROI1} \
-					-pathway_A=discard_if_enters exclusion.nii.gz \
-                	                -pathway_A=discard_if_enters csf_bin.nii.gz \
-					-pathway_B=require_entry wm_bin.nii.gz \
-					-pathway_B=require_exit wm_bin.nii.gz \
-                	                -pathway_B=require_entry ${track_roi}.nii.gz \
-					-pathway_B=require_entry thalLatPostDwi.nii.gz \
-                	                -pathway_B=discard_if_enters exclusion.nii.gz \
-					-pathway_B=discard_if_enters csf_bin.nii.gz \
-					-pathway_B=stop_at_exit ${track_roi}.nii.gz \
-                	                -stepSize ${step} \
-                	                -minRadiusOfCurvature ${curv} \
-                	                -probeRadius ${probe_radius} \
-                	                -probeLength ${probe_length} \
-                	                -minLength ${min_length} \
-                	                -maxLength ${max_length} \
-                	                -seed_countPerVoxel ${count} \
-                	                -seed_maxTrials ${seedmaxtrials} \
-                	                -maxSamplingPerStep ${maxsampling} \
-                	                -minFODamp ${min_fod_amp} \
-                	                -writeColors \
-                	                -verboseLevel 0 \
-					-output track_${track_roi}_${i_lmax}_${curv}_${step}.vtk \
-                	                -numberOfThreads $NCORE \
-					-timeLimit 10 \
-					-useBestAtInit
+for track in ${track_roi[*]}; do
+	echo "${track}"
+	for (( i_lmax=6; i_lmax<=$max_lmax; i_lmax+=2 )); do
+		for curv in ${Curv}; do
+			for step in ${Step}; do
+				if [ ! -f ./"track_${track}_${i_lmax}_${curv}_${step}.tck" ]; then
+					# Run trekker
+					echo "running tracking on lmax ${i_lmax} curv ${curv} step ${step} with Trekker"
+					/trekker/build/bin/trekker \
+						-enableOutputOverwrite \
+						-fod ./csd/lmax${i_lmax}.nii.gz \
+						-seed_image ${ROI1} \
+						-pathway_A=discard_if_enters exclusion.nii.gz \
+						-pathway_B=require_entry thalLatPostDwi.nii.gz \
+						-pathway_B=discard_if_enters exclusion.nii.gz \
+						-pathway_B=require_entry ${track}.nii.gz \
+						-pathway_B=stop_at_entry ${track}.nii.gz \
+						-stepSize ${step} \
+						-minRadiusOfCurvature ${curv} \
+						-probeRadius ${probe_radius} \
+						-probeLength ${probe_length} \
+						-minLength ${min_length} \
+						-maxLength ${max_length} \
+						-seed_count ${count} \
+						-seed_maxTrials ${seedmaxtrials} \
+						-maxSamplingPerStep ${maxsampling} \
+						-minFODamp ${min_fod_amp} \
+						-writeColors \
+						-verboseLevel 1 \
+						-output track_${track}_${i_lmax}_${curv}_${step}.vtk \
+						-numberOfThreads $NCORE \
+						-timeLimit 10 \
+						-useBestAtInit
 
-                	        # convert output vtk to tck
-                	        tckconvert track_${track_roi}_${i_lmax}_${curv}_${step}.vtk track_${track_roi}_${i_lmax}_${curv}_${step}.tck -force -nthreads $NCORE
-                	fi
+				# convert output vtk to tck
+				tckconvert track_${track}_${i_lmax}_${curv}_${step}.vtk track_${track}_${i_lmax}_${curv}_${step}.tck -force -nthreads $NCORE
+				fi
+			done
 		done
-        done
+	done
+
+	holder=(*track_${track}*.tck)
+	tckedit ${holder[*]} track_${track}.tck
+	mv track_${track}.tck ./track/
 done
 
-holder=(*track_${track_roi}*.tck)
-tckedit ${holder[*]} ./track/track.tck
-
-
 #cleanup
-mv *track_E*.tck *.nii.gz *.mif *.gii ./raw/
-
-# periphery
-#echo "${periph_roi}"
-#for (( i_lmax=2; i_lmax<=$max_lmax; i_lmax+=2 )); do
-#        for Periph_curv in 0.25 0.5 0.75 1 2; do
-#		for step in 0.025 0.05 0.1 0.15 0.2 0.25; do
-#                	if [ ! -f track_${periph_roi}_${i_lmax}_${Periph_curv}.tck ]; then
-#                	        # Run trekker
-#                	        echo "running tracking on lmax ${i_lmax} curv ${Periph_curv} step ${step} with Trekker"
-#                	        /trekker/build/bin/trekker \
-#                	                -enableOutputOverwrite \
-#                	                -fod ./csd/lmax${i_lmax}.nii.gz \
-#                	                -seed_image ${ROI1} \
-#                	                -pathway_A=stop_at_exit ${ROI1} \
-#					-pathway_A=discard_if_enters exclusion.nii.gz \
-#                	                -pathway_A=discard_if_enters csf_bin.nii.gz \
-#					-pathway_B=require_entry wm_bin.nii.gz \
-#					-pathway_B=require_exit wm_bin.nii.gz \
-#                	                -pathway_B=require_entry ${periph_roi}.nii.gz \
-#					-pathway_B=require_entry thalLatPostDwi.nii.gz \
-#                	                -pathway_B=discard_if_enters exclusion.nii.gz \
-#					-pathway_B=discard_if_enters csf_bin.nii.gz \
-#					-pathway_B=stop_at_exit ${periph_roi}.nii.gz \
-#                	                -stepSize ${step} \
-#                	                -minRadiusOfCurvature ${Periph_curv} \
-#                	                -probeRadius ${probe_radius} \
-#                	                -probeLength ${probe_length} \
-#                	                -minLength ${min_length} \
-#                	                -maxLength ${max_length} \
-#                	                -seed_countPerVoxel ${count} \
-#                	                -seed_maxTrials ${seedmaxtrials} \
-#                	                -maxSamplingPerStep ${maxsampling} \
-#                	                -minFODamp ${min_fod_amp} \
-#                	                -writeColors \
-#                	                -verboseLevel 0 \
-#					-output track_${periph_roi}_${i_lmax}_${Periph_curv}_${step}.vtk \
-#                	                -numberOfThreads $NCORE \
-#					-timeLimit 10 \
-#                	                -useBestAtInit
-#
-#                	        # convert output vtk to tck
-#                	        tckconvert track_${periph_roi}_${i_lmax}_${Periph_curv}_${step}.vtk track_${periph_roi}_${i_lmax}_${Periph_curv}_${step}.tck -force -nthreads $NCORE
-#                	fi
-#		done
-#        done
-#done
-#
-#holder=(*track_${periph_roi}*.tck)
-#tckedit ${holder[*]} ./track_${periph_roi}.tck
-#
-## macular
-#echo "${mac_roi}"
-#for (( i_lmax=2; i_lmax<=$max_lmax; i_lmax+=2 )); do
-#        for Mac_curv in 0.5 1 2 3 4; do
-#		for step in 0.025 0.05 0.1 0.15 0.2 0.25; do
-#                	if [ ! -f track_${mac_roi}_${i_lmax}_${Mac_curv}.tck ]; then
-#                	        # Run trekker
-#                	        echo "running tracking on lmax ${i_lmax} with Trekker"
-#                	        /trekker/build/bin/trekker \
-#                	                -enableOutputOverwrite \
-#                	                -fod ./csd/lmax${i_lmax}.nii.gz \
-#                	                -seed_image ${ROI1} \
-#                	                -pathway_A=stop_at_exit ${ROI1} \
-#					-pathway_A=discard_if_enters exclusion.nii.gz \
-#                	                -pathway_A=discard_if_enters csf_bin.nii.gz \
-#					-pathway_B=require_entry wm_bin.nii.gz \
-#					-pathway_B=require_exit wm_bin.nii.gz \
-#                	                -pathway_B=require_entry ${mac_roi}.nii.gz \
-#					-pathway_B=require_entry thalLatPostDwi.nii.gz \
-#                	                -pathway_B=discard_if_enters exclusion.nii.gz \
-#					-pathway_B=discard_if_enters csf_bin.nii.gz \
-#                	                -pathway_B=stop_at_exit ${mac_roi}.nii.gz \
-#                	                -stepSize ${step} \
-#                	                -minRadiusOfCurvature ${Mac_curv} \
-#                	                -probeRadius ${probe_radius} \
-#                	                -probeLength ${probe_length} \
-#                	                -minLength ${min_length} \
-#                	                -maxLength ${max_length} \
-#                	                -seed_countPerVoxel ${count} \
-#                	                -seed_maxTrials ${seedmaxtrials} \
-#                	                -maxSamplingPerStep ${maxsampling} \
-#                	                -minFODamp ${min_fod_amp} \
-#                	                -writeColors \
-#                	                -verboseLevel 0 \
-#					-output track_${mac_roi}_${i_lmax}_${Mac_curv}_${step}.vtk \
-#                	                -numberOfThreads $NCORE \
-#					-timeLimit 10 \
-#                	                -useBestAtInit
-#
-#                	        # convert output vtk to tck
-#                	        tckconvert track_${mac_roi}_${i_lmax}_${Mac_curv}_${step}.vtk track_${mac_roi}_${i_lmax}_${Mac_curv}_${step}.tck -force -nthreads $NCORE
-#                	fi
-#        done
-#done
-#
-#holder=(*track_${mac_roi}*.tck)
-#tckedit ${holder[*]} ./track_${mac_roi}.tck
-
+mv *track_E*.tck *.vtk *.nii.gz *.mif *.gii ./raw/
+mv ./track/*.tck ./
 ## concatenate tracts
 #holder=(track_${farperiph_roi}.tck track_${periph_roi}.tck track_${mac_roi}.tck)
-#tckedit ${holder[*]} ./track/track.tck
+holder=(*.tck)
+tckedit ${holder[*]} ./track/track.tck
 #if [ ! $ret -eq 0 ]; then
 #    exit $ret
 #fi
 #rm -rf ${holder[*]}
 #
-## use output.json as product.Json
-#tckinfo ./track/track.tck > product.json
+# use output.json as product.Json
+tckinfo ./track/track.tck > product.json
 
 # clean up
-#if [ -f ./track/track.tck ]; then
-#       rm -rf *.mif *.b* ./tmp *.vtk* *track*.json
-#else
-#       echo "tracking failed"
-#       exit 1;
-#fi
+if [ -f ./track/track.tck ]; then
+	#rm -rf *.mif *.b* ./tmp *.vtk* *track*.json
+	echo "tracking complete"
+else
+	echo "tracking failed"
+	exit 1;
+fi

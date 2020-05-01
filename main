@@ -31,16 +31,17 @@ if [ ! -f ./track/track.tck ]; then
 fi
 
 #echo "eccentricity classification"
-#time singularity exec -e docker://brainlife/mcr:neurodebian1604-r2017a ./compiled/classificationGenerator
-#
-#mv output.mat ./wmc/classification.mat
-#mv tracts ./wmc/
-#mv output_fibercounts.txt ./wmc/
-#
-#if [ -f ./wmc/classification.mat ]; then
-#    rm -rf *.nii.gz
-#    exit 0
-#else
-#    echo "failed"
-#    exit 1
-#fi
+time singularity exec -e docker://brainlife/mcr:neurodebian1604-r2017a ./compiled/classificationGenerator
+
+mv output.mat ./wmc/classification.mat
+mv tracts ./wmc/
+mv output_fibercounts.txt ./wmc/
+mv ./*.tck ./track/
+
+if [ -f ./wmc/classification.mat ]; then
+    rm -rf *.nii.gz
+    exit 0
+else
+    echo "failed"
+    exit 1
+fi

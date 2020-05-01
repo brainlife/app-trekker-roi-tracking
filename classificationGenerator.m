@@ -24,7 +24,7 @@ topdir = pwd;
 config = loadjson('config.json');
 
 % Set tck (fg) file path/s
-trackdir = dir(fullfile('track','*.tck*'));
+trackdir = dir(fullfile('*.tck*'));
 for ii = 1:length(trackdir); 
     fgPath{ii} = fullfile(topdir,'track',trackdir(ii).name);
 end
@@ -36,13 +36,16 @@ roiNum = str2num(config.seed_roi);
 [mergedFG, classification]=bsc_mergeFGandClass(fgPath);
 
 % set classification names
-classification.names = {'macular','periphery','far-periphery'};
+trackNames = split(config.names,' ');
+for ii = 1:length(classification.names)
+    classification.names{ii} = trackNames{ii};
+end
 
 % OR tractogram
 wbFG = mergedFG;
 
 % OR fg_classified
-fg_classified = bsc_makeFGsFromClassification_v4(whole_classification,wbFG);
+fg_classified = bsc_makeFGsFromClassification_v4(classification,wbFG);
 
 %% Save output
 save('output.mat','classification','fg_classified','-v7.3');

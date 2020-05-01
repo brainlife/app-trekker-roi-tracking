@@ -22,10 +22,14 @@ for ifg = 1:length(whole_fg_classified)
             keep.(sprintf('Ecc%sto%s',num2str(MinDegree(dd)),num2str(MaxDegree(dd)))) * dd;
     end
 end
-
+% 
+% index_pre = [keep.(sprintf('Ecc%sto%s',num2str(MinDegree(1)),num2str(MaxDegree(1)))) ...
+%     keep.(sprintf('Ecc%sto%s',num2str(MinDegree(2)),num2str(MaxDegree(2)))) ...
+%     keep.(sprintf('Ecc%sto%s',num2str(MinDegree(3)),num2str(MaxDegree(3))))];
+% 
 index_pre = [keep.(sprintf('Ecc%sto%s',num2str(MinDegree(1)),num2str(MaxDegree(1)))) ...
-    keep.(sprintf('Ecc%sto%s',num2str(MinDegree(2)),num2str(MaxDegree(2)))) ...
-    keep.(sprintf('Ecc%sto%s',num2str(MinDegree(3)),num2str(MaxDegree(3))))];
+    keep.(sprintf('Ecc%sto%s',num2str(MinDegree(2)),num2str(MaxDegree(2))))];
+
 
 for ii = 1:length(index_pre)
     if isequal(median(index_pre(ii,:)),0)
@@ -39,6 +43,6 @@ end
 
 classification.index = clean_classification.index.*index';
 % create new classification structure
-classification.names = {'macular','periphery','far_periphery'};
+%classification.names = {'macular','periphery','far_periphery'};
 fg_classified = bsc_makeFGsFromClassification_v4(classification,wbFG);
 end
