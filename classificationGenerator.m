@@ -3,11 +3,11 @@ function [] = classificationGenerator()
 if ~isdeployed
     disp('loading path')
     %for IU HPC
-    addpath(genpath('/N/u/brlife/git/vistasoft'))
+    addpath(genpath('/N/u/hayashis/git/vistasoft'))
     addpath(genpath('/N/u/brlife/git/encode'))
     addpath(genpath('/N/u/brlife/git/jsonlab'))
     addpath(genpath('/N/u/brlife/git/spm'))
-    addpath(genpath('/N/u/brlife/git/wma_tools'))
+    addpath(genpath('/N/u/bacaron/git/wma_tools'))
 
     %for old VM
     addpath(genpath('/usr/local/vistasoft'))
