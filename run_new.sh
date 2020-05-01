@@ -245,7 +245,7 @@ for track in ${track_roi[*]}; do
 						-maxSamplingPerStep ${maxsampling} \
 						-minFODamp ${min_fod_amp} \
 						-writeColors \
-						-verboseLevel 1 \
+						-verboseLevel 0 \
 						-output track_${track}_${i_lmax}_${curv}_${step}.vtk \
 						-numberOfThreads $NCORE \
 						-useBestAtInit
