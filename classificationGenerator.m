@@ -26,7 +26,7 @@ config = loadjson('config.json');
 % Set tck (fg) file path/s
 trackdir = dir(fullfile('*.tck*'));
 for ii = 1:length(trackdir); 
-    fgPath{ii} = fullfile(topdir,'track',trackdir(ii).name);
+    fgPath{ii} = fullfile(topdir,trackdir(ii).name);
 end
 
 % set seed ROI number: should be 8109 or 8209 for now
