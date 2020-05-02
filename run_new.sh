@@ -69,29 +69,16 @@ fi
 
 cp ${exclusion} exclusion.nii.gz
 
-#if [[ ${track} == 'farperiph' ]]; then
-#	track_roi="Ecc$(echo ${min_degree} | cut -d' ' -f3)to$(echo ${max_degree} | cut -d' ' -f3)"
-#elif [[ ${track} == 'periph' ]]; then
-#	track_roi="Ecc$(echo ${min_degree} | cut -d' ' -f2)to$(echo ${max_degree} | cut -d' ' -f2)"
-#else
-#	track_roi="Ecc$(echo ${min_degree} | cut -d' ' -f1)to$(echo ${max_degree} | cut -d' ' -f1)"
-#fi
-#periph_roi="Ecc$(echo ${min_degree} | cut -d' ' -f2)to$(echo ${max_degree} | cut -d' ' -f2)"
-#farperiph_roi="Ecc$(echo ${min_degree} | cut -d' ' -f3)to$(echo ${max_degree} | cut -d' ' -f3)"
+if [[ ${multiple_seeds} == true ]]; then
+	mrcalc ${ROI1} ${ROI2} -add seed.nii.gz
+	seed=seed.nii.gz
+else
+	seed=${ROI1}
+fi
 
-#track_roi="ROI0001"
-#farperiph_roi="Ecc$(echo ${min_degree} | cut -d' ' -f3)to$(echo ${max_degree} | cut -d' ' -f3)"
-periph_roi="Ecc$(echo ${min_degree} | cut -d' ' -f2)to$(echo ${max_degree} | cut -d' ' -f2)"
-mac_roi="Ecc$(echo ${min_degree} | cut -d' ' -f1)to$(echo ${max_degree} | cut -d' ' -f1)"
-#track_roi=($farperiph_roi $periph_roi $mac_roi)
-track_roi=($periph_roi $mac_roi)
-# merge rois if seeding in both rois is preferred
-#if [[ ${multiple_seeds} == true ]]; then
-#	mrcalc ${ROI1} ${ROI2} -add seed.nii.gz
-#	seed=seed.nii.gz
-#else
-#	seed=${ROI1}
-#fi
+# make min and max degrees into easier to loop through arrays
+MinDegree=(${min_degree})
+MaxDegree=(${max_degree})
 
 # parse whether dtiinit or dwi input
 if [[ ! ${dtiinit} == "null" ]]; then
@@ -217,8 +204,10 @@ for LMAXS in ${lmaxs}; do
 	fi
 done
 
-# far periphery
-for track in ${track_roi[*]}; do
+# tracking
+#for track in ${track_roi[*]}; do
+for (( ii=1; ii<=${#MinDegree[@]}; ii++ )); do
+	track="Ecc${MinDegree[$ii-1]}to${MaxDegree[$ii-1]}"
 	echo "${track}"
 	for (( i_lmax=6; i_lmax<=$max_lmax; i_lmax+=2 )); do
 		for curv in ${Curv}; do
