@@ -237,7 +237,7 @@ for (( i=0; i<$nTracts; i+=1 )); do
 							-maxSamplingPerStep ${max_sampling} \
 							-minFODamp ${FOD} \
 							-writeColors \
-							-verboseLevel 1 \
+							-verboseLevel 0 \
 							-numberOfThreads $NCORE \
 							-useBestAtInit \
 							-output track$((i+1))_lmax${LMAXS}_curv${CURV}_step${STEP}_amp${FOD}.vtk
