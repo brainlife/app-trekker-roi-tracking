@@ -262,7 +262,7 @@ for (( i=0; i<$nTracts; i+=1 )); do
 	done
 
 if [ -f track*.tck ]; then
-	mv *.mif *.b* ./tmp *.nii.gz ./raw/
+	mv *.mif *.b* *.nii.gz ./raw/
         holder=(track*.tck)
         if [ ${#holder[@]} == 1 ]; then
                 cp -v ${holder[0]} ./track/track.tck
