@@ -19,7 +19,7 @@ for ii = 1:length(tcks);
 end
 disp(fgPath)
 [mergedFG, classification]=bsc_mergeFGandClass(fgPath);
-fgWrite(mergedFG, 'track/track.tck', 'tck');
+%fgWrite(mergedFG, 'track/track.tck', 'tck');
 
 if ~exist('wmc', 'dir')
     mkdir('wmc')
