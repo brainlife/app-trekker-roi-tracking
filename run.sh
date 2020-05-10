@@ -261,7 +261,7 @@ for (( i=0; i<$nTracts; i+=1 )); do
 		tckinfo $output > track_info$((i+1)).txt
 	done
 
-if [ -f track*.tck ]; then
+if [ -f track1.tck ]; then
 	mv *.mif *.b* *.nii.gz ./raw/
         holder=(track*.tck)
         if [ ${#holder[@]} == 1 ]; then
