@@ -2,65 +2,41 @@ function [] = classificationGenerator()
 
 if ~isdeployed
     disp('loading path')
-
-    %for IU HPC
-    addpath(genpath('/N/u/brlife/git/vistasoft'))
-    addpath(genpath('/N/u/brlife/git/encode'))
+    addpath(genpath('/N/u/hayashis/git/vistasoft'))
     addpath(genpath('/N/u/brlife/git/jsonlab'))
-    addpath(genpath('/N/u/brlife/git/spm'))
     addpath(genpath('/N/u/brlife/git/wma_tools'))
-
-    %for old VM
-    addpath(genpath('/usr/local/vistasoft'))
-    addpath(genpath('/usr/local/encode'))
-    addpath(genpath('/usr/local/jsonlab'))
-    addpath(genpath('/usr/local/spm'))
-    addpath(genpath('/usr/local/wma_tools'))
 end
-
-% Set top directory
-topdir = pwd;
 
 % Load configuration file
-config = loadjson('config.json');
+config = loadjson('config.json')
+roiPair = strtrim(config.roiPair)
 
 % Set tck file path/s
-rois=dir(fullfile('track','*.tck*'));
-
-roiPair = [str2num(config.seed_roi) str2num(config.term_roi)];
-    
-for ii = 1:length(rois); 
-    fgPath{ii} = fullfile(topdir,'track',rois(ii).name);
+disp('merging tcks')
+tcks=dir('track*.tck')
+for ii = 1:length(tcks); 
+    fgPath{ii} = tcks(ii).name;
 end
-
-% Create classification structure
+disp(fgPath)
 [mergedFG, classification]=bsc_mergeFGandClass(fgPath);
 
-% Amend name of tract in classification structure
-if isnumeric(roiPair(1))
-    for ii = round((1:length(roiPair))/2)
-        classification.names{ii} = strcat('ROI_',num2str(roiPair((2*ii) - 1)),'_ROI_',num2str(roiPair((2*ii))));
-    end
-else
-    roiPair = split(roiPair);
-    for ii = round((1:length(roiPair))/2)
-        classification.names{ii} = strcat('ROI_',roiPair{(2*ii) - 1},'_ROI_',roiPair{(2*ii)});
-    end
+if ~exist('wmc', 'dir')
+    mkdir('wmc')
+end
+if ~exist('wmc/tracts', 'dir')
+    mkdir('wmc/tracts')
 end
 
-% Create fg_classified structure
-wbFG = mergedFG;
-fg_classified = bsc_makeFGsFromClassification_v4(classification,wbFG);
+% Amend name of tract in classification structure
+roiPair = split(roiPair);
+for ii = 1:length(roiPair)
+    classification.names{ii} = strcat('ROI_',roiPair{ii},'_ROI_v1');
+end
+save('wmc/classification.mat','classification')
 
-% Save output
-save('output.mat','classification','fg_classified','-v7.3');
-
-% Create structure to generate colors for each tract
+% split up fg again to create tracts.json
+fg_classified = bsc_makeFGsFromClassification_v4(classification,mergedFG);
 tracts = fg2Array(fg_classified);
-
-mkdir('tracts');
-
-% Make colors for the tracts
 %cm = parula(length(tracts));
 cm = distinguishable_colors(length(tracts));
 for it = 1:length(tracts)
@@ -71,32 +47,32 @@ for it = 1:length(tracts)
 
    %tract.coords = tracts(it).fibers;
    %pick randomly up to 1000 fibers (pick all if there are less than 1000)
-   fiber_count = min(1000, numel(tracts{it}.fibers));
-   tract.coords = tracts{it}.fibers(randperm(fiber_count)); 
+   fiber_count = length(tracts{it}.fibers);
+   tract.coords = tracts{it}.fibers; 
    
-   savejson('', tract, fullfile('tracts',sprintf('%i.json',it)));
+   savejson('', tract, fullfile('wmc','tracts', sprintf('%i.json',it)));
    all_tracts(it).filename = sprintf('%i.json',it);
    clear tract
 end
 
 % Save json outputs
-savejson('', all_tracts, fullfile('tracts/tracts.json'));
+savejson('', all_tracts, fullfile('wmc/tracts/tracts.json'));
 
 % Create and write output_fibercounts.txt file
-for i = 1 : length(fg_classified)
-    name = fg_classified{i}.name;
-    num_fibers = length(fg_classified{i}.fibers);
+for ii = 1 : length(fg_classified)
+    name = fg_classified{ii}.name;
+    num_fibers = length(fg_classified{ii}.fibers);
     
-    fibercounts(i) = num_fibers;
-    tract_info{i,1} = name;
-    tract_info{i,2} = num_fibers;
+    fibercounts(ii) = num_fibers;
+    tract_info{ii,1} = name;
+    tract_info{ii,2} = num_fibers;
 end
 
 T = cell2table(tract_info);
 T.Properties.VariableNames = {'Tracts', 'FiberCount'};
 
-writetable(T, 'output_fibercounts.txt');
-
+writetable(T, fullfile('wmc','output_fibercounts.txt'));
 
 exit;
 end
+

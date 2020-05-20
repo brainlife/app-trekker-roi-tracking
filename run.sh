@@ -1,218 +1,181 @@
 #!/bin/bash
 
-set -e
+#set -x
+#set -e
 
-NCORE=8
+NCORE=6
 
 # make top dirs
 mkdir -p track
-mkdir -p csd
-mkdir -p mask
 mkdir -p brainmask
 mkdir -p wmc
-#mkdir -p tensor
+mkdir -p raw
 
 # set variables
-dwi=$(jq -r .dwi config.json)
+dtiinit=`jq -r '.dtiinit' config.json`
+dwi=`jq -r '.dwi' config.json`
 bvecs=`jq -r '.bvecs' config.json`
 bvals=`jq -r '.bvals' config.json`
-anat=`jq -r '.t1' config.json`
-#fa=`jq -r '.fa' config.json`
-#md=`jq -r '.md' config.json`
-#ad=`jq -r '.ad' config.json`
-#rd=`jq -r '.rd' config.json`
 mask=`jq -r '.mask' config.json`
 brainmask=`jq -r '.brainmask' config.json`
-LMAX=`jq -r '.lmax' config.json`
-input_csd=`jq -r "$(eval echo '.lmax$LMAX')" config.json`
+max_lmax=`jq -r '.lmax' config.json`
 rois=`jq -r '.rois' config.json`
 count=`jq -r '.count' config.json`
-roi1=`jq -r '.seed_roi' config.json`
-roi2=`jq -r '.term_roi' config.json`
-#MINFODAMP=$(jq -r .minfodamp config.json)
-#minradiusofcurvature=$(jq -r .minradiusofcurvature config.json)
+roipair=`jq -r '.roiPair' config.json`
+min_fod_amp=`jq -r '.minfodamp' config.json`
+curvatures=`jq -r '.curvatures' config.json`
+seed_max_trials=`jq -r '.maxtrials' config.json`
+max_sampling=`jq -r '.maxsampling' config.json`
+lmax2=`jq -r '.lmax2' config.json`
+lmax4=`jq -r '.lmax4' config.json`
+lmax6=`jq -r '.lmax6' config.json`
+lmax8=`jq -r '.lmax8' config.json`
+lmax10=`jq -r '.lmax10' config.json`
+lmax12=`jq -r '.lmax12' config.json`
+lmax14=`jq -r '.lmax14' config.json`
+response=`jq -r '.response' config.json`
+single_lmax=`jq -r '.single_lmax' config.json`
+step_size=`jq -r '.stepsize' config.json`
+min_length=`jq -r '.min_length' config.json`
+max_length=`jq -r '.max_length' config.json`
+probe_length=`jq -r '.probelength' config.json`
+probe_quality=`jq -r '.probequality' config.json`
+probe_count=`jq -r '.probecount' config.json`
+probe_radius=`jq -r '.proberadius' config.json`
+v1=`jq -r '.v1' config.json`
+exclusion=`jq -r '.exclusion' config.json`
 
-# roi files
-ROI1=$rois/ROI${roi1}.nii.gz
-ROI2=$rois/ROI${roi2}.nii.gz
+if [ ! -f $rois/ROI${v1}.nii.gz ]; then
+    v1=$rois/${v1}.nii.gz
+else
+    v1=$rois/ROI${v1}.nii.gz
+fi
 
-# convert dwi to mrtrix format
-[ ! -f dwi.b ] && mrconvert -fslgrad $bvecs $bvals $dwi dwi.mif --export_grad_mrtrix dwi.b -nthreads $NCORE
+# parse whether dtiinit or dwi input
+if [[ ! ${dtiinit} == "null" ]]; then
+        input_nii_gz=$dtiinit/*dwi_aligned*.nii.gz
+        BVALS=$dtiinit/*.bvals
+        BVECS=$dtiinit/*.bvecs
+        brainmask=$dtiinit/dti/bin/brainMask.nii.gz
+        [ ! -f mask.mif ] && mrconvert ${brainmask} mask.mif -force -nthreads $NCORE
+else
+	input_nii_gz=${dwi}
+fi
+
+# convert input diffusion nifti to mrtrix format
+[ ! -f dwi.b ] && mrconvert -fslgrad $bvecs $bvals ${input_nii_gz} dwi.mif --export_grad_mrtrix dwi.b -nthreads $NCORE
 
 # create mask of dwi
 if [[ ${brainmask} == 'null' ]]; then
 	[ ! -f mask.mif ] && dwi2mask dwi.mif mask.mif -nthreads $NCORE
 else
 	echo "brainmask input exists. converting to mrtrix format"
-	mrconvert ${brainmask} -stride 1,2,3,4 mask.mif -force -nthreads $NCORE
+	[ ! -f mask.mif ] && mrconvert ${brainmask} -stride 1,2,3,4 mask.mif -force -nthreads $NCORE
 fi
-
-# convert anatomical t1 to mrtrix format
-[ ! -f anat.mif ] && mrconvert ${anat} anat.mif -nthreads $NCORE
-
-# extract b0 image from dwi
-[ ! -f b0.mif ] && dwiextract dwi.mif - -bzero | mrmath - mean b0.mif -axis 3 -nthreads $NCORE
-
-# check if b0 volume successfully created
-if [ ! -f b0.mif ]; then
-    echo "No b-zero volumes present."
-    NSHELL=`mrinfo -shell_bvalues dwi.mif | wc -w`
-    NB0s=0
-    EB0=''
-else
-    ISHELL=`mrinfo -shell_bvalues dwi.mif | wc -w`
-    NSHELL=$(($ISHELL-1))
-    NB0s=`mrinfo -shell_sizes dwi.mif | awk '{print $1}'`
-    EB0="0,"
-fi
-
-## determine single shell or multishell fit
-if [ $NSHELL -gt 1 ]; then
-    MS=1
-    echo "Multi-shell data: $NSHELL total shells"
-else
-    echo "Single-shell data: $NSHELL shell"
-    MS=0
-    if [ ! -z "$TENSOR_FIT" ]; then
-	echo "Ignoring requested tensor shell. All data will be fit and tracked on the same b-value."
-    fi
-fi
-
-## create the correct length of lmax
-if [ $NB0s -eq 0 ]; then
-    RMAX=${LMAX}
-else
-    RMAX=0
-fi
-iter=1
-
-## for every shell (after starting w/ b0), add the max lmax to estimate
-while [ $iter -lt $(($NSHELL+1)) ]; do
-    
-    ## add the $MAXLMAX to the argument
-    RMAX=$RMAX,$LMAX
-
-    ## update the iterator
-    iter=$(($iter+1))
-
-done
-
-# extract mask
-[ ! -f dt.mif ] && dwi2tensor -mask mask.mif dwi.mif dt.mif -bvalue_scaling false -force -nthreads $NCORE
-
-## creating tensor metrics
-#if [[ ${fa} == 'null' ]]; then
-#	[ ! -f fa.mif ] && tensor2metric -mask mask.mif -adc md.mif -fa fa.mif -ad ad.mif -rd rd.mif -cl cl.mif -cp cp.mif -cs cs.mif dt.mif -force -nthreads $NCORE
-#else
-#	echo "input fa exists. converting input to mrtrix format"
-#	mrconvert ${fa} --stride 1,2,3,4 fa.mif -force -nthreads $NCORE
-#	mrconvert ${md} --stride 1,2,3,4 md.mif -force -nthreads $NCORE
-#	mrconvert ${ad} --stride 1,2,3,4 ad.mif -force -nthreads $NCORE
-#	mrconvert ${rd} --stride 1,2,3,4 rd.mif -force -nthreads $NCORE
-#fi
-
-# generate 5-tissue-type (5TT) tracking mask
-if [[ ${mask} == 'null' ]]; then
-	[ ! -f 5tt.mif ] && 5ttgen fsl anat.mif 5tt.mif -nocrop -sgm_amyg_hipp -tempdir ./tmp -force -nthreads $NCORE
-else
-	echo "input 5tt mask exists. converting to mrtrix format"
-	mrconvert ${mask} -stride 1,2,3,4 5tt.mif -force -nthreads $NCORE
-fi
-
-# generate gm-wm interface seed mask
-#[ ! -f gmwmi_seed.mif ] && 5tt2gmwmi 5tt.mif gmwmi_seed.mif -force -nthreads $NCORE
-#
-## generate csf,gm,wm masks
-#[ ! -f wm.mif ] && mrconvert -coord 3 2 5tt.mif wm.mif -force -nthreads $NCORE
-#[ ! -f gm.mif ] && mrconvert -coord 3 0 5tt.mif gm.mif -force -nthreads $NCORE
-[ ! -f csf.mif ] && mrconvert -coord 3 3 5tt.mif csf.mif -force -nthreads $NCORE
-#
-## create visualization output
-#[ ! -f 5ttvis.mif ] && 5tt2vis 5tt.mif 5ttvis.mif -force -nthreads $NCORE
-
-#creating response (should take about 15min)
-if [[ ${input_csd} == 'null' ]]; then
-	if [ $MS -eq 0 ]; then
-		echo "Estimating CSD response function"
-		time dwi2response tournier dwi.mif wmt.txt -lmax ${LMAX} -force -nthreads $NCORE -tempdir ./tmp
-	else
-		echo "Estimating MSMT CSD response function"
-		time dwi2response msmt_5tt dwi.mif 5tt.mif wmt.txt gmt.txt csf.txt -mask mask.mif -lmax ${RMAX} -tempdir ./tmp -force -nthreads $NCORE
-	fi
-
-	# fitting CSD FOD of lmax
-	if [ $MS -eq 0 ]; then
-		echo "Fitting CSD FOD of Lmax ${LMAX}..."
-		time dwi2fod -mask mask.mif csd dwi.mif wmt.txt wmt_lmax${LMAX}_fod.mif -lmax ${LMAX} -force -nthreads $NCORE
-	else
-		echo "Estimating MSMT CSD FOD of Lmax ${LMAX}"
-		time dwi2fod msmt_csd dwi.mif wmt.txt wmt_lmax${LMAX}_fod.mif  gmt.txt gmt_lmax${LMAX}_fod.mif csf.txt csf_lmax${LMAX}_fod.mif -force -nthreads $NCORE
-	fi
-	# convert to niftis
-	mrconvert wmt_lmax${LMAX}_fod.mif -stride 1,2,3,4 ./csd/lmax${LMAX}.nii.gz -force -nthreads $NCORE
-
-	# copy response file
-	cp wmt.txt response.txt
-else
-	echo "csd already inputted. skipping csd generation"
-	cp -v ${input_csd} ./csd/lmax${LMAX}.nii.gz
-fi
-
-## tensor outputs
-#mrconvert fa.mif -stride 1,2,3,4 ./tensor/fa.nii.gz -force -nthreads $NCORE
-#mrconvert md.mif -stride 1,2,3,4 ./tensor/md.nii.gz -force -nthreads $NCORE
-#mrconvert ad.mif -stride 1,2,3,4 ./tensor/ad.nii.gz -force -nthreads $NCORE
-#mrconvert rd.mif -stride 1,2,3,4 ./tensor/rd.nii.gz -force -nthreads $NCORE
-
-## westin shapes (also tensor)
-#if [[ ${fa} == 'null' ]]; then
-#	mrconvert cl.mif -stride 1,2,3,4 ./tensor/cl.nii.gz -force -nthreads $NCORE
-#	mrconvert cp.mif -stride 1,2,3,4 ./tensor/cp.nii.gz -force -nthreads $NCORE
-#	mrconvert cs.mif -stride 1,2,3,4 ./tensor/cs.nii.gz -force -nthreads $NCORE
-#	mrconvert dt.mif -stride 1,2,3,4 ./tensor/tensor.nii.gz -force -nthreads $NCORE
-#fi
-
-# 5 tissue type visualization
-[ ! -f ./mask/mask.nii.gz ] && mrconvert 5tt.mif -stride 1,2,3,4 ./mask/mask.nii.gz -force -nthreads $NCORE
 
 # brainmask
-[ ! -f csf.nii.gz ] && mrconvert csf.mif -stride 1,2,3,4 csf.nii.gz -force -nthreads $NCORE
 [ ! -f ./brainmask/mask.nii.gz ] && mrconvert mask.mif -stride 1,2,3,4 ./brainmask/mask.nii.gz -force -nthreads $NCORE
 
-# Run trekker
-echo "running tracking with Trekker"
-/trekker/build/bin/trekker \
-	-enableOutputOverwrite \
-	-fod ./csd/lmax${LMAX}.nii.gz \
-	-seed_image ${ROI1} \
-	-pathway_A=stop_at_exit ${ROI1} \
-	-pathway_A=discard_if_enters csf.nii.gz \
-	-pathway_B=require_entry ${ROI2} \
-	-pathway_B=stop_at_exit ${ROI2} \
-	-pathway_B=discard_if_enters csf.nii.gz \
-	-stepSize 0.05 \
-	-minRadiusOfCurvature 0.25 \
-	-probeRadius 0 \
-	-probeLength 0.25 \
-	-minLength $(jq -r .min_length config.json) \
-	-maxLength $(jq -r .max_length config.json) \
-	-seed_count ${count} \
-	-minFODamp 0.025 \
-	-writeColors \
-	-verboseLevel 0 \
-	-output track.vtk
-
-# convert output vtk to tck
-tckconvert track.vtk track/track.tck -force -nthreads $NCORE
-
-
-# use output.json as product.Json
-echo "{\"track\": $(cat track.json)}" > product.json
-
-# clean up
-if [ -f ./track/track.tck ]; then
-	rm -rf *.mif *.b* ./tmp *.nii.gz
+# generate sequence of lmax spherical harmonic order for single or ensemble
+if [[ ${single_lmax} == true ]]; then
+	lmaxs=$(seq ${max_lmax} ${max_lmax})
 else
-	echo "tracking failed"
-	exit 1;
+	lmaxs=$(seq 2 2 ${max_lmax})
+fi
+
+# 5tt mask
+[ ! -f 5tt.mif ] && mrconvert ${mask} -stride 1,2,3,4 5tt.mif -force -nthreads $NCORE
+
+## generate csf,gm,wm masks
+[ ! -f gm.mif ] && mrconvert -coord 3 0 5tt.mif gm.mif -force -nthreads $NCORE
+[ ! -f csf.mif ] && mrconvert -coord 3 3 5tt.mif csf.mif -force -nthreads $NCORE
+[ ! -f csf_bin.nii.gz ] && mrconvert csf.mif -stride 1,2,3,4 csf.nii.gz -force -nthreads $NCORE && fslmaths csf.nii.gz -thr 0.3 -bin csf_bin.nii.gz
+[ ! -f wm.mif ] && mrconvert -coord 3 2 5tt.mif wm.mif -force -nthreads $NCORE
+[ ! -f wm_bin.nii.gz ] && mrconvert wm.mif -stride 1,2,3,4 wm.nii.gz -force -nthreads $NCORE && fslmaths wm.nii.gz -bin wm_bin.nii.gz
+
+# Run trekker
+pairs=($roipair)
+exclus=($exclusion)
+nTracts=` expr ${#pairs[@]}`
+
+for (( i=1; i<=$nTracts; i+=1 )); do
+	[ -f track$((i)).tck ] && continue
+
+	echo "creating seed for tract $((i))"
+	if [ ! -f $rois/ROI${pairs[$((i-1))]}.nii.gz ]; then
+		roi1=$rois/${pairs[$((i-1))]}.nii.gz
+		exclusion=$rois/${exclus[$((i-1))]}.nii.gz
+	else
+		roi1=$rois/ROI${pairs[$((i-1))]}.nii.gz
+		exclusion=$rois/ROI${exclus[$((i-1))]}.nii.gz
+	fi
+
+	for LMAXS in ${lmaxs}; do
+		input_csd=$(eval "echo \$lmax${LMAXS}")
+		echo "running tracking with Trekker on lmax ${LMAXS}"
+		for CURV in ${curvatures}; do
+			echo "curvature ${CURV}"
+			for STEP in ${step_size}; do
+				echo "step size ${STEP}"
+				for FOD in ${min_fod_amp}; do
+					echo "FOD amplitude ${FOD}"
+					if [ ! -f track$((i))_lmax${LMAXS}_curv${CURV}_step${STEP}_amp${FOD}.vtk ]; then
+						/trekker/build/bin/trekker \
+							-enableOutputOverwrite \
+							-fod ${input_csd} \
+							-seed_image ${roi1} \
+							-pathway_A=discard_if_enters ${exclusion} \
+							-pathway_A=discard_if_enters csf_bin.nii.gz \
+							-pathway_B=discard_if_enters ${exclusion} \
+							-pathway_B=discard_if_enters csf_bin.nii.gz \
+							-pathway_B=require_entry ${v1} \
+							-stepSize ${STEP} \
+							-minRadiusOfCurvature ${CURV} \
+							-probeRadius ${probe_radius} \
+							-probeCount ${probe_count} \
+							-probeQuality ${probe_quality} \
+							-probeLength ${probe_length} \
+							-minLength ${min_length} \
+							-maxLength ${max_length} \
+							-seed_count ${count} \
+							-seed_maxTrials ${seed_max_trials} \
+							-maxSamplingPerStep ${max_sampling} \
+							-minFODamp ${FOD} \
+							-writeColors \
+							-verboseLevel 1 \
+							-numberOfThreads $NCORE \
+							-useBestAtInit \
+							-output track$((i))_lmax${LMAXS}_curv${CURV}_step${STEP}_amp${FOD}.vtk
+
+							# convert output vtk to tck
+							tckconvert track$((i))_lmax${LMAXS}_curv${CURV}_step${STEP}_amp${FOD}.vtk track$((i))_lmax${LMAXS}_curv${CURV}_step${STEP}_amp${FOD}.tck -force -nthreads $NCORE
+						fi
+					done
+				done
+			done
+		done
+		
+		output=track$((i)).tck
+		tcks=(track$((i))*.tck)
+		if [ ${#tcks[@]} == 1 ]; then
+			mv ${tcks[0]} $output
+		else
+			tckedit ${tcks[*]} $output
+			mv ${tcks[*]} ./raw/
+		fi
+		tckinfo $output > track_info$((i+1)).txt
+	done
+
+if [ -f track1.tck ]; then
+	mv *.mif *.b* *.nii.gz ./raw/
+        holder=(track*.tck)
+        if [ ${#holder[@]} == 1 ]; then
+                cp -v ${holder[0]} ./track/track.tck
+        else
+                tckedit ${holder[*]} ./track/track.tck
+        fi
+
+else
+	echo "tracking did not generate. please check derivatives and log files for debugging"
+	exit 1
 fi
