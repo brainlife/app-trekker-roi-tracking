@@ -126,7 +126,7 @@ for (( i=1; i<=$nTracts; i+=1 )); do
 							-seed_image ${roi1} \
 							-pathway_A=discard_if_enters ${exclusion} \
 							-pathway_A=discard_if_enters csf_bin.nii.gz \
-							-pathway_B=discard_if_enters ${exclusion} \
+                                                        -pathway_A=discard_if_exits ${roi1} \							-pathway_B=discard_if_enters ${exclusion} \
 							-pathway_B=discard_if_enters csf_bin.nii.gz \
 							-pathway_B=require_entry ${v1} \
 							-stepSize ${STEP} \
