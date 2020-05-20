@@ -1,9 +1,9 @@
 #!/bin/bash
 
-#set -x
-#set -e
+set -x
+set -e
 
-NCORE=6
+NCORE=8
 
 # make top dirs
 mkdir -p track
@@ -142,7 +142,7 @@ for (( i=1; i<=$nTracts; i+=1 )); do
 							-maxSamplingPerStep ${max_sampling} \
 							-minFODamp ${FOD} \
 							-writeColors \
-							-verboseLevel 1 \
+							-verboseLevel 0 \
 							-numberOfThreads $NCORE \
 							-useBestAtInit \
 							-output track$((i))_lmax${LMAXS}_curv${CURV}_step${STEP}_amp${FOD}.vtk
