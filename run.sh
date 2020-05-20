@@ -163,7 +163,7 @@ for (( i=1; i<=$nTracts; i+=1 )); do
 			tckedit ${tcks[*]} $output
 			mv ${tcks[*]} ./raw/
 		fi
-		tckinfo $output > track_info$((i+1)).txt
+		tckinfo $output > track_info$((i)).txt
 	done
 
 if [ -f track1.tck ]; then
