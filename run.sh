@@ -113,7 +113,7 @@ for (( i=1; i<=$nTracts; i+=1 )); do
 		roi1=$rois/${pairs[$((i-1))]}.nii.gz
 		if [[ ${exclude} == true ]]; then
 			Exclusion=$rois/${exclus[$((i-1))]}.nii.gz
-			exclusion_line="pathway_B=discard_if_enters ${Exclusion}"
+			exclusion_line="-pathway_B=discard_if_enters ${Exclusion}"
 		else
 			exclusion_line=""
 		fi
@@ -121,7 +121,7 @@ for (( i=1; i<=$nTracts; i+=1 )); do
 		roi1=$rois/ROI${pairs[$((i-1))]}.nii.gz
 		if [[ ${exclude} == true ]]; then
 			Exclusion=$rois/ROI${exclus[$((i-1))]}.nii.gz
-			exclusion_line="pathway_B=discard_if_enters ${Exclusion}"
+			exclusion_line="-pathway_B=discard_if_enters ${Exclusion}"
 		else
 			exclusion_line=""
 		fi
