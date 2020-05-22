@@ -95,8 +95,15 @@ fi
 
 # Run trekker
 pairs=($roipair)
-exclus=($exclusion)
 nTracts=` expr ${#pairs[@]}`
+
+if [[ ! ${exclusion} == 'null' ]]; then
+	exclus=($exclusion)
+	exclude='true'
+else
+	exclus=""
+	exclude='false'
+fi
 
 for (( i=1; i<=$nTracts; i+=1 )); do
 	[ -f track$((i)).tck ] && continue
@@ -104,10 +111,20 @@ for (( i=1; i<=$nTracts; i+=1 )); do
 	echo "creating seed for tract $((i))"
 	if [ ! -f $rois/ROI${pairs[$((i-1))]}.nii.gz ]; then
 		roi1=$rois/${pairs[$((i-1))]}.nii.gz
-		exclusion=$rois/${exclus[$((i-1))]}.nii.gz
+		if [[ ${exclude} == true ]]; then
+			Exclusion=$rois/${exclus[$((i-1))]}.nii.gz
+			exclusion_line="pathway_B=discard_if_enters ${Exclusion}"
+		else
+			exclusion_line=""
+		fi
 	else
 		roi1=$rois/ROI${pairs[$((i-1))]}.nii.gz
-		exclusion=$rois/ROI${exclus[$((i-1))]}.nii.gz
+		if [[ ${exclude} == true ]]; then
+			Exclusion=$rois/ROI${exclus[$((i-1))]}.nii.gz
+			exclusion_line="pathway_B=discard_if_enters ${Exclusion}"
+		else
+			exclusion_line=""
+		fi
 	fi
 
 	for LMAXS in ${lmaxs}; do
@@ -127,7 +144,7 @@ for (( i=1; i<=$nTracts; i+=1 )); do
 							-pathway_A=discard_if_enters ${exclusion} \
 							-pathway_A=discard_if_enters csf_bin.nii.gz \
 							-pathway_A=stop_at_exit ${roi1} \
-							-pathway_B=discard_if_enters ${exclusion} \
+							${exclusion_line} \
 							-pathway_B=discard_if_enters csf_bin.nii.gz \
 							-pathway_B=require_entry ${v1} \
 							-stepSize ${STEP} \
