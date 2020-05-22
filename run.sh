@@ -46,6 +46,7 @@ probe_length=`jq -r '.probelength' config.json`
 probe_quality=`jq -r '.probequality' config.json`
 probe_count=`jq -r '.probecount' config.json`
 probe_radius=`jq -r '.proberadius' config.json`
+exclusion=`jq -r '.exclusion' config.json`
 
 if [ "$reslice" == "true" ]; then
     echo "using resliced_rois"
@@ -101,86 +102,18 @@ else
 	lmaxs=$(seq 2 2 ${max_lmax})
 fi
 
-# # extract b0 image from dwi
-# [ ! -f b0.mif ] && dwiextract dwi.mif - -bzero | mrmath - mean b0.mif -axis 3 -nthreads $NCORE
-
-# # check if b0 volume successfully created
-# if [ ! -f b0.mif ]; then
-#     echo "No b-zero volumes present."
-#     NSHELL=`mrinfo -shell_bvalues dwi.mif | wc -w`
-#     NB0s=0
-#     EB0=''
-# else
-#     ISHELL=`mrinfo -shell_bvalues dwi.mif | wc -w`
-#     NSHELL=$(($ISHELL-1))
-#     NB0s=`mrinfo -shell_sizes dwi.mif | awk '{print $1}'`
-#     EB0="0,"
-# fi
-
-# ## determine single shell or multishell fit
-# if [ $NSHELL -gt 1 ]; then
-#     MS=1
-#     echo "Multi-shell data: $NSHELL total shells"
-# else
-#     echo "Single-shell data: $NSHELL shell"
-#     MS=0
-#     if [ ! -z "$TENSOR_FIT" ]; then
-# 	echo "Ignoring requested tensor shell. All data will be fit and tracked on the same b-value."
-#     fi
-# fi
-
-# ## create the correct length of lmax
-# if [ $NB0s -eq 0 ]; then
-#     RMAX=${LMAX}
-# else
-#     RMAX=0
-# fi
-# iter=1
-
-# ## for every shell (after starting w/ b0), add the max lmax to estimate
-# while [ $iter -lt $(($NSHELL+1)) ]; do
-    
-#     ## add the $MAXLMAX to the argument
-#     RMAX=$RMAX,$LMAX
-
-#     ## update the iterator
-#     iter=$(($iter+1))
-
-# done
-
-# # if csd does not already exist for specific lmax, generate using mrtrix3.0. Code grabbed from Brent McPherson's brainlife app app-mrtrix3-act
-# for LMAXS in ${lmaxs}; do
-# 	input_csd=$(eval "echo \$lmax${LMAXS}")
-# 	if [[ ${input_csd} == 'null' ]]; then
-# 		if [ $MS -eq 0 ]; then
-# 			echo "Estimating CSD response function"
-# 			time dwi2response tournier dwi.mif wmt_lmax${LMAXS}.txt -lmax ${LMAXS} -force -nthreads $NCORE -tempdir ./tmp
-# 			echo "Fitting CSD FOD of Lmax ${LMAXS}..."
-# 			time dwi2fod -mask mask.mif csd dwi.mif wmt_lmax${LMAXS}.txt wmt_lmax${LMAXS}_fod.mif -lmax ${LMAXS} -force -nthreads $NCORE
-# 		else
-# 			echo "Estimating MSMT CSD response function"
-# 			time dwi2response msmt_5tt dwi.mif 5tt.mif wmt_lmax${LMAXS}.txt gmt_lmax${LMAXS}.txt csf_lmax${LMAXS}.txt -mask mask.mif -lmax ${LMAXS} -tempdir ./tmp -force -nthreads $NCORE
-# 			echo "Estimating MSMT CSD FOD of Lmax ${LMAXS}"
-# 			time dwi2fod msmt_csd dwi.mif wmt_lmax${LMAXS}.txt wmt_lmax${LMAXS}_fod.mif  gmt_lmax${LMAXS}.txt gmt_lmax${LMAXS}_fod.mif csf_lmax${LMAXS}.txt csf_lmax${LMAXS}_fod.mif -force -nthreads $NCORE
-# 		fi
-# 		# convert to niftis
-# 		mrconvert wmt_lmax${LMAXS}_fod.mif -stride 1,2,3,4 ./csd/lmax${LMAXS}.nii.gz -force -nthreads $NCORE
-	
-# 		# copy response file
-# 		if [[ ${LMAXS} == ${lmax} ]]; then
-# 			cp wmt_lmax${LMAXS}.txt response.txt
-# 		fi
-# 	else
-# 		echo "csd already inputted. skipping csd generation"
-# 		cp -v ${input_csd} ./csd/lmax${LMAXS}.nii.gz
-# 	fi
-# done
-
 # Run trekker
 pairs=($roipair)
 range=` expr ${#pairs[@]}`
 nTracts=` expr ${range} / 2`
 
+if [[ ! ${exclusion} == 'null' ]]; then
+	exclus=($exclusion)
+	exclude='true'
+else
+	exclus=""
+	exclude='false'
+fi
 
 for (( i=0; i<$nTracts; i+=1 )); do
 	[ -f track$((i+1)).tck ] && continue
@@ -188,8 +121,20 @@ for (( i=0; i<$nTracts; i+=1 )); do
 	echo "creating seed for tract $((i+1))"
 	if [ ! -f $rois/ROI${pairs[$((i*2))]}.nii.gz ]; then
 		roi1=$rois/${pairs[$((i*2))]}.nii.gz
+		if [[ ${exclude} == true ]]; then
+			Exclusion=$rois/${exclus[$((i*2))]}.nii.gz
+			exclusion_line="pathway=-discard_if_enters ${Exclusion}"
+		else
+			exclusion_line=""
+		fi
 	else
 		roi1=$rois/ROI${pairs[$((i*2))]}.nii.gz
+		if [[ ${exclude} == true ]]; then
+			Exclusion=$rois/ROI${exclus[$((i*2))]}.nii.gz
+			exclusion_line="pathway=-discard_if_enters ${Exclusion}"
+		else
+			exclusion_line=""
+		fi
 	fi
 
 	if [ ! -f $rois/ROI${pairs[$((i*2+1))]}.nii.gz ]; then
@@ -197,15 +142,6 @@ for (( i=0; i<$nTracts; i+=1 )); do
 	else
 		roi2=$rois/ROI${pairs[$((i*2+1))]}.nii.gz
 	fi
-
-	# NEED TO FIGURE OUT HOW TO BEST INTERACT WITH THE PATHWAY RULES WHEN USING MULTIPLE SEEDS. FOR NOW, NOT ALLOWING IT
-	# if [[ ${multiple_seed} == true ]]; then
-	# 	seed=seed_${pairs[$((i*2))]}_${pairs[$((i*2+1))]}.nii.gz
-	# 	[ ! -f $seed ] && mrcalc $roi1 $roi2 -add $seed -force -quiet -nthreads $NCORE && fslmaths $seed -bin $seed
-	# else
-	# 	seed=$roi1
-	# fi
-
 
 	for LMAXS in ${lmaxs}; do
 		input_csd=$(eval "echo \$lmax${LMAXS}")
@@ -235,6 +171,7 @@ for (( i=0; i<$nTracts; i+=1 )); do
 							-seed_count ${count} \
 							-seed_maxTrials ${seed_max_trials} \
 							-maxSamplingPerStep ${max_sampling} \
+							${exclusion_line} \
 							-minFODamp ${FOD} \
 							-writeColors \
 							-verboseLevel 0 \
