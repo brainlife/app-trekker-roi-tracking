@@ -146,6 +146,7 @@ for (( i=1; i<=$nTracts; i+=1 )); do
 							-pathway_A=stop_at_exit ${roi1} \
 							${exclusion_line} \
 							-pathway_B=discard_if_enters csf_bin.nii.gz \
+							-pathway_B=require_entry thalLatPost_${pairs[$((i-1))]}.nii.gz \
 							-pathway_B=require_entry ${v1} \
 							-stepSize ${STEP} \
 							-minRadiusOfCurvature ${CURV} \
