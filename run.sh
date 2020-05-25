@@ -141,7 +141,7 @@ for (( i=1; i<=$nTracts; i+=1 )); do
 							-enableOutputOverwrite \
 							-fod ${input_csd} \
 							-seed_image ${roi1} \
-							-pathway_A=discard_if_enters ${exclusion} \
+							-pathway_A=discard_if_enters ${Exclusion} \
 							-pathway_A=discard_if_enters csf_bin.nii.gz \
 							-pathway_A=stop_at_exit ${roi1} \
 							${exclusion_line} \
