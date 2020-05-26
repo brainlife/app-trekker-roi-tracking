@@ -158,7 +158,7 @@ def tracking():
 		probe_radius = config["proberadius"]
 		exclusion = config['exclusion'].split()
 		best_at_init = config["bestAtInit"]
-		resliced = config["resliced"]
+		resliced = config["reslice"]
 
 	# set paths to rois if resliced to dwi internally
 	if resliced == True:
