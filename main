@@ -1,21 +1,26 @@
 #!/bin/bash
-#PBS -l nodes=1:ppn=8,vmem=30gb,walltime=30:00:00
+#PBS -l nodes=1:ppn=8,vmem=30gb,walltime=8:00:00
 #PBS -N app-trekker-roi-tracking
 
-# this script will track the eccentricity tracks
-if [ ! -f ./track/track.tck ]; then
-	echo "tracking with trekker"
-	time singularity exec -e docker://brainlife/trekker:0.4 ./run.sh
+if [ ! -f csf_bin.nii.gz ]; then
+	time singularity exec -e docker://brainlife/mrtrix3:3.0.0 ./preprocess.sh
 fi
 
-echo "classification generator"
-time singularity exec -e docker://brainlife/mcr:neurodebian1604-r2017a ./compiled/classificationGenerator
+time singularity exec -e docker://brainlife/trekker:0.5 ./tracking.py
+
+if [ ! -f ./track/track.tck ]; then
+	time singularity exec -e docker://brainlife/mrtrix3:3.0.0 ./convert.sh
+fi
+
+if [ ! -f ./wmc/classification.mat ]; then
+	time singularity exec -e docker://brainlife/mcr:neurodebian1604-r2017a ./compiled/classificationGenerator
+fi
 
 if [ -f ./wmc/classification.mat ]; then
-    #rm -rf *.nii.gz
-	mv ./*.tck track*.json track*.vtk track*.txt ./raw/
-    exit 0
+	mv *track*.txt track*.tck ./raw/
+	echo "complete"
+	exit 0
 else
-    echo "failed"
-    exit 1
+	echo "tracking failed"
+	exit 1
 fi
