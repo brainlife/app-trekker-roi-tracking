@@ -9,6 +9,10 @@ import trekkerIO
 def trekker_tracking(rois_to_track,rois,v1,exclusion,csf,FOD_path,count,min_fod_amp,curvatures,step_size,min_length,max_length,max_sampling,seed_max_trials,probe_length,probe_quality,probe_radius,probe_count,best_at_init):
 	
 	# initialize FOD
+	FOD = FOD_path[-9:-7].decode()
+	if FOD[0] == 'x':
+		FOD =  FOD_path[-8:-7].decode()
+
 	mytrekker=Trekker.initialize(FOD_path)
 
 	# begin looping through LGNs to track
@@ -109,7 +113,7 @@ def trekker_tracking(rois_to_track,rois,v1,exclusion,csf,FOD_path,count,min_fod_
 						step = 'default'
 					
 					mytrekker.printParameters()
-					output_name = 'track%s_FOD%s_curv%s_step%s.vtk' %(str(Rois+1),str(amps),str(curvs),str(step))
+					output_name = 'track%s_lmax%s_FOD%s_curv%s_step%s.vtk' %(str(Rois+1),str(FOD),str(amps),str(curvs),str(step))
 
 					# run the tracking
 					Streamlines = mytrekker.run()
