@@ -30,7 +30,7 @@ end
 % Amend name of tract in classification structure
 roiPair = split(roiPair);
 for ii = 1:length(roiPair)
-    classification.names{ii} = strcat('ROI_',roiPair{ii},'_ROI_v1');
+    classification.names{ii} = strcat('ROI_',roiPair{ii},'_ROI_oc');
 end
 save('wmc/classification.mat','classification')
 

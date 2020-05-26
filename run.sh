@@ -42,13 +42,12 @@ probe_length=`jq -r '.probelength' config.json`
 probe_quality=`jq -r '.probequality' config.json`
 probe_count=`jq -r '.probecount' config.json`
 probe_radius=`jq -r '.proberadius' config.json`
-v1=`jq -r '.v1' config.json`
-exclusion=`jq -r '.exclusion' config.json`
+oc=`jq -r '.oc' config.json`
 
-if [ ! -f $rois/ROI${v1}.nii.gz ]; then
-    v1=$rois/${v1}.nii.gz
+if [ ! -f $rois/ROI${oc}.nii.gz ]; then
+    oc=$rois/${oc}.nii.gz
 else
-    v1=$rois/ROI${v1}.nii.gz
+    oc=$rois/ROI${oc}.nii.gz
 fi
 
 # parse whether dtiinit or dwi input
@@ -97,34 +96,14 @@ fi
 pairs=($roipair)
 nTracts=` expr ${#pairs[@]}`
 
-if [[ ! ${exclusion} == 'null' ]]; then
-	exclus=($exclusion)
-	exclude='true'
-else
-	exclus=""
-	exclude='false'
-fi
-
 for (( i=1; i<=$nTracts; i+=1 )); do
 	[ -f track$((i)).tck ] && continue
 
 	echo "creating seed for tract $((i))"
 	if [ ! -f $rois/ROI${pairs[$((i-1))]}.nii.gz ]; then
 		roi1=$rois/${pairs[$((i-1))]}.nii.gz
-		if [[ ${exclude} == true ]]; then
-			Exclusion=$rois/${exclus[$((i-1))]}.nii.gz
-			exclusion_line="-pathway_B=discard_if_enters ${Exclusion}"
-		else
-			exclusion_line=""
-		fi
 	else
 		roi1=$rois/ROI${pairs[$((i-1))]}.nii.gz
-		if [[ ${exclude} == true ]]; then
-			Exclusion=$rois/ROI${exclus[$((i-1))]}.nii.gz
-			exclusion_line="-pathway_B=discard_if_enters ${Exclusion}"
-		else
-			exclusion_line=""
-		fi
 	fi
 
 	for LMAXS in ${lmaxs}; do
@@ -140,14 +119,11 @@ for (( i=1; i<=$nTracts; i+=1 )); do
 						/trekker/build/bin/trekker \
 							-enableOutputOverwrite \
 							-fod ${input_csd} \
-							-seed_image ${roi1} \
-							-pathway_A=discard_if_enters ${Exclusion} \
+							-seed_image ${oc} \
 							-pathway_A=discard_if_enters csf_bin.nii.gz \
-							-pathway_A=stop_at_exit ${roi1} \
-							${exclusion_line} \
+							-pathway_A=stop_at_exit ${oc} \
 							-pathway_B=discard_if_enters csf_bin.nii.gz \
-							-pathway_B=require_entry thalLatPost_${pairs[$((i-1))]}.nii.gz \
-							-pathway_B=require_entry ${v1} \
+							-pathway_B=require_entry ${roi1} \
 							-stepSize ${STEP} \
 							-minRadiusOfCurvature ${CURV} \
 							-probeRadius ${probe_radius} \
