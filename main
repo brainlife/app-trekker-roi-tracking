@@ -2,14 +2,29 @@
 #PBS -l nodes=1:ppn=8,vmem=30gb,walltime=8:00:00
 #PBS -N app-trekker-roi-tracking
 
-time singularity exec -e docker://brainlife/mrtrix3:3.0.0 ./preprocess.sh
+if [ ! -f csf_bin.nii.gz ]; then
+	time singularity exec -e docker://brainlife/mrtrix3:3.0.0 ./preprocess.sh
+fi
 
-time singularity exec -e docker://brainlife/mcr:neurodebian1604-r2017a ./planeROI/generatePlaneROI.m
+if [ ! -f thalLatPost*.nii.gz ]; then
+	time singularity exec -e docker://brainlife/mcr:neurodebian1604-r2017a ./planeROI/generatePlaneROI
+fi
 
 time singularity exec -e docker://brainlife/trekker:0.5 ./tracking.py
 
-time singularity exec -e docker://brainlife/mrtrix3:3.0.0 ./convert.sh
+if [ ! -f ./track/track.tck ]; then
+	time singularity exec -e docker://brainlife/mrtrix3:3.0.0 ./convert.sh
+fi
 
-time singularity exec -e docker://brainlife/mcr:neurodebian1604-r2017a ./compiled/classificationGenerator
+if [ ! -f ./wmc/classification.mat ]; then
+	time singularity exec -e docker://brainlife/mcr:neurodebian1604-r2017a ./compiled/classificationGenerator
+fi
 
-mv *track_* track*.tck ./raw/
+if [ -f ./wmc/classification.mat ]; then
+	mv *track*.txt track*.tck ./raw/
+	echo "complete"
+	exit 0
+else
+	echo "tracking failed"
+	exit 1
+fi

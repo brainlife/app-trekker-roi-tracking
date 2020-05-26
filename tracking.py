@@ -15,6 +15,9 @@ def trekker_tracking(rois_to_track,rois,v1,exclusion,csf,FOD_path,count,min_fod_
 	for Rois in range(len(rois_to_track)):
 		print("tracking from %s" %rois_to_track[Rois])
 
+		if Rois != 0:
+			mytrekker.resetParameters()
+
 		# set seed image
 		if os.path.isfile("%s/ROI%s.nii.gz" %(rois,rois_to_track[Rois])):
 			seed = "%s/ROI%s.nii.gz" %(rois,rois_to_track[Rois])
@@ -36,13 +39,13 @@ def trekker_tracking(rois_to_track,rois,v1,exclusion,csf,FOD_path,count,min_fod_
 			Exclusion = Exclusion.encode()
 			mytrekker.pathway_B_discard_if_enters(Exclusion)
 
-		#thalLatPost = "thalLatPost_%s.nii.gz" %rois_to_track[Rois]
-		#thalLatPost = thalLatPost.encode()
+		thalLatPost = "thalLatPost_%s.nii.gz" %rois_to_track[Rois]
+		thalLatPost = thalLatPost.encode()
 
 		# set include and exclude definitions
 		mytrekker.pathway_A_discard_if_enters(csf)
 		mytrekker.pathway_A_stop_at_exit(seed)
-		#mytrekker.pathway_B_require_entry(thalLatPost)
+		mytrekker.pathway_B_require_entry(thalLatPost)
 		mytrekker.pathway_B_discard_if_enters(csf)
 		mytrekker.pathway_B_require_entry(v1)
 
