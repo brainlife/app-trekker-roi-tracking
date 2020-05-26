@@ -161,7 +161,7 @@ def tracking():
 		resliced = config["resliced"]
 
 	# set paths to rois if resliced to dwi internally
-	if resclied == True:
+	if resliced == True:
 		rois = "./resliced_rois/"
 
 	# paths to preprocessed files
