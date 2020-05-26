@@ -18,38 +18,6 @@ bvecs=`jq -r '.bvecs' config.json`
 bvals=`jq -r '.bvals' config.json`
 mask=`jq -r '.mask' config.json`
 brainmask=`jq -r '.brainmask' config.json`
-max_lmax=`jq -r '.lmax' config.json`
-rois=`jq -r '.rois' config.json`
-count=`jq -r '.count' config.json`
-roipair=`jq -r '.roiPair' config.json`
-min_fod_amp=`jq -r '.minfodamp' config.json`
-curvatures=`jq -r '.curvatures' config.json`
-seed_max_trials=`jq -r '.maxtrials' config.json`
-max_sampling=`jq -r '.maxsampling' config.json`
-lmax2=`jq -r '.lmax2' config.json`
-lmax4=`jq -r '.lmax4' config.json`
-lmax6=`jq -r '.lmax6' config.json`
-lmax8=`jq -r '.lmax8' config.json`
-lmax10=`jq -r '.lmax10' config.json`
-lmax12=`jq -r '.lmax12' config.json`
-lmax14=`jq -r '.lmax14' config.json`
-response=`jq -r '.response' config.json`
-single_lmax=`jq -r '.single_lmax' config.json`
-step_size=`jq -r '.stepsize' config.json`
-min_length=`jq -r '.min_length' config.json`
-max_length=`jq -r '.max_length' config.json`
-probe_length=`jq -r '.probelength' config.json`
-probe_quality=`jq -r '.probequality' config.json`
-probe_count=`jq -r '.probecount' config.json`
-probe_radius=`jq -r '.proberadius' config.json`
-v1=`jq -r '.v1' config.json`
-exclusion=`jq -r '.exclusion' config.json`
-
-if [ ! -f $rois/ROI${v1}.nii.gz ]; then
-    v1=$rois/${v1}.nii.gz
-else
-    v1=$rois/ROI${v1}.nii.gz
-fi
 
 # parse whether dtiinit or dwi input
 if [[ ! ${dtiinit} == "null" ]]; then

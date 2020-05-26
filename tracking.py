@@ -58,20 +58,26 @@ def trekker_tracking(rois_to_track,rois,v1,exclusion,csf,FOD_path,count,min_fod_
 
 		# if = default, let trekker pick
 		if probe_radius != 'default':
+			probe_radius = float(probe_radius)
 			mytrekker.probeRadius(probe_radius)
 		if probe_quality != 'default':
+			probe_quality = float(probe_quality)
 			mytrekker.probeQuality(probe_quality)
 		if probe_length != 'default':
+			probe_length = float(probe_length)
 			mytrekker.probeLength(probe_length)
 		if probe_count != 'default':
+			probe_count = float(probe_count)
 			mytrekker.probeCount(probe_count)
 		if seed_max_trials != 'default':
+			seed_max_trials = float(max_sampling)
 			mytrekker.seed_maxTrials(seed_max_trials)
 		if max_sampling != 'default':
+			max_sampling = float(max_sampling)
 			mytrekker.maxSamplingPerStep(max_sampling)
 
 		# resource-specific parameter
-		mytrekker.numberOfThreads(6)
+		mytrekker.numberOfThreads(8)
 
 		# begin looping tracking
 		for amps in min_fod_amp:
