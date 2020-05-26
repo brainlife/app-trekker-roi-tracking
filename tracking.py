@@ -36,6 +36,7 @@ def trekker_tracking(rois_to_track,rois,exclusion,csf,FOD_path,count,min_fod_amp
 			term = "%s/%s.nii.gz" %(rois,rois_to_track[(Rois*2)+1])		
 
 		seed = seed.encode()
+		term = term.encode()
 		mytrekker.seed_image(seed)
 
 		# set exclusion if provided
