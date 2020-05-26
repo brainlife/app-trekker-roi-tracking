@@ -149,11 +149,11 @@ def tracking():
 
 	# full paths to v1
 	if os.path.isfile("%s/ROI%s.nii.gz" %(rois,oc)):
-		v1 = "%s/ROI%s.nii.gz" %(rois,oc)
+		oc = "%s/ROI%s.nii.gz" %(rois,oc)
 	else:
-		v1 = "%s/%s.nii.gz" %(rois,oc)
+		oc = "%s/%s.nii.gz" %(rois,oc)
 
-	v1 = v1.encode()
+	oc = oc.encode()
 
 	# begin tracking
 	if single_lmax == True:
