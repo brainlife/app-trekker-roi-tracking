@@ -5,4 +5,5 @@ addpath(genpath('/N/u/brlife/git/spm'))
 addpath(genpath('/N/u/brlife/git/mba'))
 addpath(genpath('/N/u/hayashis/git/vistasoft'))
 mcc -m -R -nodisplay -d compiled classificationGenerator
+mcc -m -R -nodisplay -d planeROI generatePlaneROI
 exit
