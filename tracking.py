@@ -34,10 +34,14 @@ def trekker_tracking(rois_to_track,rois,oc,csf,FOD_path,count,min_fod_amp,curvat
 		roi1 = roi1.encode()
 		mytrekker.seed_image(seed)
 
+		thalLatPost = "thalLatPost_%s.nii.gz" %rois_to_track[Rois]
+		thalLatPost = thalLatPost.encode()
+
 		# set include and exclude definitions
 		mytrekker.pathway_A_discard_if_enters(csf)
 		mytrekker.pathway_A_stop_at_exit(seed)
 		mytrekker.pathway_B_discard_if_enters(csf)
+		mytrekker.pathway_B_require_entry(thalLatPost)
 		mytrekker.pathway_B_require_entry(roi1)
 		mytrekker.pathway_B_stop_at_entry(roi1)
 

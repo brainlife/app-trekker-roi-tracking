@@ -6,6 +6,9 @@ if [ ! -f csf_bin.nii.gz ]; then
 	time singularity exec -e docker://brainlife/mrtrix3:3.0.0 ./preprocess.sh
 fi
 
+time singularity exec -e docker://brainlife/mcr:neurodebian1604-r2017a ./planeROI/generatePlaneROI
+
+
 time singularity exec -e docker://brainlife/trekker:0.5 ./tracking.py
 
 if [ ! -f ./track/track.tck ]; then
