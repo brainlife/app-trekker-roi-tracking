@@ -162,7 +162,7 @@ def tracking():
 
 	# set paths to rois if resliced to dwi internally
 	if resclied == True:
-		rois = ./resliced_rois/
+		rois = "./resliced_rois/"
 
 	# paths to preprocessed files
 	csf_path  =  b"csf_bin.nii.gz"
