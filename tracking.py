@@ -186,7 +186,7 @@ def tracking():
 		# set FOD path
 		FOD_path = eval('lmax%s' %str(max_lmax)).encode()
 		
-		trekker_tracking(roipair,rois,hemispheres,Min_Degree,Max_Degree,exclusion,csf_path FOD_path,count,min_fod_amp,curvatures,step_size,min_length,max_length,max_sampling,seed_max_trials,probe_length,probe_quality,probe_radius,probe_count,best_at_init)
+		trekker_tracking(roipair,rois,hemispheres,Min_Degree,Max_Degree,exclusion,csf_path,FOD_path,count,min_fod_amp,curvatures,step_size,min_length,max_length,max_sampling,seed_max_trials,probe_length,probe_quality,probe_radius,probe_count,best_at_init)
 
 	else:
 
