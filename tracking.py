@@ -49,7 +49,7 @@ def trekker_tracking(rois_to_track,rois,exclusion,csf,FOD_path,count,min_fod_amp
 				Exclusion = "%s/%s.nii.gz" %(rois,exclusion[Rois])
 
 			Exclusion = Exclusion.encode()
-			mytrekker.pathway_B_discard_if_enters(Exclusion)
+			mytrekker.pathway_discard_if_enters(Exclusion)
 
 		# set include and exclude definitions
 		mytrekker.pathway_discard_if_enters(csf)
