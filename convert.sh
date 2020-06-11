@@ -5,15 +5,15 @@ roiPair=`jq -r '.roiPair' config.json`
 pairs=($roiPair)
 nTracts=` expr ${#pairs[@]}`
 
-for (( i=1; i<=$nTracts; i+=1 )); do
-	holder=(*track$((i))*)
+for in ${!pairs[@]}; do
+	holder=(*track$((i+1))*)
 
 	for tractograms in ${holder[*]}; do
 		tckconvert ${tractograms} ${tractograms::-4}.tck
 	done
 	
-	tcks=(*track$((i))*.tck)
-	output=track$((i)).tck
+	tcks=(*track$((i+1))*.tck)
+	output=track$((i+1)).tck
 
 	if [ ${#tcks[@]} == 1 ]; then
 		mv ${tcks[0]} ${output}
@@ -21,7 +21,7 @@ for (( i=1; i<=$nTracts; i+=1 )); do
 		tckedit ${tcks[*]} $output
 		mv ${tcks[*]} ./raw/
 	fi
-	tckinfo $output > track$((i))_info.txt
+	tckinfo $output > track$((i+1))_info.txt
 done
 
 if [ -f track1.tck ]; then
