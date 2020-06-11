@@ -30,8 +30,8 @@ def trekker_tracking(rois_to_track,rois,hemispheres,Min_Degree,Max_Degree,exclus
 
 		seed = seed.encode()
 
-		# thalLatPost = "thalLatPost_%s.nii.gz" %(rois_to_track[Rois])
-		# thalLatPost = thalLatPost.encode()
+		thalLatPost = "thalLatPost_%s.nii.gz" %(rois_to_track[Rois])
+		thalLatPost = thalLatPost.encode()
 
 		for Degrees in range(len(Min_Degree)):
 
