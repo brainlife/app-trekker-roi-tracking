@@ -22,6 +22,11 @@ end
 % Set top directory
 topdir = pwd;
 
+% make wmc directory
+if ~isdir(fullfile(topdir,'wmc'))
+	mkdir(fullfile(topdir,'wmc'))
+end
+
 % Load configuration file
 config = loadjson('config.json');
 
@@ -31,17 +36,14 @@ for ii = 1:length(trackdir);
     fgPath{ii} = fullfile(topdir,trackdir(ii).name);
 end
 
-% set seed ROI number: should be 8109 or 8209 for now
-roiNum = str2num(config.seed_roi);
-
 %% Create classification and fg_classified
 [mergedFG, whole_classification]=bsc_mergeFGandClass(fgPath);
 
 % set classification names
-trackNames = split(config.names,' ');
-for ii = 1:length(whole_classification.names)
-    whole_classification.names{ii} = trackNames{ii};
-end
+% trackNames = split(config.names,' ');
+% for ii = 1:length(whole_classification.names)
+%     whole_classification.names{ii} = trackNames{ii};
+% end
 
 % OR tractogram
 wbFG = mergedFG;
@@ -53,12 +55,12 @@ classification = cleanFibers(whole_classification,wbFG);
 fg_classified = bsc_makeFGsFromClassification_v4(classification,wbFG);
 
 %% Save output
-save('output.mat','classification','fg_classified','-v7.3');
+save(fullfile(topdir,'wmc','classification.mat'),'classification','fg_classified','-v7.3');
 
 %% create tracts for json structures for visualization
 tracts = fg2Array(fg_classified);
 
-mkdir('tracts');
+mkdir(fullfile(topdir,'wmc','tracts'));
 
 % Make colors for the tracts
 %cm = parula(length(tracts));
@@ -74,13 +76,13 @@ for it = 1:length(tracts)
    %fiber_count = min(1000, numel(tracts{it}.fibers));
    %tract.coords = tracts{it}.fibers(randperm(fiber_count)); 
    tract.coords = tracts{it}.fibers; 
-   savejson('', tract, fullfile('tracts',sprintf('%i.json',it)));
+   savejson('', tract, fullfile(topdir,'wmc','tracts',sprintf('%i.json',it)));
    all_tracts(it).filename = sprintf('%i.json',it);
    clear tract
 end
 
 % Save json outputs
-savejson('', all_tracts, fullfile('tracts/tracts.json'));
+savejson('', all_tracts, fullfile(topdir,'wmc','tracts/tracts.json'));
 
 % Create and write output_fibercounts.txt file
 for i = 1 : length(fg_classified)
@@ -95,7 +97,7 @@ end
 T = cell2table(tract_info);
 T.Properties.VariableNames = {'Tracts', 'FiberCount'};
 
-writetable(T, 'output_fibercounts.txt');
+writetable(T, fullfile(topdir,'wmc','output_fibercounts.txt'));
 
 exit;
 end

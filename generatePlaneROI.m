@@ -23,27 +23,33 @@ topdir = pwd;
 
 % Load configuration file
 config = loadjson('config.json');
-lgn_seed = config.seed_roi;
+roiPair = split(config.roiPair);
 rois = config.rois;
 
 % load lgn roi so we can extract thalamus
-lgn = bsc_loadAndParseROI(fullfile(rois,sprintf('ROI%s.nii.gz',lgn_seed)));
-referenceNifti = fullfile(rois,sprintf('ROI%s.nii.gz',lgn_seed));
+for ii = 1:length(roiPair)
+    display(roiPair{ii})
+    
+    lgn = bsc_loadAndParseROI(fullfile(rois,sprintf('ROI%s.nii.gz',roiPair{ii})));
+    referenceNifti = fullfile(rois,sprintf('ROI%s.nii.gz',roiPair{ii}));
 
-%% Generate plane ROI for forced tracking to get loop
-% Planar ROI
-% define posterior limit coords
-posteriorThalLimit = bsc_planeFromROI_v2_brad([lgn],'posterior',referenceNifti);
+    %% Generate plane ROI for forced tracking to get loop
+    % Planar ROI
+    % define posterior limit coords
+    posteriorThalLimit = bsc_planeFromROI_v2_brad([lgn],'posterior',referenceNifti);
 
-% define lateral limit coords
-lateralThalLimit = bsc_planeFromROI_v2_brad([lgn],'lateral',referenceNifti);
+    % define lateral limit coords
+    lateralThalLimit = bsc_planeFromROI_v2_brad([lgn],'lateral',referenceNifti);
 
-% generate lateral posterior plane of thalamus to capture loop
-thalLatPost = bsc_modifyROI_v2(referenceNifti,lateralThalLimit,posteriorThalLimit,'anterior');
+    % generate lateral posterior plane of thalamus to capture loop
+    thalLatPost = bsc_modifyROI_v2(referenceNifti,lateralThalLimit,posteriorThalLimit,'anterior');
 
-% save ROI as nifti
-[~,~] = dtiRoiNiftiFromMat(thalLatPost,referenceNifti,'thalLatPost.nii.gz',true);
+    % save ROI as nifti
+    [~,~] = dtiRoiNiftiFromMat_brad(thalLatPost,referenceNifti,sprintf('thalLatPost_%s.nii.gz',roiPair{ii}),true);
 
+    % clear data
+    clear lgn referenceNifti posteriorThalLimit lateralThalLimit thalLatPost
+end
 end
 
 
