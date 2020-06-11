@@ -109,7 +109,7 @@ def trekker_tracking(rois_to_track,rois,hemispheres,Min_Degree,Max_Degree,exclus
 							mytrekker.maxSamplingPerStep(max_sampling)
 
 						# resource-specific parameter
-						mytrekker.numberOfThreads(4)
+						mytrekker.numberOfThreads(8)
 
 						# set termination ROI
 						v1 = "%s.Ecc%sto%s.nii.gz" %(hemispheres[Rois],Min_Degree[Degrees],Max_Degree[Degrees])
