@@ -13,8 +13,8 @@ for i in ${!pairs[@]}; do
 		tckconvert ${tractograms} ${tractograms::-4}.tck
 	done
 	
-	tcks=(*track$((i))*.tck)
-	output=track$((i)).tck
+	tcks=(*track$((i+1))*.tck)
+	output=track$((i+1)).tck
 
 	if [ ${#tcks[@]} == 1 ]; then
 		mv ${tcks[0]} ${output}
@@ -22,7 +22,7 @@ for i in ${!pairs[@]}; do
 		tckedit ${tcks[*]} $output
 		mv ${tcks[*]} ./raw/
 	fi
-	tckinfo $output > track$((i))_info.txt
+	tckinfo $output > track$((i+1))_info.txt
 done
 
 if [ -f track1.tck ]; then
