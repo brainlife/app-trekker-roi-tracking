@@ -74,12 +74,7 @@ def trekker_tracking(rois_to_track,rois,hemispheres,Min_Degree,Max_Degree,exclus
 							Step = float(step_size[step])
 							mytrekker.stepSize(Step)
 						
-						# set include and exclude definitions
-						mytrekker.seed_image(seed)
-						#mytrekker.pathway_A_discard_if_enters(csf_path)
-						mytrekker.pathway_A_stop_at_exit(seed)
-						mytrekker.pathway_B_require_entry(thalLatPost)
-						mytrekker.pathway_B_discard_if_enters(csf_path)
+
 
 						# set non loopable parameters
 						# required parameters
@@ -114,8 +109,6 @@ def trekker_tracking(rois_to_track,rois,hemispheres,Min_Degree,Max_Degree,exclus
 						# set termination ROI
 						v1 = "%s.Ecc%sto%s.nii.gz" %(hemispheres[Rois],Min_Degree[Degrees],Max_Degree[Degrees])
 						v1 = v1.encode()
-						mytrekker.pathway_B_require_entry(v1)
-						mytrekker.pathway_B_stop_at_entry(v1)
 
 						# set exclusion if provided
 						if exclusion[:] != [""]:
@@ -128,6 +121,15 @@ def trekker_tracking(rois_to_track,rois,hemispheres,Min_Degree,Max_Degree,exclus
 
 						 	Exclusion = Exclusion.encode()
 						 	mytrekker.pathway_B_discard_if_enters(Exclusion)
+												
+						# set include and exclude definitions
+						mytrekker.seed_image(seed)
+						mytrekker.pathway_A_stop_at_exit(seed)
+						mytrekker.pathway_B_require_entry(thalLatPost)
+						mytrekker.pathway_B_require_entry(v1)
+						mytrekker.pathway_B_stop_at_entry(v1)
+						mytrekker.pathway_B_discard_if_enters(csf_path)
+						mytrekker.pathway_satisfy_requirements_in_order(True)
 						
 						mytrekker.printParameters()
 						output_name = 'track%s_hemi%s_Ecc%sto%s_lmax%s_FOD%s_curv%s_step%s.vtk' %(str(Rois+1),hemispheres[Rois],str(Min_Degree[Degrees]),str(Max_Degree[Degrees]),str(FOD),str(min_fod_amp[amps]),str(curvatures[curvs]),str(step_size[step]))
