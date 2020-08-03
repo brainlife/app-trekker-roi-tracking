@@ -128,7 +128,6 @@ def trekker_tracking(rois_to_track,rois,hemispheres,Min_Degree,Max_Degree,exclus
 						mytrekker.pathway_B_require_entry(thalLatPost)
 						mytrekker.pathway_B_require_entry(v1)
 						mytrekker.pathway_B_stop_at_entry(v1)
-						mytrekker.pathway_B_discard_if_enters(csf_path)
 						
 						mytrekker.printParameters()
 						output_name = 'track%s_hemi%s_Ecc%sto%s_lmax%s_FOD%s_curv%s_step%s.vtk' %(str(Rois+1),hemispheres[Rois],str(Min_Degree[Degrees]),str(Max_Degree[Degrees]),str(FOD),str(min_fod_amp[amps]),str(curvatures[curvs]),str(step_size[step]))
