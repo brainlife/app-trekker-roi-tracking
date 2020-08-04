@@ -45,6 +45,7 @@ def trekker_tracking(rois_to_track,rois,hemispheres,Min_Degree,Max_Degree,exclus
 			mytrekker.maxLength(max_length)
 			mytrekker.useBestAtInit(best_at_init)
 			mytrekker.seed_count(count)
+			mytrekker.printParameters()
 
 			# if = default, let trekker pick
 			if probe_radius != 'default':
