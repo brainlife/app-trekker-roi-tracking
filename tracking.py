@@ -29,6 +29,7 @@ def trekker_tracking(rois_to_track,rois,hemispheres,Min_Degree,Max_Degree,exclus
 			seed = "%s/%s.nii.gz" %(rois,rois_to_track[Rois])
 
 		seed = seed.encode()
+		mytrekker.seed_image(seed)
 
 		thalLatPost = "thalLatPost_%s.nii.gz" %(rois_to_track[Rois])
 		thalLatPost = thalLatPost.encode()
@@ -41,68 +42,34 @@ def trekker_tracking(rois_to_track,rois,hemispheres,Min_Degree,Max_Degree,exclus
 				mytrekker.resetParameters()
 
 			# begin looping tracking
-			for amps in range(len(min_fod_amp)):
+			for amps in min_fod_amp:
+				if min_fod_amp != ['default']:
+					print(amps)
+					amps = float(amps)
+					mytrekker.minFODamp(amps)
 
-				if amps != 0:
-					mytrekker.resetParameters()
+					if probe_length == 'default':
+						mytrekker.probeLength(amps)
+
+				else:
+					amps = 'default'
 
 				for curvs in range(len(curvatures)):
-					
-					if curvs != 0:
-						mytrekker.resetParameters()
+					if curvatures != ['default']:
+						print(curvs)
+						curvs = float(curvs)
+						mytrekker.minRadiusOfCurvature(curvs)
+					else:
+						curvs = 'default'
 
 					for step in range(len(step_size)):
-
-						if step != 0:
-							mytrekker.resetParameters()
+						if step_size != ['default']:
+							print(step)
+							step = float(step)
+							mytrekker.stepSize(step)
+						else:
+							step = 'default'
 						
-						if min_fod_amp[amps] != 'default':
-							print(min_fod_amp[amps])
-							Amps = float(min_fod_amp[amps])
-							mytrekker.minFODamp(Amps)
-
-							if probe_length != ['default']:
-								mytrekker.probeLength(Amps)
-
-						if curvatures[curvs] != 'default':
-							print(curvatures[curvs])
-							Curvs = float(curvatures[curvs])	
-							mytrekker.minRadiusOfCurvature(Curvs)
-
-						if step_size[step] != 'default':
-							print(step_size[step])
-							Step = float(step_size[step])
-							mytrekker.stepSize(Step)
-						
-
-
-						# set non loopable parameters
-						# required parameters
-						mytrekker.minLength(min_length)
-						mytrekker.maxLength(max_length)
-						mytrekker.useBestAtInit(best_at_init)
-						mytrekker.seed_count(count)
-
-						# if = default, let trekker pick
-						if probe_radius != 'default':
-							probe_radius = float(probe_radius)
-							mytrekker.probeRadius(probe_radius)
-						if probe_quality != 'default':
-							probe_quality = float(probe_quality)
-							mytrekker.probeQuality(probe_quality)
-						if probe_length != 'default':
-							probe_length = float(probe_length)
-							mytrekker.probeLength(probe_length)
-						if probe_count != 'default':
-							probe_count = float(probe_count)
-							mytrekker.probeCount(probe_count)
-						if seed_max_trials != 'default':
-							seed_max_trials = float(max_sampling)
-							mytrekker.seed_maxTrials(seed_max_trials)
-						if max_sampling != 'default':
-							max_sampling = float(max_sampling)
-							mytrekker.maxSamplingPerStep(max_sampling)
-
 						# resource-specific parameter
 						mytrekker.numberOfThreads(8)
 
