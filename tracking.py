@@ -120,7 +120,7 @@ def trekker_tracking(rois_to_track,rois,hemispheres,Min_Degree,Max_Degree,exclus
 						mytrekker.pathway_B_require_entry(v1)
 						
 						mytrekker.printParameters()
-						output_name = 'track%s_hemi%s_Ecc%sto%s_lmax%s_FOD%s_curv%s_step%s.vtk' %(str(Rois+1),hemispheres[Rois],str(Min_Degree[Degrees]),str(Max_Degree[Degrees]),str(FOD),str(min_fod_amp[amps]),str(curvatures[curvs]),str(step_size[step]))
+						output_name = 'track%s_hemi%s_Ecc%sto%s_lmax%s_FOD%s_curv%s_step%s.vtk' %(str(Rois+1),hemispheres[Rois],str(Min_Degree[Degrees]),str(Max_Degree[Degrees]),str(FOD),str(amps),str(curvs),str(step))
 
 						# run the tracking
 						Streamlines = mytrekker.run()
@@ -188,3 +188,6 @@ def tracking():
 
 if __name__ == '__main__':
 	tracking()
+
+
+def trekker_tracking(rois_to_track,rois,hemispheres,Min_Degree,Max_Degree,exclusion,csf_path,FOD_path,count,min_fod_amp,curvatures,step_size,min_length,max_length,max_sampling,seed_max_trials,probe_length,probe_quality,probe_radius,probe_count,best_at_init):
