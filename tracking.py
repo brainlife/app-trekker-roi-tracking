@@ -28,15 +28,43 @@ def trekker_tracking(rois_to_track,rois,hemispheres,Min_Degree,Max_Degree,exclus
 		else:
 			seed = "%s/%s.nii.gz" %(rois,rois_to_track[Rois])
 
+		seed = seed.encode()
+
 		thalLatPost = "thalLatPost_%s.nii.gz" %(rois_to_track[Rois])
 		thalLatPost = thalLatPost.encode()
 
 		for Degrees in range(len(Min_Degree)):
-
 			print("Eccentricity %s to %s" %(str(Min_Degree[Degrees]),str(Max_Degree[Degrees])))
-	
+
 			if Degrees != 0:
 				mytrekker.resetParameters()
+
+			# set non loopable parameters
+			# required parameters
+			mytrekker.minLength(min_length)
+			mytrekker.maxLength(max_length)
+			mytrekker.useBestAtInit(best_at_init)
+			mytrekker.seed_count(count)
+
+			# if = default, let trekker pick
+			if probe_radius != 'default':
+				probe_radius = float(probe_radius)
+				mytrekker.probeRadius(probe_radius)
+			if probe_quality != 'default':
+				probe_quality = float(probe_quality)
+				mytrekker.probeQuality(probe_quality)
+			if probe_length != 'default':
+				probe_length = float(probe_length)
+				mytrekker.probeLength(probe_length)
+			if probe_count != 'default':
+				probe_count = float(probe_count)
+				mytrekker.probeCount(probe_count)
+			if seed_max_trials != 'default':
+				seed_max_trials = float(max_sampling)
+				mytrekker.seed_maxTrials(seed_max_trials)
+			if max_sampling != 'default':
+				max_sampling = float(max_sampling)
+				mytrekker.maxSamplingPerStep(max_sampling)
 
 			# begin looping tracking
 			for amps in min_fod_amp:
@@ -47,11 +75,10 @@ def trekker_tracking(rois_to_track,rois,hemispheres,Min_Degree,Max_Degree,exclus
 
 					if probe_length == 'default':
 						mytrekker.probeLength(amps)
-
 				else:
 					amps = 'default'
 
-				for curvs in range(len(curvatures)):
+				for curvs in curvatures:
 					if curvatures != ['default']:
 						print(curvs)
 						curvs = float(curvs)
@@ -59,7 +86,7 @@ def trekker_tracking(rois_to_track,rois,hemispheres,Min_Degree,Max_Degree,exclus
 					else:
 						curvs = 'default'
 
-					for step in range(len(step_size)):
+					for step in step_size:
 						if step_size != ['default']:
 							print(step)
 							step = float(step)
@@ -87,13 +114,10 @@ def trekker_tracking(rois_to_track,rois,hemispheres,Min_Degree,Max_Degree,exclus
 						 	mytrekker.pathway_B_discard_if_enters(Exclusion)
 												
 						# set include and exclude definitions
-						seed = seed.encode()
-						mytrekker.seed_image(seed)
 						mytrekker.seed_image(seed)
 						mytrekker.pathway_A_stop_at_exit(seed)
 						mytrekker.pathway_B_require_entry(thalLatPost)
 						mytrekker.pathway_B_require_entry(v1)
-						mytrekker.pathway_B_stop_at_entry(v1)
 						
 						mytrekker.printParameters()
 						output_name = 'track%s_hemi%s_Ecc%sto%s_lmax%s_FOD%s_curv%s_step%s.vtk' %(str(Rois+1),hemispheres[Rois],str(Min_Degree[Degrees]),str(Max_Degree[Degrees]),str(FOD),str(min_fod_amp[amps]),str(curvatures[curvs]),str(step_size[step]))
