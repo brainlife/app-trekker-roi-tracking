@@ -188,6 +188,3 @@ def tracking():
 
 if __name__ == '__main__':
 	tracking()
-
-
-def trekker_tracking(rois_to_track,rois,hemispheres,Min_Degree,Max_Degree,exclusion,csf_path,FOD_path,count,min_fod_amp,curvatures,step_size,min_length,max_length,max_sampling,seed_max_trials,probe_length,probe_quality,probe_radius,probe_count,best_at_init):
