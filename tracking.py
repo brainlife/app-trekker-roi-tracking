@@ -28,9 +28,6 @@ def trekker_tracking(rois_to_track,rois,hemispheres,Min_Degree,Max_Degree,exclus
 		else:
 			seed = "%s/%s.nii.gz" %(rois,rois_to_track[Rois])
 
-		seed = seed.encode()
-		mytrekker.seed_image(seed)
-
 		thalLatPost = "thalLatPost_%s.nii.gz" %(rois_to_track[Rois])
 		thalLatPost = thalLatPost.encode()
 
@@ -90,6 +87,8 @@ def trekker_tracking(rois_to_track,rois,hemispheres,Min_Degree,Max_Degree,exclus
 						 	mytrekker.pathway_B_discard_if_enters(Exclusion)
 												
 						# set include and exclude definitions
+						seed = seed.encode()
+						mytrekker.seed_image(seed)
 						mytrekker.seed_image(seed)
 						mytrekker.pathway_A_stop_at_exit(seed)
 						mytrekker.pathway_B_require_entry(thalLatPost)
