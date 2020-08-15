@@ -117,6 +117,7 @@ def trekker_tracking(rois_to_track,rois,hemispheres,Min_Degree,Max_Degree,exclus
 						mytrekker.pathway_A_stop_at_exit(seed)
 						mytrekker.pathway_B_require_entry(thalLatPost)
 						mytrekker.pathway_B_require_entry(v1)
+						mytrekker.pathway_B_stop_at_entry(v1)
 
 						# set seed count
 						mytrekker.seed_count(count)
