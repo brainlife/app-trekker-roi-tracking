@@ -33,6 +33,9 @@ def trekker_tracking(rois_to_track,rois,hemispheres,Min_Degree,Max_Degree,exclus
 		thalLatPost = "thalLatPost_%s.nii.gz" %(rois_to_track[Rois])
 		thalLatPost = thalLatPost.encode()
 
+		thalMedAnt = "thalMedAnt_%s.nii.gz" %(rois_to_track[Rois])
+		thalMedAnt = thalMedAnt.encode()
+
 		for Degrees in range(len(Min_Degree)):
 			print("Eccentricity %s to %s" %(str(Min_Degree[Degrees]),str(Max_Degree[Degrees])))
 
@@ -118,6 +121,8 @@ def trekker_tracking(rois_to_track,rois,hemispheres,Min_Degree,Max_Degree,exclus
 						mytrekker.pathway_B_require_entry(thalLatPost)
 						mytrekker.pathway_B_require_entry(v1)
 						mytrekker.pathway_B_stop_at_entry(v1)
+						mytrekker.pathway_B_discard_if_enters(thalMedAnt)
+						mytrekker.pathway_A_discard_if_enters(thalMedAnt)
 
 						# set seed count
 						mytrekker.seed_count(count)

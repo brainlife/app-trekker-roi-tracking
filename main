@@ -45,9 +45,9 @@ if [ -z $(find . -maxdepth 1 -name \*"${check_name}"\*) ]; then
 fi
 
 #this script will generate roi used to force tracking in specific direction
-check_name="thalLatPost_${roiPair[((${num_pairs}-1))]}.nii.gz"
+check_name="thalMedAnt_${roiPair[((${num_pairs}-1))]}.nii.gz"
 if [ -z $(find . -maxdepth 1 -name \*"${check_name}"\*) ]; then
-	echo "make thal lat post roi"
+	echo "make thal lat post roi and thal med ant roi"
 	time singularity exec -e docker://brainlife/mcr:neurodebian1604-r2017a ./planeROI/generatePlaneROI
 fi
 
