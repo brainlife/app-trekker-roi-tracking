@@ -52,7 +52,7 @@ for ii = 1:length(roiPair)
 
     % save ROIs as nifti
     [~,~] = dtiRoiNiftiFromMat_brad(thalLatPost,referenceNifti,sprintf('thalLatPost_%s.nii.gz',roiPair{ii}),true);
-    [~,~] = dtiRoiNiftiFromMat_brad(thalMedAnt,referenceNifti,sprintf('thalMedPost_%s.nii.gz',roiPair{ii}),true);
+    [~,~] = dtiRoiNiftiFromMat_brad(thalMedPost,referenceNifti,sprintf('thalMedPost_%s.nii.gz',roiPair{ii}),true);
 
     % clear data
     clear lgn referenceNifti  posteriorThalLimit lateralThalLimit medialThalLimit thalLatPost thalMedPost
