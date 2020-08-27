@@ -38,9 +38,6 @@ for ii = 1:length(roiPair)
     % define posterior limit coords
     posteriorThalLimit = bsc_planeFromROI_v2_brad([lgn],'posterior',referenceNifti);
 
-    % define anterior limit coords
-    anteriorThalLimit = bsc_planeFromROI_v2_brad([lgn],'anterior',referenceNifti);
-
     % define lateral limit coords
     lateralThalLimit = bsc_planeFromROI_v2_brad([lgn],'lateral',referenceNifti);
     
@@ -51,14 +48,14 @@ for ii = 1:length(roiPair)
     thalLatPost = bsc_modifyROI_v2(referenceNifti,lateralThalLimit,posteriorThalLimit,'anterior');
 
     % generate medial posterior plane of thalamus to exclude incorrect loop
-    thalMedAnt = bsc_modifyROI_v2(referenceNifti,medialThalLimit,anteriorThalLimit,'anterior');
+    thalMedPost = bsc_modifyROI_v2(referenceNifti,medialThalLimit,posteriorThalLimit,'anterior');
 
     % save ROIs as nifti
     [~,~] = dtiRoiNiftiFromMat_brad(thalLatPost,referenceNifti,sprintf('thalLatPost_%s.nii.gz',roiPair{ii}),true);
-    [~,~] = dtiRoiNiftiFromMat_brad(thalMedAnt,referenceNifti,sprintf('thalMedAnt_%s.nii.gz',roiPair{ii}),true);
+    [~,~] = dtiRoiNiftiFromMat_brad(thalMedAnt,referenceNifti,sprintf('thalMedPost_%s.nii.gz',roiPair{ii}),true);
 
     % clear data
-    clear lgn referenceNifti anteriorThalLimit posteriorThalLimit lateralThalLimit medialThalLimit thalLatPost thalMedAnt
+    clear lgn referenceNifti  posteriorThalLimit lateralThalLimit medialThalLimit thalLatPost thalMedPost
 end
 end
 

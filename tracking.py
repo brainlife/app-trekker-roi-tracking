@@ -33,8 +33,8 @@ def trekker_tracking(rois_to_track,rois,hemispheres,Min_Degree,Max_Degree,exclus
 		thalLatPost = "thalLatPost_%s.nii.gz" %(rois_to_track[Rois])
 		thalLatPost = thalLatPost.encode()
 
-		thalMedAnt = "thalMedAnt_%s.nii.gz" %(rois_to_track[Rois])
-		thalMedAnt = thalMedAnt.encode()
+		thalMedPost = "thalMedPost_%s.nii.gz" %(rois_to_track[Rois])
+		thalMedPost = thalMedPost.encode()
 
 		for Degrees in range(len(Min_Degree)):
 			print("Eccentricity %s to %s" %(str(Min_Degree[Degrees]),str(Max_Degree[Degrees])))
@@ -121,8 +121,8 @@ def trekker_tracking(rois_to_track,rois,hemispheres,Min_Degree,Max_Degree,exclus
 						mytrekker.pathway_B_require_entry(thalLatPost)
 						mytrekker.pathway_B_require_entry(v1)
 						mytrekker.pathway_B_stop_at_entry(v1)
-						mytrekker.pathway_B_discard_if_enters(thalMedAnt)
-						mytrekker.pathway_A_discard_if_enters(thalMedAnt)
+						mytrekker.pathway_B_discard_if_enters(thalMedPost)
+						mytrekker.pathway_A_discard_if_enters(thalMedPost)
 
 						# set seed count
 						mytrekker.seed_count(count)
@@ -131,14 +131,17 @@ def trekker_tracking(rois_to_track,rois,hemispheres,Min_Degree,Max_Degree,exclus
 						output_name = 'track%s_hemi%s_Ecc%sto%s_lmax%s_FOD%s_curv%s_step%s.vtk' %(str(Rois+1),hemispheres[Rois],str(Min_Degree[Degrees]),str(Max_Degree[Degrees]),str(FOD),str(amps),str(curvs),str(step))
 
 						# run the tracking
-						Streamlines = mytrekker.run()
+						if os.path.isfile(output_name):
+							print("tractogram exists. skipping")
+						else:
+							Streamlines = mytrekker.run()
 
-						# print output
-						tractogram = trekkerIO.Tractogram()
-						tractogram.count = len(Streamlines)
-						print(tractogram.count)
-						tractogram.points = Streamlines
-						trekkerIO.write(tractogram,output_name)
+							# print output
+							tractogram = trekkerIO.Tractogram()
+							tractogram.count = len(Streamlines)
+							print(tractogram.count)
+							tractogram.points = Streamlines
+							trekkerIO.write(tractogram,output_name)
 
 	del mytrekker
 
