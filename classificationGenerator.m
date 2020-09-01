@@ -48,11 +48,11 @@ end
 % OR tractogram
 wbFG = mergedFG;
 
-% clean fibers
-classification = cleanFibers(whole_classification,wbFG);
+% clean fibers; removing for now (9/1/2020)
+%classification = cleanFibers(whole_classification,wbFG);
 
 % OR fg_classified
-fg_classified = bsc_makeFGsFromClassification_v4(classification,wbFG);
+fg_classified = bsc_makeFGsFromClassification_v4(whole_classification,wbFG);
 
 %% Save output
 save(fullfile(topdir,'wmc','classification.mat'),'classification','fg_classified','-v7.3');
