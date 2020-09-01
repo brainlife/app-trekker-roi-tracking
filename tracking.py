@@ -104,7 +104,7 @@ def trekker_tracking(rois_to_track,rois,hemispheres,Min_Degree,Max_Degree,exclus
 						v1 = v1.encode()
 
 						# set exclusion if provided
-						if exclusion[:] != [""]:
+						if len(exclusion[:]) != 0:
 
 						 	# set file paths
 						 	if os.path.isfile("%s/ROI%s.nii.gz" %(rois,exclusion[Rois])):
