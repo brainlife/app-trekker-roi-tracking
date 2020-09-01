@@ -126,7 +126,8 @@ def trekker_tracking(rois_to_track,rois,hemispheres,Min_Degree,Max_Degree,exclus
 
 						# set seed count
 						mytrekker.seed_count(count)
-						
+						mytrekker.timeLimit(600)						
+
 						mytrekker.printParameters()
 						output_name = 'track%s_hemi%s_Ecc%sto%s_lmax%s_FOD%s_curv%s_step%s.vtk' %(str(Rois+1),hemispheres[Rois],str(Min_Degree[Degrees]),str(Max_Degree[Degrees]),str(FOD),str(amps),str(curvs),str(step))
 
