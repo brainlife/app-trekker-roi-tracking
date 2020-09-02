@@ -100,8 +100,8 @@ def trekker_tracking(rois_to_track,rois,hemispheres,Min_Degree,Max_Degree,exclus
 						mytrekker.numberOfThreads(8)
 
 						# set termination ROI
-						v1 = "%s.Ecc%sto%s.nii.gz" %(hemispheres[Rois],Min_Degree[Degrees],Max_Degree[Degrees])
-						v1 = v1.encode()
+						v2 = "%s.Ecc%sto%s.nii.gz" %(hemispheres[Rois],Min_Degree[Degrees],Max_Degree[Degrees])
+						v2 = v2.encode()
 
 						# set exclusion if provided
 						if len(exclusion[:]) != 0:
@@ -119,8 +119,8 @@ def trekker_tracking(rois_to_track,rois,hemispheres,Min_Degree,Max_Degree,exclus
 						mytrekker.seed_image(seed)
 						mytrekker.pathway_A_stop_at_exit(seed)
 						mytrekker.pathway_B_require_entry(thalLatPost)
-						mytrekker.pathway_B_require_entry(v1)
-						mytrekker.pathway_B_stop_at_entry(v1)
+						mytrekker.pathway_B_require_entry(v2)
+						mytrekker.pathway_B_stop_at_entry(v2)
 						mytrekker.pathway_B_discard_if_enters(thalMedPost)
 						mytrekker.pathway_A_discard_if_enters(thalMedPost)
 
