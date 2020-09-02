@@ -6,7 +6,7 @@ import os,sys
 sys.path.append('./')
 import trekkerIO
 
-def trekker_tracking(rois_to_track,rois,v1,exclusion,csf,FOD_path,count,min_fod_amp,curvatures,step_size,min_length,max_length,max_sampling,seed_max_trials,probe_length,probe_quality,probe_radius,probe_count,best_at_init):
+def trekker_tracking(rois_to_track,rois,v2,exclusion,csf,FOD_path,count,min_fod_amp,curvatures,step_size,min_length,max_length,max_sampling,seed_max_trials,probe_length,probe_quality,probe_radius,probe_count,best_at_init):
 	
 	# initialize FOD
 	FOD = FOD_path[-9:-7].decode()
@@ -51,7 +51,7 @@ def trekker_tracking(rois_to_track,rois,v1,exclusion,csf,FOD_path,count,min_fod_
 		mytrekker.pathway_A_stop_at_exit(seed)
 		mytrekker.pathway_B_require_entry(thalLatPost)
 		mytrekker.pathway_B_discard_if_enters(csf)
-		mytrekker.pathway_B_require_entry(v1)
+		mytrekker.pathway_B_require_entry(v2)
 
 		# set non loopable parameters
 		# required parameters
@@ -154,20 +154,20 @@ def tracking():
 		probe_quality = config["probequality"]
 		probe_count = config["probecount"]
 		probe_radius = config["proberadius"]
-		v1 = config["v1"]
+		v2 = config["v2"]
 		exclusion = config['exclusion'].split()
 		best_at_init = config["bestAtInit"]
 
 	# paths to preprocessed files
 	csf_path  =  b"csf_bin.nii.gz"
 
-	# full paths to v1
-	if os.path.isfile("%s/ROI%s.nii.gz" %(rois,v1)):
-		v1 = "%s/ROI%s.nii.gz" %(rois,v1)
+	# full paths to v2
+	if os.path.isfile("%s/ROI%s.nii.gz" %(rois,v2)):
+		v2 = "%s/ROI%s.nii.gz" %(rois,v2)
 	else:
-		v1 = "%s/%s.nii.gz" %(rois,v1)
+		v2 = "%s/%s.nii.gz" %(rois,v2)
 
-	v1 = v1.encode()
+	v2 = v2.encode()
 
 	# begin tracking
 	if single_lmax == True:
@@ -175,14 +175,14 @@ def tracking():
 		# set FOD path
 		FOD_path = eval('lmax%s' %str(max_lmax)).encode()
 		
-		trekker_tracking(roipair,rois,v1,exclusion,csf_path,FOD_path,count,min_fod_amp,curvatures,step_size,min_length,max_length,max_sampling,seed_max_trials,probe_length,probe_quality,probe_radius,probe_count,best_at_init)
+		trekker_tracking(roipair,rois,v2,exclusion,csf_path,FOD_path,count,min_fod_amp,curvatures,step_size,min_length,max_length,max_sampling,seed_max_trials,probe_length,probe_quality,probe_radius,probe_count,best_at_init)
 
 	else:
 
 		for csd in range(2,max_lmax,2):
 			FOD_path = eval('lmax%s' %str(csd+2)).encode()
 			
-			trekker_tracking(roipair,rois,v1,exclusion,csf_path,FOD_path,count,min_fod_amp,curvatures,step_size,min_length,max_length,max_sampling,seed_max_trials,probe_length,probe_quality,probe_radius,probe_count,best_at_init)
+			trekker_tracking(roipair,rois,v2,exclusion,csf_path,FOD_path,count,min_fod_amp,curvatures,step_size,min_length,max_length,max_sampling,seed_max_trials,probe_length,probe_quality,probe_radius,probe_count,best_at_init)
 
 
 if __name__ == '__main__':
