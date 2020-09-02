@@ -47,13 +47,18 @@ for ii = 1:length(roiPair)
     midantcoords(:,2) = (midantcoords(:,2) - (coords_diff * .75));
     posteriorThalLimitCropped = posteriorThalLimit;
     posteriorThalLimitCropped.coords = midantcoords;
-	
+    
     % define lateral limit coords
     lateralThalLimit = bsc_planeFromROI_v2_brad([lgn],'lateral',referenceNifti);
     
     % define medial limit coords
     medialThalLimit = bsc_planeFromROI_v2_brad([lgn],'medial',referenceNifti);
 
+    % remove splenium fibers
+    posteriorThalLimitSub = posteriorThalLimit;
+    posteriorThalLimitSub.coords(:,2) = posteriorThalLimit.coords(:,2) - 5;
+    thalMedPostSub = bsc_modifyROI_v2(referenceNifti,posteriorThalLimitSub,lateralThalLimit,'medial');
+    
     % generate lateral posterior plane of thalamus to capture loop
     thalLatPost = bsc_modifyROI_v2(referenceNifti,lateralThalLimit,posteriorThalLimitCropped,'anterior');
 
@@ -63,6 +68,7 @@ for ii = 1:length(roiPair)
     % save ROIs as nifti
     [~,~] = dtiRoiNiftiFromMat_brad(thalLatPost,referenceNifti,sprintf('thalLatPost_%s.nii.gz',roiPair{ii}),true);
     [~,~] = dtiRoiNiftiFromMat_brad(thalMedPost,referenceNifti,sprintf('thalMedPost_%s.nii.gz',roiPair{ii}),true);
+    [~,~] = dtiRoiNiftiFromMat_brad(thalMedPostSub,referenceNifti,sprintf('thalMedPostSub_%s.nii.gz',roiPair{ii}),true);
 
     % clear data
     clear lgn referenceNifti  posteriorThalLimit lateralThalLimit medialThalLimit thalLatPost thalMedPost midantcoords coords_diff posteriorThalLimitCropped
