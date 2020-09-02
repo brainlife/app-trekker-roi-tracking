@@ -45,6 +45,9 @@ def trekker_tracking(rois_to_track,rois,v2,exclusion,csf,FOD_path,count,min_fod_
 
 		thalLatPost = "thalLatPost_%s.nii.gz" %rois_to_track[Rois]
 		thalLatPost = thalLatPost.encode()
+		
+		thalMedPost = "thalMedPost_%s.nii.gz" %rois_to_track[Rois]
+		thalMedPost = thalMedPost.encode()
 
 		# set include and exclude definitions
 		mytrekker.pathway_A_discard_if_enters(csf)
@@ -52,6 +55,8 @@ def trekker_tracking(rois_to_track,rois,v2,exclusion,csf,FOD_path,count,min_fod_
 		mytrekker.pathway_B_require_entry(thalLatPost)
 		mytrekker.pathway_B_discard_if_enters(csf)
 		mytrekker.pathway_B_require_entry(v2)
+		mytrekker.pathway_A_discard_if_enters(thalMedPost)
+		mytrekker.pathway_B_discard_if_enters(thalMedPost)
 
 		# set non loopable parameters
 		# required parameters
