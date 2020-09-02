@@ -55,7 +55,7 @@ wbFG = mergedFG;
 fg_classified = bsc_makeFGsFromClassification_v4(whole_classification,wbFG);
 
 %% Save output
-save(fullfile(topdir,'wmc','classification.mat'),'classification','fg_classified','-v7.3');
+save(fullfile(topdir,'wmc','classification.mat'),'whole_classification','fg_classified','-v7.3');
 
 %% create tracts for json structures for visualization
 tracts = fg2Array(fg_classified);
