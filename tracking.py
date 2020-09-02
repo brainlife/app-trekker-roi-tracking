@@ -125,8 +125,7 @@ def trekker_tracking(rois_to_track,rois,hemispheres,Min_Degree,Max_Degree,exclus
 						mytrekker.pathway_A_discard_if_enters(thalMedPost)
 
 						# set seed count
-						mytrekker.seed_count(count)
-						mytrekker.timeLimit(6000)						
+						mytrekker.seed_count(count)						
 
 						mytrekker.printParameters()
 						output_name = 'track%s_hemi%s_Ecc%sto%s_lmax%s_FOD%s_curv%s_step%s.vtk' %(str(Rois+1),hemispheres[Rois],str(Min_Degree[Degrees]),str(Max_Degree[Degrees]),str(FOD),str(amps),str(curvs),str(step))
