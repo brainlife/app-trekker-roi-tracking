@@ -4,7 +4,7 @@ roiPair=`jq -r '.roiPair' config.json`
 
 pairs=($roiPair)
 range=` expr ${#pairs[@]}`
-nTracts=` expr ${range} /2` 
+nTracts=` expr ${range} / 2` 
 
 for i in ${!pairs[@]}; do
 	holder=(*track$((i))*)
