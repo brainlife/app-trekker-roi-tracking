@@ -3,9 +3,10 @@
 roiPair=`jq -r '.roiPair' config.json`
 
 pairs=($roiPair)
-nTracts=` expr ${#pairs[@]}`
+range=` expr ${#pairs[@]}`
+nTracts=` expr ${range} / 2` 
 
-for in ${!pairs[@]}; do
+for i in ${!nTracts[@]}; do
 	holder=(*track$((i+1))*)
 
 	for tractograms in ${holder[*]}; do
