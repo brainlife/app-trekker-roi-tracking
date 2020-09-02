@@ -34,16 +34,16 @@ do
 	[ ! -f ${hemi}.eccentricity.func.gii ] && mris_convert -c ${prfSurfacesDir}/${hemi}.eccentricity ${freesurfer}/surf/${hemi}.pial ${hemi}.eccentricity.func.gii
 	[ ! -f ${hemi}.varea.func.gii ] && mris_convert -c ${prfSurfacesDir}/${hemi}.varea ${freesurfer}/surf/${hemi}.pial ${hemi}.varea.func.gii
 
-	# create v1 surface
-	[ ! -f ${hemi}.varea.v1.func.gii ] && mri_binarize --i ./${hemi}.varea.func.gii --match 1 --o ./${hemi}.varea.v1.func.gii
+	# create v2 surface
+	[ ! -f ${hemi}.varea.v2.func.gii ] && mri_binarize --i ./${hemi}.varea.func.gii --match 2 --o ./${hemi}.varea.v2.func.gii
 
 	# create eccentricity surface
 	for DEG in ${!minDegree[@]}; do
-		# genereate eccentricity bin surfaces and multiply eccentricities by v1
-		[ ! -f ${hemi}.Ecc${minDegree[$DEG]}to${maxDegree[$DEG]}.func.gii ] && mri_binarize --i ./${hemi}.eccentricity.func.gii --min ${minDegree[$DEG]} --max ${maxDegree[$DEG]} --o ./${hemi}.Ecc${minDegree[$DEG]}to${maxDegree[$DEG]}.func.gii && wb_command -metric-math 'x*y' ${hemi}.v1.Ecc${minDegree[$DEG]}to${maxDegree[$DEG]}.func.gii -var x ${hemi}.varea.v1.func.gii -var y ${hemi}.Ecc${minDegree[$DEG]}to${maxDegree[$DEG]}.func.gii
+		# genereate eccentricity bin surfaces and multiply eccentricities by v2
+		[ ! -f ${hemi}.Ecc${minDegree[$DEG]}to${maxDegree[$DEG]}.func.gii ] && mri_binarize --i ./${hemi}.eccentricity.func.gii --min ${minDegree[$DEG]} --max ${maxDegree[$DEG]} --o ./${hemi}.Ecc${minDegree[$DEG]}to${maxDegree[$DEG]}.func.gii && wb_command -metric-math 'x*y' ${hemi}.v2.Ecc${minDegree[$DEG]}to${maxDegree[$DEG]}.func.gii -var x ${hemi}.varea.v2.func.gii -var y ${hemi}.Ecc${minDegree[$DEG]}to${maxDegree[$DEG]}.func.gii
 
 		# map surface to volume
 		SUBJECTS_DIR=${freesurfer}
-		[ ! -f ${hemi}.Ecc${minDegree[$DEG]}to${maxDegree[$DEG]}.nii.gz ] && mri_surf2vol --o ./${hemi}.Ecc${minDegree[$DEG]}to${maxDegree[$DEG]}.nii.gz --subject ./ --so ${freesurfer}/surf/${hemi}.pial ./${hemi}.v1.Ecc${minDegree[$DEG]}to${maxDegree[$DEG]}.func.gii && mri_vol2vol --mov ${hemi}.Ecc${minDegree[$DEG]}to${maxDegree[$DEG]}.nii.gz --targ ${input_nii_gz} --regheader --o ${hemi}.Ecc${minDegree[$DEG]}to${maxDegree[$DEG]}.nii.gz --nearest
+		[ ! -f ${hemi}.Ecc${minDegree[$DEG]}to${maxDegree[$DEG]}.nii.gz ] && mri_surf2vol --o ./${hemi}.Ecc${minDegree[$DEG]}to${maxDegree[$DEG]}.nii.gz --subject ./ --so ${freesurfer}/surf/${hemi}.pial ./${hemi}.v2.Ecc${minDegree[$DEG]}to${maxDegree[$DEG]}.func.gii && mri_vol2vol --mov ${hemi}.Ecc${minDegree[$DEG]}to${maxDegree[$DEG]}.nii.gz --targ ${input_nii_gz} --regheader --o ${hemi}.Ecc${minDegree[$DEG]}to${maxDegree[$DEG]}.nii.gz --nearest
 	done
 done
