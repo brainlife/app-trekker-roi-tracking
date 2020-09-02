@@ -37,7 +37,7 @@ for ii = 1:length(trackdir);
 end
 
 %% Create classification and fg_classified
-[mergedFG, whole_classification]=bsc_mergeFGandClass(fgPath);
+[mergedFG, classification]=bsc_mergeFGandClass(fgPath);
 
 % set classification names
 % trackNames = split(config.names,' ');
@@ -52,7 +52,7 @@ wbFG = mergedFG;
 %classification = cleanFibers(whole_classification,wbFG);
 
 % OR fg_classified
-fg_classified = bsc_makeFGsFromClassification_v4(whole_classification,wbFG);
+fg_classified = bsc_makeFGsFromClassification_v4(classification,wbFG);
 
 %% Save output
 save(fullfile(topdir,'wmc','classification.mat'),'classification','fg_classified','-v7.3');
