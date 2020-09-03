@@ -43,23 +43,23 @@ def trekker_tracking(rois_to_track,rois,v2,exclusion,csf,FOD_path,count,min_fod_
 			Exclusion = Exclusion.encode()
 			mytrekker.pathway_B_discard_if_enters(Exclusion)
 
-        thalLatPost = "thalLatPost_%s.nii.gz" %rois_to_track[Rois]
-        thalLatPost = thalLatPost.encode()
-        thalMedPost = "thalMedPost_%s.nii.gz" %rois_to_track[Rois]
-        thalMedPost = thalMedPost.encode()
-        thalMedPostSub = "thalMedPostSub_%s.nii.gz" %rois_to_track[Rois]
-        thalMedPostSub = thalLatPostSub.encode()
+		thalLatPost = "thalLatPost_%s.nii.gz" %rois_to_track[Rois]
+		thalLatPost = thalLatPost.encode()
+		thalMedPost = "thalMedPost_%s.nii.gz" %rois_to_track[Rois]
+		thalMedPost = thalMedPost.encode()
+		thalMedPostSub = "thalMedPostSub_%s.nii.gz" %rois_to_track[Rois]
+		thalMedPostSub = thalLatPostSub.encode()
 
-        # set include and exclude definitions
-        mytrekker.pathway_A_discard_if_enters(csf)
-        mytrekker.pathway_A_stop_at_exit(seed)
-        mytrekker.pathway_B_require_entry(thalLatPost)
-        mytrekker.pathway_B_discard_if_enters(csf)
-        mytrekker.pathway_B_require_entry(v1)
-        mytrekker.pathway_A_discard_if_enters(thalMedPost)
-        mytrekker.pathway_B_discard_if_enteres(thalMedPost)
-        mytrekker.pathway_A_discard_if_enters(thalMedPostSub)
-        mytrekker.pathway_B_discard_if_enteres(thalMedPostSub)
+		# set include and exclude definitions
+		mytrekker.pathway_A_discard_if_enters(csf)
+		mytrekker.pathway_A_stop_at_exit(seed)
+		mytrekker.pathway_B_require_entry(thalLatPost)
+		mytrekker.pathway_B_discard_if_enters(csf)
+		mytrekker.pathway_B_require_entry(v1)
+		mytrekker.pathway_A_discard_if_enters(thalMedPost)
+		mytrekker.pathway_B_discard_if_enteres(thalMedPost)
+		mytrekker.pathway_A_discard_if_enters(thalMedPostSub)
+		mytrekker.pathway_B_discard_if_enteres(thalMedPostSub)
 
 		# set non loopable parameters
 		# required parameters
