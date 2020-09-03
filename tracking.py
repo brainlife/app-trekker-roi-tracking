@@ -57,9 +57,9 @@ def trekker_tracking(rois_to_track,rois,v2,exclusion,csf,FOD_path,count,min_fod_
 		mytrekker.pathway_B_discard_if_enters(csf)
 		mytrekker.pathway_B_require_entry(v1)
 		mytrekker.pathway_A_discard_if_enters(thalMedPost)
-		mytrekker.pathway_B_discard_if_enteres(thalMedPost)
+		mytrekker.pathway_B_discard_if_enters(thalMedPost)
 		mytrekker.pathway_A_discard_if_enters(thalMedPostSub)
-		mytrekker.pathway_B_discard_if_enteres(thalMedPostSub)
+		mytrekker.pathway_B_discard_if_enters(thalMedPostSub)
 
 		# set non loopable parameters
 		# required parameters
