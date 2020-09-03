@@ -48,7 +48,7 @@ def trekker_tracking(rois_to_track,rois,v1,exclusion,csf,FOD_path,count,min_fod_
 		thalMedPost = "thalMedPost_%s.nii.gz" %rois_to_track[Rois]
 		thalMedPost = thalMedPost.encode()
 		thalMedPostSub = "thalMedPostSub_%s.nii.gz" %rois_to_track[Rois]
-		thalMedPostSub = thalLatPostSub.encode()
+		thalMedPostSub = thalMedPostSub.encode()
 
 		# set include and exclude definitions
 		mytrekker.pathway_A_discard_if_enters(csf)
