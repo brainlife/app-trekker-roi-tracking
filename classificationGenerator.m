@@ -9,12 +9,12 @@ end
 
 % Load configuration file
 config = loadjson('config.json')
-roiPair = strtrim(config.roiPair);
+visualroi = strtrim(config.visualROI);
 Min_Degree = config.min_degree;
 Max_Degree = config.max_degree;
 
 % Set tck file path/s
-disp('merging tcks')
+disp('loading tck')
 tcks=dir('track*.tck')
 for ii = 1:length(tcks); 
     fgPath{ii} = tcks(ii).name;

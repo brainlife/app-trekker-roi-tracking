@@ -16,129 +16,121 @@ def trekker_tracking(rois_to_track,rois,Min_Degree,Max_Degree,exclusion,csf,FOD_
 	mytrekker=Trekker.initialize(FOD_path)
 
 	# begin looping through LGNs to track
-	nTracts = int(len(rois_to_track) / 2)
-	for Rois in range(nTracts):
-		print("tracking from %s" %rois_to_track[Rois*2])
+	print("tracking from wm to %s" %rois_to_track)
 
-		if Rois != 0:
+	if Rois != 0:
+		mytrekker.resetParameters()
+
+	for Degrees in range(len(Min_Degree)):
+		print("Eccentricity %s to %s" %(str(Min_Degree[Degrees]),str(Max_Degree[Degrees])))
+
+		if Degrees != 0:
 			mytrekker.resetParameters()
 
-		for Degrees in range(len(Min_Degree)):
-			print("Eccentricity %s to %s" %(str(Min_Degree[Degrees]),str(Max_Degree[Degrees])))
+		# set seed image
+		seed = "wm_bin.nii.gz"
 
-			if Degrees != 0:
-				mytrekker.resetParameters()
+		# set termination image
+		if os.path.isfile("%s/ROI%s.Ecc%sto%s.nii.gz" %(rois,rois_to_track,str(Min_Degree[Degrees]),str(Max_Degree[Degrees]))):
+			term = "%s/ROI%s.Ecc%sto%s.nii.gz" %(rois,rois_to_track,str(Min_Degree[Degrees]),str(Max_Degree[Degrees]))
+		else:
+			term = "%s/%s.Ecc%sto%s.nii.gz" %(rois,rois_to_track,str(Min_Degree[Degrees]),str(Max_Degree[Degrees]))
 
-			# set seed image
-			if os.path.isfile("%s/ROI%s.Ecc%sto%s.nii.gz" %(rois,rois_to_track[Rois*2],str(Min_Degree[Degrees]),str(Max_Degree[Degrees]))):
-				seed = "%s/ROI%s.Ecc%sto%s.nii.gz" %(rois,rois_to_track[Rois*2],str(Min_Degree[Degrees]),str(Max_Degree[Degrees]))
+		seed = seed.encode()
+		term = term.encode()
+		mytrekker.seed_image(seed)
+
+		# set exclusion if provided
+		if len(exclusion[:]) != 0:
+
+			# set file paths
+			if os.path.isfile("%s/ROI%s.nii.gz" %(rois,exclusion[Rois])):
+				Exclusion = "%s/ROI%s.nii.gz" %(rois,exclusion[Rois])
 			else:
-				seed = "%s/%s.Ecc%sto%s.nii.gz" %(rois,rois_to_track[Rois*2],str(Min_Degree[Degrees]),str(Max_Degree[Degrees]))
+				Exclusion = "%s/%s.nii.gz" %(rois,exclusion[Rois])
 
-			# set termination image
-			if os.path.isfile("%s/ROI%s.Ecc%sto%s.nii.gz" %(rois,rois_to_track[(Rois*2)+1],str(Min_Degree[Degrees]),str(Max_Degree[Degrees]))):
-				term = "%s/ROI%s.Ecc%sto%s.nii.gz" %(rois,rois_to_track[(Rois*2)+1],str(Min_Degree[Degrees]),str(Max_Degree[Degrees]))
+			Exclusion = Exclusion.encode()
+			mytrekker.pathway_discard_if_enters(Exclusion)
+
+		# set include and exclude definitions
+		mytrekker.pathway_discard_if_enters(csf)
+		mytrekker.pathway_require_entry(term)
+		mytrekker.pathway_stop_at_entry(term)
+
+		# set non loopable parameters
+		# required parameters
+		mytrekker.minLength(min_length)
+		mytrekker.maxLength(max_length)
+		mytrekker.useBestAtInit(best_at_init)
+		mytrekker.seed_count(count)
+
+		# if = default, let trekker pick
+		if probe_radius != 'default':
+			probe_radius = float(probe_radius)
+			mytrekker.probeRadius(probe_radius)
+		if probe_quality != 'default':
+			probe_quality = float(probe_quality)
+			mytrekker.probeQuality(probe_quality)
+		if probe_length != 'default':
+			probe_length = float(probe_length)
+			mytrekker.probeLength(probe_length)
+		if probe_count != 'default':
+			probe_count = float(probe_count)
+			mytrekker.probeCount(probe_count)
+		if seed_max_trials != 'default':
+			seed_max_trials = float(max_sampling)
+			mytrekker.seed_maxTrials(seed_max_trials)
+		if max_sampling != 'default':
+			max_sampling = float(max_sampling)
+			mytrekker.maxSamplingPerStep(max_sampling)
+
+		# resource-specific parameter
+		mytrekker.numberOfThreads(8)
+
+		# begin looping tracking
+		for amps in min_fod_amp:
+			if min_fod_amp != ['default']:
+				print(amps)
+				amps = float(amps)
+				mytrekker.minFODamp(amps)
+
+				if probe_length == 'default':
+					mytrekker.probeLength(amps)
+
 			else:
-				term = "%s/%s.Ecc%sto%s.nii.gz" %(rois,rois_to_track[(Rois*2)+1],str(Min_Degree[Degrees]),str(Max_Degree[Degrees]))
+				amps = 'default'
 
-			seed = seed.encode()
-			term = term.encode()
-			mytrekker.seed_image(seed)
-
-			# set exclusion if provided
-			if len(exclusion[:]) != 0:
-
-				# set file paths
-				if os.path.isfile("%s/ROI%s.nii.gz" %(rois,exclusion[Rois])):
-					Exclusion = "%s/ROI%s.nii.gz" %(rois,exclusion[Rois])
+			for curvs in curvatures:
+				if curvatures != ['default']:
+					print(curvs)
+					curvs = float(curvs)
+					mytrekker.minRadiusOfCurvature(curvs)
 				else:
-					Exclusion = "%s/%s.nii.gz" %(rois,exclusion[Rois])
+					curvs = 'default'
 
-				Exclusion = Exclusion.encode()
-				mytrekker.pathway_A_discard_if_enters(Exclusion)
-				mytrekker.pathway_B_discard_if_enters(Exclusion)
-
-			# set include and exclude definitions
-			mytrekker.pathway_A_discard_if_enters(csf)
-			mytrekker.pathway_B_discard_if_enters(csf)
-			mytrekker.pathway_A_discard_if_exits(seed)
-			mytrekker.pathway_B_require_entry(term)
-			mytrekker.pathway_B_stop_at_entry(term)
-
-			# set non loopable parameters
-			# required parameters
-			mytrekker.minLength(min_length)
-			mytrekker.maxLength(max_length)
-			mytrekker.useBestAtInit(best_at_init)
-			mytrekker.seed_count(count)
-
-			# if = default, let trekker pick
-			if probe_radius != 'default':
-				probe_radius = float(probe_radius)
-				mytrekker.probeRadius(probe_radius)
-			if probe_quality != 'default':
-				probe_quality = float(probe_quality)
-				mytrekker.probeQuality(probe_quality)
-			if probe_length != 'default':
-				probe_length = float(probe_length)
-				mytrekker.probeLength(probe_length)
-			if probe_count != 'default':
-				probe_count = float(probe_count)
-				mytrekker.probeCount(probe_count)
-			if seed_max_trials != 'default':
-				seed_max_trials = float(max_sampling)
-				mytrekker.seed_maxTrials(seed_max_trials)
-			if max_sampling != 'default':
-				max_sampling = float(max_sampling)
-				mytrekker.maxSamplingPerStep(max_sampling)
-
-			# resource-specific parameter
-			mytrekker.numberOfThreads(8)
-
-			# begin looping tracking
-			for amps in min_fod_amp:
-				if min_fod_amp != ['default']:
-					print(amps)
-					amps = float(amps)
-					mytrekker.minFODamp(amps)
-
-					if probe_length == 'default':
-						mytrekker.probeLength(amps)
-
-				else:
-					amps = 'default'
-
-				for curvs in curvatures:
-					if curvatures != ['default']:
-						print(curvs)
-						curvs = float(curvs)
-						mytrekker.minRadiusOfCurvature(curvs)
+				for step in step_size:
+					if step_size != ['default']:
+						print(step)
+						step = float(step)
+						mytrekker.stepSize(step)
 					else:
-						curvs = 'default'
+						step = 'default'
+					
+					mytrekker.printParameters()
+					output_name = 'track_Ecc%sto%s_lmax%s_FOD%s_curv%s_step%s.vtk' %(str(Min_Degree[Degrees]),str(Max_Degree[Degrees]),str(FOD),str(amps),str(curvs),str(step))
 
-					for step in step_size:
-						if step_size != ['default']:
-							print(step)
-							step = float(step)
-							mytrekker.stepSize(step)
-						else:
-							step = 'default'
-						
-						mytrekker.printParameters()
-						output_name = 'track%s_Ecc%sto%s_lmax%s_FOD%s_curv%s_step%s.vtk' %(str(Rois+1),str(Min_Degree[Degrees]),str(Max_Degree[Degrees]),str(FOD),str(amps),str(curvs),str(step))
+					# run the tracking
+					if os.path.isfile(output_name):
+						print("tractogram exists. skipping")
+					else:
+						Streamlines = mytrekker.run()
 
-						# run the tracking
-						if os.path.isfile(output_name):
-							print("tractogram exists. skipping")
-						else:
-							Streamlines = mytrekker.run()
-
-							# print output
-							tractogram = trekkerIO.Tractogram()
-							tractogram.count = len(Streamlines)
-							print(tractogram.count)
-							tractogram.points = Streamlines
-							trekkerIO.write(tractogram,output_name)
+						# print output
+						tractogram = trekkerIO.Tractogram()
+						tractogram.count = len(Streamlines)
+						print(tractogram.count)
+						tractogram.points = Streamlines
+						trekkerIO.write(tractogram,output_name)
 
 	del mytrekker
 
@@ -149,7 +141,7 @@ def tracking():
 		max_lmax = config["lmax"]
 		rois = config["rois"]
 		count = config["count"]
-		roipair = config["roiPair"].split()
+		visualroi = config["visualROI"]
 		min_fod_amp = config["minfodamp"].split()
 		curvatures = config["curvatures"].split()
 		seed_max_trials = config["maxtrials"]
@@ -189,14 +181,14 @@ def tracking():
 		# set FOD path
 		FOD_path = eval('lmax%s' %str(max_lmax)).encode()
 		
-		trekker_tracking(roipair,rois,Min_Degree,Max_Degree,exclusion,csf_path,FOD_path,count,min_fod_amp,curvatures,step_size,min_length,max_length,max_sampling,seed_max_trials,probe_length,probe_quality,probe_radius,probe_count,best_at_init)
+		trekker_tracking(visualroi,rois,Min_Degree,Max_Degree,exclusion,csf_path,FOD_path,count,min_fod_amp,curvatures,step_size,min_length,max_length,max_sampling,seed_max_trials,probe_length,probe_quality,probe_radius,probe_count,best_at_init)
 
 	else:
 
 		for csd in range(2,max_lmax,2):
 			FOD_path = eval('lmax%s' %str(csd+2)).encode()
 			
-			trekker_tracking(roipair,rois,Min_Degree,Max_Degree,exclusion,csf_path,FOD_path,count,min_fod_amp,curvatures,step_size,min_length,max_length,max_sampling,seed_max_trials,probe_length,probe_quality,probe_radius,probe_count,best_at_init)
+			trekker_tracking(visualroi,rois,Min_Degree,Max_Degree,exclusion,csf_path,FOD_path,count,min_fod_amp,curvatures,step_size,min_length,max_length,max_sampling,seed_max_trials,probe_length,probe_quality,probe_radius,probe_count,best_at_init)
 
 
 if __name__ == '__main__':
