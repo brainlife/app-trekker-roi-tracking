@@ -61,6 +61,8 @@ def trekker_tracking(rois_to_track,rois,Min_Degree,Max_Degree,exclusion,csf,FOD_
 			# set include and exclude definitions
 			mytrekker.pathway_A_discard_if_enters(csf)
 			mytrekker.pathway_B_discard_if_enters(csf)
+			mytrekker.pathway_A_require_entry(term)
+			mytrekker.pathway_A_stop_at_entry(term)
 			mytrekker.pathway_B_require_entry(term)
 			mytrekker.pathway_B_stop_at_entry(term)
 
