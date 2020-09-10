@@ -10,7 +10,7 @@ maxDegree=($maxDegree)
 nTracts=` expr ${#pairs[@]} / 2`
 nDegrees=` expr ${#minDegree[@]}`
 
-for i in ${!pairs[@]}; do
+for i in ${!nTracts[@]}; do
 	for DEG in ${!minDegree[@]}; do
 		holder=(track$((i+1))_Ecc${minDegree[$DEG]}to${maxDegree[$DEG]}*.vtk)
 		echo ${holder[*]}
