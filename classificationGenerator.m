@@ -9,7 +9,9 @@ end
 
 % Load configuration file
 config = loadjson('config.json')
-roiPair = strtrim(config.roiPair)
+roiPair = strtrim(config.roiPair);
+Min_Degree = config.min_degree;
+Max_Degree = config.max_degree;
 
 % Set tck file path/s
 disp('merging tcks')
@@ -31,7 +33,9 @@ end
 % Amend name of tract in classification structure
 roiPair = split(roiPair);
 for ii = 1:length(roiPair)/2
-    classification.names{ii} = strcat('ROI_',roiPair{(2*ii) - 1},'_ROI_',roiPair{(2*ii)});
+    for dd = 1:length(Min_Degree)
+        classification.names{ii} = strcat('ROI_',roiPair{(2*ii) - 1},'_ROI_',roiPair{(2*ii)},'_Ecc',str(Min_Degree(dd)),'to',str(Max_Degree(dd)));
+    end
 end
 save('wmc/classification.mat','classification')
 
