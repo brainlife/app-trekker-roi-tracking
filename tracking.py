@@ -6,7 +6,7 @@ import os,sys
 sys.path.append('./')
 import trekkerIO
 
-def trekker_tracking(rois_to_track,rois,Min_Degree,Max_Degree,exclusion,csf,FOD_path,count,min_fod_amp,curvatures,step_size,min_length,max_length,max_sampling,seed_max_trials,probe_length,probe_quality,probe_radius,probe_count,best_at_init):
+def trekker_tracking(rois_to_track,rois,Min_Degree,Max_Degree,exclusion,csf,FOD_path,count,min_fod_amp,curvatures,step_size,min_length,max_length,max_sampling,seed_max_trials,probe_length,probe_quality,probe_radius,probe_count,best_at_init,both_endpoints):
 	
 	# initialize FOD
 	FOD = FOD_path[-9:-7].decode()
@@ -47,17 +47,25 @@ def trekker_tracking(rois_to_track,rois,Min_Degree,Max_Degree,exclusion,csf,FOD_
 				Exclusion = "%s/%s.nii.gz" %(rois,exclusion)
 
 			Exclusion = Exclusion.encode()
-			mytrekker.pathway_A_discard_if_enters(Exclusion)
-			mytrekker.pathway_B_discard_if_enters(Exclusion)
+			if both_endpoints == True:
+				mytrekker.pathway_A_discard_if_enters(Exclusion)
+				mytrekker.pathway_B_discard_if_enters(Exclusion)
+			else:
+				mytrekker.path_discard_if_enters(Exclusion)
 
 
 		# set include and exclude definitions
-		mytrekker.pathway_A_discard_if_enters(csf)
-		mytrekker.pathway_B_discard_if_enters(csf)
-		mytrekker.pathway_A_require_entry(term)
-		mytrekker.pathway_B_require_entry(term)
-		mytrekker.pathway_A_stop_at_entry(term)
-		mytrekker.pathway_B_stop_at_entry(term)
+		if both_endpoints == True:	
+			mytrekker.pathway_A_discard_if_enters(csf)
+			mytrekker.pathway_B_discard_if_enters(csf)
+			mytrekker.pathway_A_require_entry(term)
+			mytrekker.pathway_B_require_entry(term)
+			mytrekker.pathway_A_stop_at_entry(term)
+			mytrekker.pathway_B_stop_at_entry(term)
+		else:
+			mytrekker.pathway_discard_if_enters(csf)
+			mytrekker.pathway_require_entry(term)
+			mytrekker.pathway_B_stop_at_entry(term)
 
 		# set non loopable parameters
 		# required parameters
@@ -168,7 +176,7 @@ def tracking():
 		resliced = config["reslice"]
 		Min_Degree = config["min_degree"].split()
 		Max_Degree = config["max_degree"].split()
-
+		both_endpoints = config["both_endpoints"]
 
 	# set paths to rois if resliced to dwi internally
 	if resliced == True:
@@ -183,14 +191,14 @@ def tracking():
 		# set FOD path
 		FOD_path = eval('lmax%s' %str(max_lmax)).encode()
 		
-		trekker_tracking(visualroi,rois,Min_Degree,Max_Degree,exclusion,csf_path,FOD_path,count,min_fod_amp,curvatures,step_size,min_length,max_length,max_sampling,seed_max_trials,probe_length,probe_quality,probe_radius,probe_count,best_at_init)
+		trekker_tracking(visualroi,rois,Min_Degree,Max_Degree,exclusion,csf_path,FOD_path,count,min_fod_amp,curvatures,step_size,min_length,max_length,max_sampling,seed_max_trials,probe_length,probe_quality,probe_radius,probe_count,best_at_init,both_endpoints)
 
 	else:
 
 		for csd in range(2,max_lmax,2):
 			FOD_path = eval('lmax%s' %str(csd+2)).encode()
 			
-			trekker_tracking(visualroi,rois,Min_Degree,Max_Degree,exclusion,csf_path,FOD_path,count,min_fod_amp,curvatures,step_size,min_length,max_length,max_sampling,seed_max_trials,probe_length,probe_quality,probe_radius,probe_count,best_at_init)
+			trekker_tracking(visualroi,rois,Min_Degree,Max_Degree,exclusion,csf_path,FOD_path,count,min_fod_amp,curvatures,step_size,min_length,max_length,max_sampling,seed_max_trials,probe_length,probe_quality,probe_radius,probe_count,best_at_init,both_endpoints)
 
 
 if __name__ == '__main__':
