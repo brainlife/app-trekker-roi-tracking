@@ -41,10 +41,10 @@ def trekker_tracking(rois_to_track,rois,Min_Degree,Max_Degree,exclusion,csf,FOD_
 		if len(exclusion[:]) != 0:
 
 			# set file paths
-			if os.path.isfile("%s/ROI%s.nii.gz" %(rois,exclusion[Rois])):
-				Exclusion = "%s/ROI%s.nii.gz" %(rois,exclusion[Rois])
+			if os.path.isfile("%s/ROI%s.nii.gz" %(rois,exclusion)):
+				Exclusion = "%s/ROI%s.nii.gz" %(rois,exclusion)
 			else:
-				Exclusion = "%s/%s.nii.gz" %(rois,exclusion[Rois])
+				Exclusion = "%s/%s.nii.gz" %(rois,exclusion)
 
 			Exclusion = Exclusion.encode()
 			mytrekker.pathway_discard_if_enters(Exclusion)
