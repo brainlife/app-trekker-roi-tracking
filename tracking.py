@@ -122,7 +122,7 @@ def trekker_tracking(rois_to_track,rois,Min_Degree,Max_Degree,exclusion,csf,FOD_
 							step = 'default'
 						
 						mytrekker.printParameters()
-						output_name = 'track%s_Ecc%sto%s_lmax%s_FOD%s_curv%s_step%s.vtk' %(str(Rois+1),str(Min_Degree[Degrees]),str(Max_Degree[Degrees]),str(FOD),str(amps),str(curvs),str(step))
+						output_name = 'track_ROI%s_to_ROI%s_Ecc%sto%s_lmax%s_FOD%s_curv%s_step%s.vtk' %(rois_to_track[(Rois*2)],rois_to_track[(Rois*2)+1],str(Min_Degree[Degrees]),str(Max_Degree[Degrees]),str(FOD),str(amps),str(curvs),str(step))
 
 						# run the tracking
 						if os.path.isfile(output_name):

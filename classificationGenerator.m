@@ -31,12 +31,12 @@ if ~exist('wmc/tracts', 'dir')
 end
 
 % Amend name of tract in classification structure
-roiPair = split(roiPair);
-for ii = 1:length(roiPair)/2
-    for dd = 1:length(Min_Degree)
-        classification.names{ii} = strcat('ROI_',roiPair{(2*ii) - 1},'_ROI_',roiPair{(2*ii)},'_Ecc',str(Min_Degree(dd)),'to',str(Max_Degree(dd)));
-    end
-end
+% roiPair = split(roiPair);
+% for ii = 1:length(roiPair)/2
+%     for dd = 1:length(Min_Degree)
+%         classification.names{ii} = strcat('ROI_',roiPair{(2*ii) - 1},'_ROI_',roiPair{(2*ii)},'_Ecc',str(Min_Degree(dd)),'to',str(Max_Degree(dd)));
+%     end
+% end
 save('wmc/classification.mat','classification')
 
 % split up fg again to create tracts.json
