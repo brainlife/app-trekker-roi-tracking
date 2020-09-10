@@ -7,7 +7,7 @@ maxDegree=`jq -r '.max_degree' config.json`
 pairs=($roiPair)
 minDegree=($minDegree)
 maxDegree=($maxDegree)
-nTracts=` expr ${#pairs[@]}`
+nTracts=` expr ${#pairs[@]} / 2`
 nDegrees=` expr ${#minDegree[@]}`
 
 for i in ${!pairs[@]}; do
