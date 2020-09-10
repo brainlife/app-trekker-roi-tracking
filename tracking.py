@@ -47,12 +47,17 @@ def trekker_tracking(rois_to_track,rois,Min_Degree,Max_Degree,exclusion,csf,FOD_
 				Exclusion = "%s/%s.nii.gz" %(rois,exclusion)
 
 			Exclusion = Exclusion.encode()
-			mytrekker.pathway_discard_if_enters(Exclusion)
+			mytrekker.pathway_A_discard_if_enters(Exclusion)
+			mytrekker.pathway_B_discard_if_enters(Exclusion)
+
 
 		# set include and exclude definitions
-		mytrekker.pathway_discard_if_enters(csf)
-		mytrekker.pathway_require_entry(term)
-		mytrekker.pathway_stop_at_entry(term)
+		mytrekker.pathway_A_discard_if_enters(csf)
+		mytrekker.pathway_B_discard_if_enters(csf)
+		mytrekker.pathway_A_require_entry(term)
+		mytrekker.pathway_B_require_entry(term)
+		mytrekker.pathway_A_stop_at_entry(term)
+		mytrekker.pathway_B_stop_at_entry(term)
 
 		# set non loopable parameters
 		# required parameters
