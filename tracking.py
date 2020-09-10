@@ -18,9 +18,6 @@ def trekker_tracking(rois_to_track,rois,Min_Degree,Max_Degree,exclusion,csf,FOD_
 	# begin looping through LGNs to track
 	print("tracking from wm to %s" %rois_to_track)
 
-	if Rois != 0:
-		mytrekker.resetParameters()
-
 	for Degrees in range(len(Min_Degree)):
 		print("Eccentricity %s to %s" %(str(Min_Degree[Degrees]),str(Max_Degree[Degrees])))
 
