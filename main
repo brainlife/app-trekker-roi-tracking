@@ -35,13 +35,10 @@ if [ ! -f dwi.nii.gz ]; then
 	time singularity exec -e docker://brainlife/mrtrix3:3.0.0 ./preprocess.sh
 fi
 
-# this script will move the appropriate freesurfer files and the eccentricity map into diffusion space and will generate the appropriate hemispheric rois for tracking
-check_name="${hemispheres[((${num_hemispheres}-1))]}.Ecc${minDegree[((${num_degs}-1))]}to${maxDegree[((${num_degs}-1))]}.nii.gz"
-
-if [ -z $(find . -maxdepth 1 -name \*"${check_name}"\*) ]; then
-	echo "making hemispheric rois"
+# this script will move the appropriate freesurfer files into diffusion space
+if [[ ! -f ./aparc.a2009s.aseg.nii.gz ]]; then
 	echo $FREESURFER_LICENSE > license.txt
-	time singularity exec -e -B `pwd`/license.txt:/usr/local/freesurfer/license.txt docker://brainlife/connectome_workbench:1.4.2-freesurfer-update ./surface-generator.sh
+	time singularity exec -e -B `pwd`/license.txt:/usr/local/freesurfer/license.txt docker://brainlife/connectome_workbench:1.4.2-freesurfer-update ./generate-aparc.sh
 fi
 
 #this script will generate roi used to force tracking in specific direction
