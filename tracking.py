@@ -107,6 +107,8 @@ def trekker_tracking(rois_to_track,rois,hemispheres,Min_Degree,Max_Degree,exclus
 							v1 = "%s/ROI%s.Ecc%sto%s.nii.gz" %(rois,hemispheres[Rois],Min_Degree[Degrees],Max_Degree[Degrees])
 						else:
 							v1 = "%s/%s.Ecc%sto%s.nii.gz" %(rois,hemispheres[Rois],Min_Degree[Degrees],Max_Degree[Degrees])
+						
+						v1 = v1.encode()
 
 						# set exclusion if provided
 						if len(exclusion[:]) != 0:
@@ -132,7 +134,6 @@ def trekker_tracking(rois_to_track,rois,hemispheres,Min_Degree,Max_Degree,exclus
 						mytrekker.pathway_A_discard_if_enters(thalMedPostSub)
 						# set seed count
 						mytrekker.seed_count(count)
-						mytrekker.verboseLevel(4)					
 
 						mytrekker.printParameters()
 						output_name = 'track%s_hemi%s_Ecc%sto%s_lmax%s_FOD%s_curv%s_step%s.vtk' %(str(Rois+1),hemispheres[Rois],str(Min_Degree[Degrees]),str(Max_Degree[Degrees]),str(FOD),str(amps),str(curvs),str(step))
