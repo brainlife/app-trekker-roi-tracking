@@ -10,7 +10,7 @@ if [ ! -f thalLatPost*.nii.gz ]; then
 	time singularity exec -e docker://brainlife/mcr:neurodebian1604-r2017a ./planeROI/generatePlaneROI
 fi
 
-time singularity exec -e docker://brainlife/trekker:0.6 ./tracking.py
+time singularity exec -e docker://brainlife/trekker:0.6.1 ./tracking.py
 
 if [ ! -f ./track/track.tck ]; then
 	time singularity exec -e docker://brainlife/mrtrix3:3.0.0 ./convert.sh
