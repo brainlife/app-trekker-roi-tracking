@@ -102,7 +102,7 @@ def trekker_tracking(rois_to_track,rois,v2,Min_Degree,Max_Degree,exclusion,csf_p
 						mytrekker.numberOfThreads(8)
 
 						# set termination ROI
-						if os.path.isfile("%s/ROI%s.Ecc%sto%s.nii.gz" %(rois,v1[Rois],Min_Degree[Degrees],Max_Degree[Degrees])):
+						if os.path.isfile("%s/ROI%s.Ecc%sto%s.nii.gz" %(rois,v2[Rois],Min_Degree[Degrees],Max_Degree[Degrees])):
 							term = "%s/ROI%s.Ecc%sto%s.nii.gz" %(rois,v2[Rois],Min_Degree[Degrees],Max_Degree[Degrees])
 						else:
 							term = "%s/%s.Ecc%sto%s.nii.gz" %(rois,v2[Rois],Min_Degree[Degrees],Max_Degree[Degrees])
