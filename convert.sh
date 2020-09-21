@@ -1,6 +1,6 @@
 #!/bin/bash
 
-roiPair=`jq -r '.roiPair' config.json`
+roiPair=`jq -r '.lgn' config.json`
 minDegree=`jq -r '.min_degree' config.json`
 maxDegree=`jq -r '.max_degree' config.json`
 v1=`jq -r '.v1' config.json`
