@@ -30,6 +30,14 @@ def trekker_tracking(rois_to_track,rois,v2,exclusion,csf,FOD_path,count,min_fod_
 
 		seed = seed.encode()
 		mytrekker.seed_image(seed)
+		
+		# full paths to v2
+		if os.path.isfile("%s/ROI%s.nii.gz" %(rois,v2)):
+			term = "%s/ROI%s.nii.gz" %(rois,v2[Rois])
+		else:
+			term = "%s/%s.nii.gz" %(rois,v2[Rois])
+
+		term = v2.encode()
 
 		# set exclusion if provided
 		if exclusion[:] != [""]:
@@ -55,7 +63,7 @@ def trekker_tracking(rois_to_track,rois,v2,exclusion,csf,FOD_path,count,min_fod_
 		mytrekker.pathway_A_stop_at_exit(seed)
 		mytrekker.pathway_B_require_entry(thalLatPost)
 		mytrekker.pathway_B_discard_if_enters(csf)
-		mytrekker.pathway_B_require_entry(v1)
+		mytrekker.pathway_B_require_entry(term)
 		mytrekker.pathway_A_discard_if_enters(thalMedPost)
 		mytrekker.pathway_B_discard_if_enters(thalMedPost)
 		mytrekker.pathway_A_discard_if_enters(thalMedPostSub)
@@ -142,7 +150,7 @@ def tracking():
 		max_lmax = config["lmax"]
 		rois = config["rois"]
 		count = config["count"]
-		roipair = config["roiPair"].split()
+		roipair = config["lgn"].split()
 		min_fod_amp = config["minfodamp"].split()
 		curvatures = config["curvatures"].split()
 		seed_max_trials = config["maxtrials"]
@@ -162,20 +170,12 @@ def tracking():
 		probe_quality = config["probequality"]
 		probe_count = config["probecount"]
 		probe_radius = config["proberadius"]
-		v2 = config["v2"]
+		v2 = config["v2"].split()
 		exclusion = config['exclusion'].split()
 		best_at_init = config["bestAtInit"]
 
 	# paths to preprocessed files
 	csf_path  =  b"csf_bin.nii.gz"
-
-	# full paths to v2
-	if os.path.isfile("%s/ROI%s.nii.gz" %(rois,v2)):
-		v2 = "%s/ROI%s.nii.gz" %(rois,v2)
-	else:
-		v2 = "%s/%s.nii.gz" %(rois,v2)
-
-	v2 = v2.encode()
 
 	# begin tracking
 	if single_lmax == True:
