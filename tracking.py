@@ -158,9 +158,9 @@ def tracking():
 	with open('config.json') as config_f:
 		config = json.load(config_f)
 		max_lmax = config["lmax"]
-		rois = config["lgn"]
+		rois = config["rois"]
 		count = config["count"]
-		roipair = config["roiPair"].split()
+		roipair = config["lgn"].split()
 		min_fod_amp = config["minfodamp"].split()
 		curvatures = config["curvatures"].split()
 		seed_max_trials = config["maxtrials"]
