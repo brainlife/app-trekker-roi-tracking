@@ -10,7 +10,9 @@ if [ ! -f thalLatPost*.nii.gz ]; then
 	time singularity exec -e docker://brainlife/mcr:neurodebian1604-r2017a ./planeROI/generatePlaneROI
 fi
 
+echo "tracking with trekker"
 time singularity exec -e docker://brainlife/trekker:0.6.1 ./tracking.py > failure_logs.txt
+echo "tracking complete"
 
 if [ ! -f ./track/track.tck ]; then
 	time singularity exec -e docker://brainlife/mrtrix3:3.0.0 ./convert.sh
@@ -21,7 +23,7 @@ if [ ! -f ./wmc/classification.mat ]; then
 fi
 
 if [ -f ./wmc/classification.mat ]; then
-	mv *track*.txt track*.tck ./raw/
+	mv *track*.txt track*.tck failure_logs.txt ./raw/
 	echo "complete"
 	exit 0
 else
