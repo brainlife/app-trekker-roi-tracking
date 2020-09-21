@@ -32,7 +32,7 @@ def trekker_tracking(rois_to_track,rois,v2,exclusion,csf,FOD_path,count,min_fod_
 		mytrekker.seed_image(seed)
 		
 		# full paths to v2
-		if os.path.isfile("%s/ROI%s.nii.gz" %(rois,v2)):
+		if os.path.isfile("%s/ROI%s.nii.gz" %(rois,v2[Rois])):
 			term = "%s/ROI%s.nii.gz" %(rois,v2[Rois])
 		else:
 			term = "%s/%s.nii.gz" %(rois,v2[Rois])
