@@ -5,7 +5,7 @@
 # loading a lot of config information purely to better inform if statements on when to run
 minDegree=`jq -r '.min_degree' config.json`
 maxDegree=`jq -r '.max_degree' config.json`
-hemispheres=`jq -r '.hemispheres' config.json`
+v2=`jq -r '.v2' config.json`
 roiPair=`jq -r '.roiPair' config.json`
 stepSize=`jq -r '.stepsize' config.json`
 curv=`jq -r '.curvatures' config.json`
@@ -15,7 +15,7 @@ lmax=`jq -r '.lmax' config.json`
 # these all are strings with the ability to house multiple values, so have to make them loopable
 minDegree=(${minDegree})
 maxDegree=(${maxDegree})
-hemispheres=(${hemispheres})
+v2=(${v2})
 roiPair=(${roiPair})
 stepSize=(${stepSize})
 curv=(${curv})
@@ -25,7 +25,7 @@ lmax=(${lmax})
 # identifying number of each loopable variable
 num_pairs=` expr ${#roiPair[@]}`
 num_degs=` expr ${#minDegree[@]}`
-num_hemispheres=` expr ${#hemispheres[@]}`
+num_v2=` expr ${#v2[@]}`
 num_step=` expr ${#step[@]}`
 num_curv=` expr ${#curv[@]}`
 num_amp=` expr ${#amp[@]}`
@@ -33,15 +33,6 @@ num_lmax=` expr ${#lmax[@]}`
 
 if [ ! -f dwi.nii.gz ]; then
 	time singularity exec -e docker://brainlife/mrtrix3:3.0.0 ./preprocess.sh
-fi
-
-# this script will move the appropriate freesurfer files and the eccentricity map into diffusion space and will generate the appropriate hemispheric rois for tracking
-check_name="${hemispheres[((${num_hemispheres}-1))]}.Ecc${minDegree[((${num_degs}-1))]}to${maxDegree[((${num_degs}-1))]}.nii.gz"
-
-if [ -z $(find . -maxdepth 1 -name \*"${check_name}"\*) ]; then
-	echo "making hemispheric rois"
-	echo $FREESURFER_LICENSE > license.txt
-	time singularity exec -e -B `pwd`/license.txt:/usr/local/freesurfer/license.txt docker://brainlife/connectome_workbench:1.4.2-freesurfer-update ./surface-generator.sh
 fi
 
 #this script will generate roi used to force tracking in specific direction
@@ -52,11 +43,10 @@ if [ -z $(find . -maxdepth 1 -name \*"${check_name}"\*) ]; then
 fi
 
 # this script will track the eccentricity tracks
-check_name="track${num_pairs}_hemi${hemispheres[((${num_hemispheres}-1))]}_Ecc${minDegree[((${num_degs}-1))]}to${maxDegree[((${num_degs}-1))]}_lmax${lmax[((${num_lmax}-1))]}_FOD${amp[((${num_amp}-1))]}_curv${curv[((${num_curv}-1))]}_step${stepSize[((${num_step}-1))]}.vtk"
-
+check_name="track${num_pairs}_ROI${v2[((${num_v2}-1))]}_Ecc${minDegree[((${num_degs}-1))]}to${maxDegree[((${num_degs}-1))]}_lmax${lmax[((${num_lmax}-1))]}_FOD${amp[((${num_amp}-1))]}_curv${curv[((${num_curv}-1))]}_step${stepSize[((${num_step}-1))]}.vtk"
 if [ -z $(find . -maxdepth 1 -name \*"${check_name}"\*) ]; then
 	echo "tracking"
-	time singularity exec -e docker://brainlife/trekker:0.6.1 ./tracking.py
+	time singularity exec -e docker://brainlife/trekker:0.6.1 ./tracking.py > failure_logs.txt
 fi
 
 # this script will convert the vtks from trekker to tcks
@@ -75,6 +65,7 @@ fi
 if [ -f ./wmc/classification.mat ]; then
 	echo "tracking complete"
 	mv ./*.tck *track*.txt ./raw/
+	mv ./failure_logs.txt ./track/
   exit 0
 else
    echo "failed"

@@ -23,7 +23,7 @@ topdir = pwd;
 
 % Load configuration file
 config = loadjson('config.json');
-roiPair = split(config.roiPair);
+roiPair = split(config.lgn);
 rois = config.rois;
 
 % load lgn roi so we can extract thalamus
