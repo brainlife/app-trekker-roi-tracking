@@ -1,6 +1,6 @@
 #!/bin/bash
 
-roiPair=`jq -r '.roiPair' config.json`
+roiPair=`jq -r '.lgn' config.json`
 
 pairs=($roiPair)
 nTracts=` expr ${#pairs[@]}`
