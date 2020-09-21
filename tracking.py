@@ -37,7 +37,7 @@ def trekker_tracking(rois_to_track,rois,v2,exclusion,csf,FOD_path,count,min_fod_
 		else:
 			term = "%s/%s.nii.gz" %(rois,v2[Rois])
 
-		term = v2.encode()
+		term = term.encode()
 
 		# set exclusion if provided
 		if exclusion[:] != [""]:
