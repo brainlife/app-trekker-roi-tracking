@@ -3,25 +3,25 @@
 roiPair=`jq -r '.roiPair' config.json`
 minDegree=`jq -r '.min_degree' config.json`
 maxDegree=`jq -r '.max_degree' config.json`
-hemi=`jq -r '.hemispheres' config.json`
+v1=`jq -r '.v1' config.json`
 
 pairs=($roiPair)
 minDegree=($minDegree)
 maxDegree=($maxDegree)
-hemi=($hemi)
+v1=($v1)
 nTracts=` expr ${#pairs[@]}`
 nDegrees=` expr ${#minDegree[@]}`
 
 for i in ${!pairs[@]}; do
 	for DEG in ${!minDegree[@]}; do
-		holder=(track$((i+1))_hemi${hemi[((i))]}_Ecc${minDegree[$DEG]}to${maxDegree[$DEG]}*.vtk)
+		holder=(track$((i+1))_ROI${v1[((i))]}_Ecc${minDegree[$DEG]}to${maxDegree[$DEG]}*.vtk)
 		echo ${holder[*]}
 
 		for tractograms in ${holder[*]}; do
 			tckconvert ${tractograms} ${tractograms::-4}.tck
 		done
 		
-		tcks=(track$((i+1))_hemi${hemi[$((i))]}_Ecc${minDegree[$DEG]}to${maxDegree[$DEG]}*.tck)
+		tcks=(track$((i+1))_ROI${v1[$((i))]}_Ecc${minDegree[$DEG]}to${maxDegree[$DEG]}*.tck)
 		output=track$((i+1))_Ecc${minDegree[$DEG]}to${maxDegree[$DEG]}.tck
 
 		if [ ${#tcks[@]} == 1 ]; then

@@ -6,7 +6,7 @@ import os,sys
 sys.path.append('./')
 import trekkerIO
 
-def trekker_tracking(rois_to_track,rois,hemispheres,Min_Degree,Max_Degree,exclusion,csf_path,FOD_path,count,min_fod_amp,curvatures,step_size,min_length,max_length,max_sampling,seed_max_trials,probe_length,probe_quality,probe_radius,probe_count,best_at_init):
+def trekker_tracking(rois_to_track,rois,v1,Min_Degree,Max_Degree,exclusion,csf_path,FOD_path,count,min_fod_amp,curvatures,step_size,min_length,max_length,max_sampling,seed_max_trials,probe_length,probe_quality,probe_radius,probe_count,best_at_init):
 	
 	# initialize FOD
 	FOD = FOD_path[-9:-7].decode()
@@ -103,12 +103,12 @@ def trekker_tracking(rois_to_track,rois,hemispheres,Min_Degree,Max_Degree,exclus
 						mytrekker.numberOfThreads(8)
 
 						# set termination ROI
-						if os.path.isfile("%s/ROI%s.Ecc%sto%s.nii.gz" %(rois,hemispheres[Rois],Min_Degree[Degrees],Max_Degree[Degrees])):
-							v1 = "%s/ROI%s.Ecc%sto%s.nii.gz" %(rois,hemispheres[Rois],Min_Degree[Degrees],Max_Degree[Degrees])
+						if os.path.isfile("%s/ROI%s.Ecc%sto%s.nii.gz" %(rois,v1[Rois],Min_Degree[Degrees],Max_Degree[Degrees])):
+							term = "%s/ROI%s.Ecc%sto%s.nii.gz" %(rois,v1[Rois],Min_Degree[Degrees],Max_Degree[Degrees])
 						else:
-							v1 = "%s/%s.Ecc%sto%s.nii.gz" %(rois,hemispheres[Rois],Min_Degree[Degrees],Max_Degree[Degrees])
+							term = "%s/%s.Ecc%sto%s.nii.gz" %(rois,v1[Rois],Min_Degree[Degrees],Max_Degree[Degrees])
 						
-						v1 = v1.encode()
+						term = term.encode()
 
 						# set exclusion if provided
 						if len(exclusion[:]) != 0:
@@ -136,7 +136,7 @@ def trekker_tracking(rois_to_track,rois,hemispheres,Min_Degree,Max_Degree,exclus
 						mytrekker.seed_count(count)
 
 						mytrekker.printParameters()
-						output_name = 'track%s_hemi%s_Ecc%sto%s_lmax%s_FOD%s_curv%s_step%s.vtk' %(str(Rois+1),hemispheres[Rois],str(Min_Degree[Degrees]),str(Max_Degree[Degrees]),str(FOD),str(amps),str(curvs),str(step))
+						output_name = 'track%s_ROI%s_Ecc%sto%s_lmax%s_FOD%s_curv%s_step%s.vtk' %(str(Rois+1),v1[Rois],str(Min_Degree[Degrees]),str(Max_Degree[Degrees]),str(FOD),str(amps),str(curvs),str(step))
 
 						# run the tracking
 						if os.path.isfile(output_name):
@@ -158,7 +158,7 @@ def tracking():
 	with open('config.json') as config_f:
 		config = json.load(config_f)
 		max_lmax = config["lmax"]
-		rois = config["rois"]
+		rois = config["lgn"]
 		count = config["count"]
 		roipair = config["roiPair"].split()
 		min_fod_amp = config["minfodamp"].split()
@@ -184,7 +184,7 @@ def tracking():
 		best_at_init = config["bestAtInit"]
 		Min_Degree = config["min_degree"].split()
 		Max_Degree = config["max_degree"].split()
-		hemispheres = config["hemispheres"].split()
+		v1 = config["v1"].split()
 
 	# paths to preprocessed files
 	csf_path  =  b"csf_bin.nii.gz"
@@ -195,14 +195,14 @@ def tracking():
 		# set FOD path
 		FOD_path = eval('lmax%s' %str(max_lmax)).encode()
 		
-		trekker_tracking(roipair,rois,hemispheres,Min_Degree,Max_Degree,exclusion,csf_path,FOD_path,count,min_fod_amp,curvatures,step_size,min_length,max_length,max_sampling,seed_max_trials,probe_length,probe_quality,probe_radius,probe_count,best_at_init)
+		trekker_tracking(roipair,rois,v1,Min_Degree,Max_Degree,exclusion,csf_path,FOD_path,count,min_fod_amp,curvatures,step_size,min_length,max_length,max_sampling,seed_max_trials,probe_length,probe_quality,probe_radius,probe_count,best_at_init)
 
 	else:
 
 		for csd in range(2,max_lmax,2):
 			FOD_path = eval('lmax%s' %str(csd+2)).encode()
 			
-			trekker_tracking(roipair,rois,hemispheres,Min_Degree,Max_Degree,exclusion,csf_path,FOD_path,count,min_fod_amp,curvatures,step_size,min_length,max_length,max_sampling,seed_max_trials,probe_length,probe_quality,probe_radius,probe_count,best_at_init)
+			trekker_tracking(roipair,rois,v1,Min_Degree,Max_Degree,exclusion,csf_path,FOD_path,count,min_fod_amp,curvatures,step_size,min_length,max_length,max_sampling,seed_max_trials,probe_length,probe_quality,probe_radius,probe_count,best_at_init)
 
 
 if __name__ == '__main__':
