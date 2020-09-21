@@ -23,7 +23,8 @@ if [ ! -f ./wmc/classification.mat ]; then
 fi
 
 if [ -f ./wmc/classification.mat ]; then
-	mv *track*.txt track*.tck failure_logs.txt ./raw/
+	mv *track*.txt track*.tck ./raw/
+	mv ./failure_logs.txt ./track/
 	echo "complete"
 	exit 0
 else
