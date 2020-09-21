@@ -9,7 +9,7 @@ end
 
 % Load configuration file
 config = loadjson('config.json')
-roiPair = strtrim(config.roiPair)
+%roiPair = strtrim(config.roiPair)
 
 % Set tck file path/s
 disp('merging tcks')
@@ -28,10 +28,10 @@ if ~exist('wmc/tracts', 'dir')
 end
 
 % Amend name of tract in classification structure
-roiPair = split(roiPair);
-for ii = 1:length(roiPair)
-    classification.names{ii} = strcat('ROI_',roiPair{ii},'_ROI_v1');
-end
+%roiPair = split(roiPair);
+%for ii = 1:length(roiPair)
+%    classification.names{ii} = strcat('ROI_',roiPair{ii},'_ROI_v1');
+%end
 save('wmc/classification.mat','classification')
 
 % split up fg again to create tracts.json
