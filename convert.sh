@@ -6,7 +6,7 @@ pairs=($roiPair)
 range=` expr ${#pairs[@]}`
 nTracts=` expr ${range} / 2` 
 
-for i in ${!nTracts[@]}; do
+for (( i=0; i<${nTracts}; i++ )); do
 	holder=(*track$((i+1))*)
 
 	for tractograms in ${holder[*]}; do
