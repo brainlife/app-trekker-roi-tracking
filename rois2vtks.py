@@ -13,7 +13,7 @@ if not os.path.exists("wmc/surfaces"):
 with open('config.json','r') as config_f:
     config = json.load(config_f)
 
-if config['reslice'] == 'true':
+if config['reslice'] == True:
 	rois = './resliced_rois'
 else
 	rois = config['rois']
