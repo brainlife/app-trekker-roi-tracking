@@ -7,8 +7,8 @@ import json
 import pandas as pd
 import numpy as np
 
-if not os.path.exists("classification/surfaces"):
-   os.makedirs("classification/surfaces")
+if not os.path.exists("wmc/surfaces"):
+   os.makedirs("wmc/surfaces")
 
 with open('config.json','r') as config_f:
     config = json.load(config_f)
@@ -99,7 +99,7 @@ for rs in range(len(roiNames)):
     writer.Write()
 
 print("writing surfaces/index.json")
-with open("classification/surfaces/index.json", "w") as outfile:
+with open("wmc/surfaces/index.json", "w") as outfile:
     json.dump(index, outfile)
 
 print("all done")
