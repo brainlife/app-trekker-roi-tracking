@@ -13,7 +13,10 @@ if not os.path.exists("wmc/surfaces"):
 with open('config.json','r') as config_f:
     config = json.load(config_f)
 
-rois = config['rois']
+if config['reslice'] == 'true':
+	rois = './resliced_rois'
+else
+	rois = config['rois']
 roiNames = os.listdir(rois)
 
 labels = {}
