@@ -95,7 +95,7 @@ for rs in range(len(roiNames)):
 
     writer = vtk.vtkPolyDataWriter()
     writer.SetInputConnection(deci.GetOutputPort())
-    writer.SetFileName("classification/surfaces/"+surf_name)
+    writer.SetFileName("wmc/surfaces/"+surf_name)
     writer.Write()
 
 print("writing surfaces/index.json")
