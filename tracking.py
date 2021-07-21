@@ -40,7 +40,7 @@ def trekker_tracking(rois_to_track,rois,v1,exclusion,csf,FOD_path,count,min_fod_
 		term = term.encode()
 
 		# set exclusion if provided
-		if not exclusion[:]:
+		if exclusion[:]:
 
 			# set file paths
 			if os.path.isfile("%s/ROI%s.nii.gz" %(rois,exclusion[Rois])):
