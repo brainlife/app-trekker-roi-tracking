@@ -15,7 +15,7 @@ with open('config.json','r') as config_f:
 
 if config['reslice'] == True:
 	rois = './resliced_rois'
-else
+else:
 	rois = config['rois']
 roiNames = os.listdir(rois)
 
