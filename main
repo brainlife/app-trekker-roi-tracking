@@ -1,47 +1,42 @@
 #!/bin/bash
-#PBS -l nodes=1:ppn=8,vmem=30gb,walltime=8:00:00
-#PBS -N app-trekker-roi-tracking
+#PBS -l nodes=1:ppn=4,vmem=16gb,walltime=8:00:00
+#PBS -N app-add-roi-surface-vis
 
+set -ex
 
-[ -z "$FREESURFER_LICENSE" ] && echo "Please set FREESURFER_LICENSE in .bashrc" && exit 1;
-echo $FREESURFER_LICENSE > license.txt
+# grab wmc inputs
+classification=`jq -r '.classification' config.json`
+tracts=`jq -r '.classification' config.json`
+surfaces=`jq -r '.surfaces' config.json`
 
-dtiinit=`jq -r '.dtiinit' config.json`
-if [[ ${dtiinit} == "null" ]]; then
-        DIFF=`jq -r '.dwi' config.json`
-        BVALS=`jq -r '.bvals' config.json`
-        BVECS=`jq -r '.bvecs' config.json`
+# make output dir
+[ ! -d ./wmc ] && mkdir -p ./wmc
+
+# copy classification.mat
+[ ! -f ./wmc/classification.mat ] && cp -v ${classification} ./wmc/classification.mat
+
+# copy tracts jsons if there
+if [ -d ${tracts} ]; then
+	cp -R ${tracts} ./wmc/tracts
+fi
+
+# copy surface jsons if there. these will be added to by the rois2vtks.py function
+if [ -d ${surfaces} ]; then
+	cp -R ${surfaces} ./wmc/surfaces
 else
-        BVALS=$dtiinit/dwi_aligned*.bvals
-        BVECS=$dtiinit/dwi_aligned*.bvecs
-        DIFF=$dtiinit/dwi_aligned*.nii.gz
-fi
-#echo "reslicing rois"
-time singularity exec -e -B `pwd`/license.txt:/usr/local/freesurfer/license.txt docker://brainlife/freesurfer-mini:6.0.1 ./resliceROI.sh $DIFF
-
-if [ ! -f csf_bin.nii.gz ]; then
-	time singularity exec -e docker://brainlife/mrtrix3:3.0.0 ./preprocess.sh
+	mkdir -p ./wmc/surfaces
 fi
 
-time singularity exec -e docker://brainlife/trekker:0.6.1 ./tracking.py
-
-if [ ! -f ./track/track.tck ]; then
-	time singularity exec -e docker://brainlife/mrtrix3:3.0.0 ./convert.sh
-fi
-
-if [ ! -f ./wmc/classification.mat ]; then
-	time singularity exec -e docker://brainlife/mcr:neurodebian1604-r2017a ./compiled/classificationGenerator
-fi
-
+# generate surface ROIS for datatype viewer
 if [ ! -f ./wmc/surfaces/index.json ]; then
 	time singularity exec -e docker://brainlife/pythonvtk:1.1 ./rois2vtks.py
 fi
 
-if [ -f ./wmc/classification.mat ]; then
-	mv *track*.txt track*.tck ./raw/
+# output check. if not empty, good. if empty, bad
+if [ ! -z "$(ls -A ./wmc/surfaces)" ]; then
 	echo "complete"
 	exit 0
 else
-	echo "tracking failed"
+	echo "something failed."
 	exit 1
 fi
