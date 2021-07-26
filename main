@@ -6,7 +6,7 @@ set -ex
 
 # grab wmc inputs
 classification=`jq -r '.classification' config.json`
-tracts=`jq -r '.classification' config.json`
+tracts=`jq -r '.tracts' config.json`
 surfaces=`jq -r '.surfaces' config.json`
 
 # make output dir
