@@ -55,6 +55,7 @@ def trekker_tracking(rois_to_track,rois,exclusion,csf,FOD_path,count,min_fod_amp
 		mytrekker.pathway_discard_if_enters(csf)
 		mytrekker.pathway_require_entry(term)
 		mytrekker.pathway_stop_at_entry(term)
+		mytrekker.pathway_B_discard_if_exits(seed)
 
 		# set non loopable parameters
 		# required parameters
