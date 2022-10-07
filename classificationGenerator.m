@@ -9,14 +9,25 @@ end
 
 % Load configuration file
 config = loadjson('config.json')
-roiPair = strtrim(config.roiPair)
+roiPair = strtrim(config.roiPair);
+roiPair = split(roiPair);
 
 % Set tck file path/s
 disp('merging tcks')
 tcks=dir('track*.tck')
-for ii = 1:length(tcks); 
-    fgPath{ii} = tcks(ii).name;
+for ii = 1:length(tcks);
+    tmp = fgRead(tcks(ii).name);
+    if length(tmp.fibers) > 0
+        fgPath{ii} = tcks(ii).name;
+    else
+        pairsToRemove = [(2*ii)-1,(2*ii)];
+        for j = 1:length(pairsToRemove)
+            roiPair{pairsToRemove(j)} = []
+        end
+        roiPair = roiPair(~cellfun('isempty',roiPair));
+    end
 end
+fgPath = fgPath(~cellfun('isempty',fgPath));
 disp(fgPath)
 [mergedFG, classification]=bsc_mergeFGandClass(fgPath);
 %fgWrite(mergedFG, 'track/track.tck', 'tck');
@@ -29,7 +40,7 @@ if ~exist('wmc/tracts', 'dir')
 end
 
 % Amend name of tract in classification structure
-roiPair = split(roiPair);
+%roiPair = split(roiPair);
 for ii = 1:length(roiPair)/2
     classification.names{ii} = strcat('ROI_',roiPair{(2*ii) - 1},'_ROI_',roiPair{(2*ii)});
 end
