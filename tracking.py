@@ -13,8 +13,8 @@ def trekker_tracking(rois_to_track,rois,exclusion,csf,FOD_path,count,min_fod_amp
 	if FOD[0] == 'x':
 		FOD =  FOD_path[-8:-7].decode()
 
-	#mytrekker=Trekker.initialize(FOD_path,discretization=False)
-	mytrekker=Trekker.initialize(FOD_path,arg1=b"XYZ",arg2=False,arg3=None,arg4=None)
+	mytrekker=Trekker.initialize(FOD_path,discretization=False)
+	#mytrekker=Trekker.initialize(FOD_path,arg1=b"XYZ",arg2=False,arg3=None,arg4=None)
 
 	# begin looping through LGNs to track
 	nTracts = int(len(rois_to_track) / 2)
@@ -57,7 +57,7 @@ def trekker_tracking(rois_to_track,rois,exclusion,csf,FOD_path,count,min_fod_amp
 		mytrekker.pathway_require_exit(seed)
 		mytrekker.pathway_require_entry(term)
 		mytrekker.pathway_stop_at_entry(term)
-		#mytrekker.pathway_B_discard_if_exits(seed)
+		mytrekker.pathway_B_discard_if_exits(seed)
 
 		# set non loopable parameters
 		# required parameters
