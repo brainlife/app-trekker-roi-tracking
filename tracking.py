@@ -15,6 +15,8 @@ def trekker_tracking(rois_to_track,rois,exclusion,csf,FOD_path,count,min_fod_amp
 
 	#mytrekker=Trekker.initialize(FOD_path,discretization=False)
 	mytrekker=Trekker.initialize(FOD_path,arg1=b"XYZ",arg2=False,arg3=None,arg4=None)
+	
+	mytrekker.directionality(b"one_sided")
 
 	# begin looping through LGNs to track
 	nTracts = int(len(rois_to_track) / 2)
