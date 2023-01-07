@@ -10,11 +10,18 @@ for (( i=0; i<${nTracts}; i++ )); do
 	holder=(*track$((i+1))*)
 
 	for tractograms in ${holder[*]}; do
-		tckconvert ${tractograms} ${tractograms::-4}.tck
+		tckconvert ${tractograms} ${tractograms::-4}.tck -force
 	done
 	
-	tcks=(*track$((i+1))*.tck)
-	output=track$((i+1)).tck
+	if [[ $((i+1)) -lt 10 ]]; then
+		tcks=(*track00$((i+1))*.tck)
+		output=track00$((i+1)).tck
+
+	else
+		tcks=(*track0$((i+1))*.tck)
+		output=track0$((i+1)).tck
+	fi
+
 
 	if [ ${#tcks[@]} == 1 ]; then
 		mv ${tcks[0]} ${output}
@@ -25,8 +32,9 @@ for (( i=0; i<${nTracts}; i++ )); do
 	tckinfo $output > track$((i+1))_info.txt
 done
 
-if [ -f track1.tck ]; then
-	mv *.mif *.vtk *.b* *.nii.gz ./raw/
+if [ -f track001.tck ]; then
+	# mv *.mif *.vtk *.b* *.nii.gz ./raw/
+	# mv *.mif *.b* *.nii.gz ./raw/
 	holder=(track*.tck)
 	if [ ${#holder[@]} == 1 ]; then
         cp -v ${holder[0]} ./track/track.tck

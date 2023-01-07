@@ -3,10 +3,27 @@
 import Trekker
 import json
 import os,sys
+import numpy as np
+from dipy.io.streamline import save_tck
+from dipy.io.stateful_tractogram import Space, StatefulTractogram
 sys.path.append('./')
-import trekkerIO
+# import trekkerIO
 
-def trekker_tracking(rois_to_track,rois,exclusion,csf,FOD_path,count,min_fod_amp,curvatures,step_size,min_length,max_length,max_sampling,seed_max_trials,probe_length,probe_quality,probe_radius,probe_count,best_at_init):
+def save_tractogram(streamlines,reference,output_name):
+
+	tractogram_streamlines = []
+
+	for i in range(len(streamlines)):
+		tractogram_streamlines.append(np.transpose(np.array(streamlines[i])))
+
+	tractogram_streamlines_array = np.array(tractogram_streamlines)
+
+	tractogram = StatefulTractogram(tractogram_streamlines_array,reference=reference,space=Space.RASMM)
+
+	save_tck(tractogram,output_name,bbox_valid_check=True)
+
+
+def trekker_tracking(dwi,rois_to_track,rois,exclusion,csf,FOD_path,count,min_fod_amp,curvatures,step_size,min_length,max_length,max_sampling,seed_max_trials,probe_length,probe_quality,probe_radius,probe_count,best_at_init):
 	
 	# initialize FOD
 	FOD = FOD_path[-9:-7].decode()
@@ -121,17 +138,25 @@ def trekker_tracking(rois_to_track,rois,exclusion,csf,FOD_path,count,min_fod_amp
 						step = 'default'
 					
 					mytrekker.printParameters()
-					output_name = 'track%s_lmax%s_FOD%s_curv%s_step%s.vtk' %(str(Rois+1),str(FOD),str(amps),str(curvs),str(step))
-
+					# output_name = 'track%s_lmax%s_FOD%s_curv%s_step%s.vtk' %(str(Rois+1),str(FOD),str(amps),str(curvs),str(step))
+					
+					if Rois+1 < 10:
+						output_name = 'track00%s_lmax%s_FOD%s_curv%s_step%s.tck' %(str(Rois+1),str(FOD),str(amps),str(curvs),str(step))
+					else:
+						output_name = 'track0%s_lmax%s_FOD%s_curv%s_step%s.tck' %(str(Rois+1),str(FOD),str(amps),str(curvs),str(step))
+		
 					# run the tracking
 					Streamlines = mytrekker.run()
 
+					# save the output
+					save_tractogram(Streamlines,dwi,output_name)
+
 					# print output
-					tractogram = trekkerIO.Tractogram()
-					tractogram.count = len(Streamlines)
-					print(tractogram.count)
-					tractogram.points = Streamlines
-					trekkerIO.write(tractogram,output_name)
+					# tractogram = trekkerIO.Tractogram()
+					# tractogram.count = len(Streamlines)
+					# print(tractogram.count)
+					# tractogram.points = Streamlines
+					# trekkerIO.write(tractogram,output_name)
 
 	del mytrekker
 
@@ -154,6 +179,7 @@ def tracking():
 		lmax10 = config["lmax10"]
 		lmax12 = config["lmax12"]
 		lmax14 = config["lmax14"]
+		dwi = config["dwi"]
 		single_lmax = config["single_lmax"]
 		step_size = config["stepsize"].split()
 		min_length = config["min_length"]
@@ -179,14 +205,14 @@ def tracking():
 		# set FOD path
 		FOD_path = eval('lmax%s' %str(max_lmax)).encode()
 		
-		trekker_tracking(roipair,rois,exclusion,csf_path,FOD_path,count,min_fod_amp,curvatures,step_size,min_length,max_length,max_sampling,seed_max_trials,probe_length,probe_quality,probe_radius,probe_count,best_at_init)
+		trekker_tracking(dwi,roipair,rois,exclusion,csf_path,FOD_path,count,min_fod_amp,curvatures,step_size,min_length,max_length,max_sampling,seed_max_trials,probe_length,probe_quality,probe_radius,probe_count,best_at_init)
 
 	else:
 
 		for csd in range(2,max_lmax,2):
 			FOD_path = eval('lmax%s' %str(csd+2)).encode()
 			
-			trekker_tracking(roipair,rois,exclusion,csf_path,FOD_path,count,min_fod_amp,curvatures,step_size,min_length,max_length,max_sampling,seed_max_trials,probe_length,probe_quality,probe_radius,probe_count,best_at_init)
+			trekker_tracking(dwi,roipair,rois,exclusion,csf_path,FOD_path,count,min_fod_amp,curvatures,step_size,min_length,max_length,max_sampling,seed_max_trials,probe_length,probe_quality,probe_radius,probe_count,best_at_init)
 
 
 if __name__ == '__main__':
