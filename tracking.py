@@ -21,10 +21,10 @@ def trekker_tracking(rois_to_track,rois,exclusion,csf,FOD_path,count,min_fod_amp
 	for Rois in range(nTracts):
 		print("tracking from %s" %rois_to_track[Rois*2])
 		
-		mytrekker.directionality(b"one_sided")
-
 		if Rois != 0:
 			mytrekker.resetParameters()
+		
+		mytrekker.directionality(b"one_sided")
 
 		# set seed image
 		if os.path.isfile("%s/ROI%s.nii.gz" %(rois,rois_to_track[Rois*2])):
