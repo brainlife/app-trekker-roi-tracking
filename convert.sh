@@ -34,7 +34,7 @@ done
 
 if [ -f track001.tck ]; then
 	# mv *.mif *.vtk *.b* *.nii.gz ./raw/
-	# mv *.mif *.b* *.nii.gz ./raw/
+	mv *.mif *.b* *.nii.gz ./raw/
 	holder=(track*.tck)
 	if [ ${#holder[@]} == 1 ]; then
         cp -v ${holder[0]} ./track/track.tck
