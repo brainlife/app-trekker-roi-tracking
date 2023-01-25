@@ -14,7 +14,6 @@ def trekker_tracking(rois_to_track,rois,exclusion,csf,FOD_path,count,min_fod_amp
 		FOD =  FOD_path[-8:-7].decode()
 
 	mytrekker=Trekker.initialize(FOD_path)
-	#mytrekker=Trekker.initialize(FOD_path,arg1=b"XYZ",arg2=False,arg3=None,arg4=None)
 
 	# begin looping through LGNs to track
 	nTracts = int(len(rois_to_track) / 2)
@@ -181,7 +180,7 @@ def tracking():
 
 	else:
 
-		for csd in range(2,max_lmax,2):
+		for csd in range(0,max_lmax,2):
 			FOD_path = eval('lmax%s' %str(csd+2)).encode()
 			
 			trekker_tracking(roipair,rois,exclusion,csf_path,FOD_path,count,min_fod_amp,curvatures,step_size,min_length,max_length,max_sampling,seed_max_trials,probe_length,probe_quality,probe_radius,probe_count,best_at_init)
