@@ -1,5 +1,26 @@
 # app-trekker-roi-tracking
 
+<!-- brainlife-app:begin (generated from the App manifest; edit the manifest, not this block) -->
+
+**Utility that converts each ROI volume into a VTK surface mesh and adds it to a white matter classification so the ROIs display in the brainlife WMC viewer.**
+
+Copies the input classification and tract files, converts every NIfTI ROI in the rois input into a surface mesh with VTK and writes the meshes and an index.json into the wmc surfaces directory. Use it after an ROI tracking App to visualise the ROIs alongside the tracts. Visualisation only; it does not change the classification.
+
+Run it on brainlife.io: [https://doi.org/10.25663/brainlife.app.550](https://doi.org/10.25663/brainlife.app.550)
+
+| Input | Datatype | Required | Description |
+|---|---|---|---|
+| `wmc` | `neuro/wmc` | yes | White matter classification (classification.mat, tract JSONs and any existing surfaces) to add ROI surfaces to. |
+| `rois` | `neuro/rois` | yes | Directory of ROI NIfTI volumes to convert into surface meshes. |
+
+| Output | Datatype | Description |
+|---|---|---|
+| `wmc` | `neuro/wmc` | The input classification with ROI surface meshes and surfaces/index.json added. |
+
+Runtime: container `brainlife/pythonvtk:1.1`; 4 CPUs; 16 GB memory; 8 h walltime.
+
+<!-- brainlife-app:end -->
+
 Trekker implements a state-of-the-art tractography algorithm, parallel transport tractography (PTT). This repo wraps Baran Ayodogan's Trekker github repo so that it can be executed on brainlife.io. All credits for this App belongs to Baran Ayodogan <baran.aydogan@aalto.fi>
 
 # How does it work?
