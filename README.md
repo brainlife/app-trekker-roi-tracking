@@ -10,9 +10,9 @@
   <a href="https://github.com/brainlife/app-trekker-roi-tracking/blob/master/LICENSE"><img src="https://img.shields.io/badge/License-MIT-lightgrey.svg" alt="MIT license"></a>
 </p>
 
-> 📍 **This branch, `tmp-add-rois`, is the brainlife.io App Generate surface visualizations of ROIs for WMC Datatype Viewer** ([doi:10.25663/brainlife.app.550](https://doi.org/10.25663/brainlife.app.550)). The other Apps in this repository are listed under **Versions on brainlife.io** below.
+> **This branch, `tmp-add-rois`, is the brainlife.io App Generate surface visualizations of ROIs for WMC Datatype Viewer** ([doi:10.25663/brainlife.app.550](https://doi.org/10.25663/brainlife.app.550)). The other Apps in this repository are listed under **Versions on brainlife.io** below.
 
-## 🧠 At a glance
+## At a glance
 
 <!-- brainlife-app:begin (generated from the App manifest; edit the manifest, not this block) -->
 
@@ -22,20 +22,20 @@ Copies the input classification and tract files, converts every NIfTI ROI in the
 
 | | |
 |---|---|
-| 📥 **Inputs** | `neuro/wmc` · `neuro/rois` |
-| 📤 **Outputs** | `neuro/wmc` |
-| 🐳 **Container** | `brainlife/pythonvtk:1.1` |
-| ⚙️ **Resources** | 4 CPUs · 16 GB memory · 8 h walltime |
-| 🔗 **Run it** | [doi.org/10.25663/brainlife.app.550](https://doi.org/10.25663/brainlife.app.550) |
+| **Inputs** | `neuro/wmc` · `neuro/rois` |
+| **Outputs** | `neuro/wmc` |
+| **Container** | `brainlife/pythonvtk:1.1` |
+| **Resources** | 4 CPUs · 16 GB memory · 8 h walltime |
+| **Run it** | [doi.org/10.25663/brainlife.app.550](https://doi.org/10.25663/brainlife.app.550) |
 
-#### 📥 Inputs
+#### Inputs
 
 | Input | Datatype | Required | Description |
 |---|---|---|---|
 | `wmc` | `neuro/wmc` | yes | White matter classification (classification.mat, tract JSONs and any existing surfaces) to add ROI surfaces to. |
 | `rois` | `neuro/rois` | yes | Directory of ROI NIfTI volumes to convert into surface meshes. |
 
-#### 📤 Outputs
+#### Outputs
 
 | Output | Datatype | Description |
 |---|---|---|
@@ -43,7 +43,7 @@ Copies the input classification and tract files, converts every NIfTI ROI in the
 
 <!-- brainlife-app:end -->
 
-## 🔬 How it works
+## How it works
 
 [Trekker](https://dmritrekker.github.io) implements parallel transport tractography (PTT), a fibre tracking algorithm based on parallel transport frames (Aydogan and Shi, 2019). This repository wraps Baran Aydogan's Trekker so that it can be run on brainlife.io; all credit for the tracking algorithm belongs to him.
 
@@ -54,7 +54,7 @@ The tracking Apps run Trekker on the constrained spherical deconvolution (CSD) F
 3. Several FOD amplitudes (`minfodamp`), curvatures (`curvatures`) and step sizes (`stepsize`) can be listed to ensemble track; with `single_lmax` off, tracking also runs over every even lmax up to `lmax`. Left at `default`, Trekker chooses these values itself.
 4. The streamlines are merged into one `.tck` and a white matter classification (compiled MATLAB), with surface meshes of the ROIs for the brainlife.io viewer.
 
-## 🏷️ Versions on brainlife.io
+## Versions on brainlife.io
 
 Each App is built from its own branch of this repository.
 
@@ -84,15 +84,15 @@ What the current Apps do:
 - **THOTRA**: tracks the optic tract from the optic chiasm to the LGN.
 - **Generate surface visualizations of ROIs** (`tmp-add-rois`): a utility that converts each ROI volume into a VTK surface mesh and adds it to an existing white matter classification, so the ROIs are shown in the brainlife.io WMC viewer. It does no tracking.
 
-## 🚀 Running the App
+## Running the App
 
-### ☁️ On brainlife.io
+### On brainlife.io
 
 Open the App that matches your question from the table above. The tracking Apps take a preprocessed `neuro/dwi` dataset, its CSD FODs (`neuro/csd`, `lmax2` to `lmax14`), a `neuro/rois` dataset and a 5-tissue-type mask (`neuro/mask`, tag `5tt_masks`) of the same subject, plus an optional brain mask. ROIs are referred to by name: `lh.lgn` for `rois/ROIlh.lgn.nii.gz` or `rois/lh.lgn.nii.gz` (leave out the `ROI` prefix). Press **Execute**: the App writes a tractogram (`neuro/track/tck`), a classification (`neuro/wmc`), the brain mask it used (`neuro/mask`) and, for most Apps, a `raw` dataset with intermediate files.
 
 The ROI visualisation App ([doi:10.25663/brainlife.app.550](https://doi.org/10.25663/brainlife.app.550)) takes a `neuro/wmc` and a `neuro/rois` dataset and writes the classification back with the ROI surfaces added (tag `surface_rois`).
 
-### 💻 Locally
+### Locally
 
 You need [Singularity/Apptainer](https://apptainer.org/), [`jq`](https://jqlang.github.io/jq/) and, for the ROI and eccentricity tracking Apps, a [FreeSurfer license](https://surfer.nmr.mgh.harvard.edu/registration.html). `main` runs the steps in the `brainlife/trekker:0.6.1`, `brainlife/mrtrix3:3.0.0`, `brainlife/fsl:5.0.11`, `brainlife/freesurfer-mini:6.0.1`, `brainlife/mcr:neurodebian1604-r2017a` and `brainlife/pythonvtk:1.1` containers, so MATLAB is not needed.
 
@@ -136,7 +136,7 @@ You need [Singularity/Apptainer](https://apptainer.org/), [`jq`](https://jqlang.
    ./main
    ```
 
-## 📦 Outputs
+## Outputs
 
 ```text
 track/
@@ -148,13 +148,13 @@ wmc/
 raw/                       per-pathway tractograms and track lists
 ```
 
-## 🩺 Troubleshooting
+## Troubleshooting
 
 - **`tracking failed`**: no `classification.mat` was produced, usually because no streamlines were found. Check the ROI names, the exclusion ROIs and the tracking parameters, and look at the log.
 - **`Please set FREESURFER_LICENSE in .bashrc`**: export your FreeSurfer license as `FREESURFER_LICENSE`.
 - **`something failed.`** (ROI visualisation App): no ROI surfaces were written. Check the `rois` input.
 
-## 📚 Citing
+## Citing
 
 > [!TIP]
 > If you use this App in your work, please cite the App, the software it builds on and brainlife.io (below). GitHub's **Cite this repository** button gives the App citation in APA and BibTeX.
@@ -170,14 +170,14 @@ raw/                       per-pathway tractograms and track lists
 - Hayashi S, Caron BA, Heinsfeld AS, et al. brainlife.io: a decentralized and open-source cloud platform to support neuroscience research. *Nature Methods* 21:809–813 (2024). [doi:10.1038/s41592-024-02237-2](https://doi.org/10.1038/s41592-024-02237-2)
 - Avesani P, McPherson B, Hayashi S, et al. The open diffusion data derivatives, brain data upcycling via integrated publishing of derivatives and reproducible open cloud services. *Scientific Data* 6:69 (2019). [doi:10.1038/s41597-019-0073-y](https://doi.org/10.1038/s41597-019-0073-y)
 
-## 👥 Authors
+## Authors
 
 - Baran Aydogan (author of Trekker)
 - Brad Caron
 
 **Contributors:** Soichi Hayashi, Franco Pestilli
 
-## 💰 Funding
+## Funding
 
 [![Wellcome-226486/Z/22/Z](https://img.shields.io/badge/Wellcome-226486%2FZ%2F22%2FZ-purple.svg)](https://wellcome.org/)
 [![NIH-NINDS-U24NS140384](https://img.shields.io/badge/NIH_NINDS-U24NS140384-green.svg)](https://reporter.nih.gov/project-details/11261037)
@@ -196,6 +196,6 @@ raw/                       per-pathway tractograms and track lists
 
 <sub>brainlife.io is publicly funded, and acknowledging that support helps keep it running. This App was developed with support from Wellcome, the U.S. National Institutes of Health (including the BRAIN Initiative BRAIN CONNECTS program: The Axonal Projectome EXchange, U24NS140384, and the Center for Mesoscale Connectomics, UM1NS132207) and the U.S. National Science Foundation.</sub>
 
-## ⚖️ License
+## License
 
 [MIT](https://github.com/brainlife/app-trekker-roi-tracking/blob/master/LICENSE). Trekker is distributed under its own [license](https://dmritrekker.github.io).
